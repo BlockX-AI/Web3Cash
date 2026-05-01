@@ -349,3 +349,18 @@ model IdempotencyKey {
   @@index([createdAt])
   @@map("idempotency_keys")
 }
+
+// Stores short-lived OAuth state + PKCE code_verifier for the redirect dance.
+// Deleted on callback (single-use). TTL ~10 min.
+model OauthState {
+  state         String         @id @db.VarChar(64)
+  platform      SocialPlatform
+  userWallet    String         @map("user_wallet") @db.VarChar(42)
+  codeVerifier  String         @map("code_verifier") @db.VarChar(128)
+  returnTo      String?        @map("return_to")
+  expiresAt     DateTime       @map("expires_at")
+  createdAt     DateTime       @default(now()) @map("created_at")
+
+  @@index([expiresAt])
+  @@map("oauth_states")
+}

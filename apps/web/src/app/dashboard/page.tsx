@@ -2,6 +2,8 @@ import { verifySession } from '@web3cash/auth';
 import { prisma } from '@web3cash/db';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { QuestFeed } from '@/components/quest-feed';
+import { TwitterLinkButton } from '@/components/twitter-link-button';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -15,11 +17,16 @@ export default async function DashboardPage() {
 
   const user = await prisma.user.findUnique({
     where: { walletAddress: claims.sub },
+    include: {
+      socialIdentities: { select: { platform: true, platformHandle: true } },
+    },
   });
   if (!user) redirect('/');
 
+  const twitter = user.socialIdentities.find((s) => s.platform === 'TWITTER');
+
   return (
-    <main className="mx-auto max-w-3xl px-6 py-16">
+    <main className="mx-auto max-w-4xl px-6 py-16">
       <p className="font-mono text-xs uppercase tracking-widest text-neutral-500">
         Web3Cash · Dashboard
       </p>
@@ -36,11 +43,24 @@ export default async function DashboardPage() {
         <Stat label="Tier" value={user.tier} />
       </div>
 
-      <p className="mt-10 text-sm text-neutral-500">
-        Phase 2 will add the quest feed here. Phase 3 will add the live USDC balance & withdrawal flow.
-      </p>
+      <section className="mt-12">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold">Connected accounts</h2>
+          <TwitterLinkButton linkedHandle={twitter?.platformHandle ?? null} />
+        </div>
+      </section>
 
-      <form action="/api/auth/logout" method="POST" className="mt-8">
+      <section className="mt-12">
+        <h2 className="text-xl font-semibold">Quests</h2>
+        <p className="mt-1 text-sm text-neutral-500">
+          Complete quests to earn USDC. Social rewards clear after a 72-hour hold.
+        </p>
+        <div className="mt-6">
+          <QuestFeed />
+        </div>
+      </section>
+
+      <form action="/api/auth/logout" method="POST" className="mt-12">
         <button className="text-xs text-neutral-400 underline" type="submit">
           Sign out
         </button>

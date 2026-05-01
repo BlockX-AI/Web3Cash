@@ -31,14 +31,16 @@ async function main() {
       name: 'Demo Campaign — Twitter follow',
       budgetUsdc: '500.000000',
       spentUsdc: '0',
-      status: 'FUNDED',
+      status: 'ACTIVE',
       chainId: 1,
     },
   });
 
   await prisma.quest.upsert({
     where: { id: '00000000-0000-0000-0000-000000000002' },
-    update: {},
+    update: {
+      requirements: { targetHandle: 'web3cash' },
+    },
     create: {
       id: '00000000-0000-0000-0000-000000000002',
       campaignId: campaign.id,
@@ -48,7 +50,7 @@ async function main() {
       rewardUsdc: '1.000000',
       maxCompletions: 500,
       minSybilScore: 0, // permissive for local dev
-      requirements: { twitterHandle: 'web3cash', targetUserId: '0' },
+      requirements: { targetHandle: 'web3cash' },
     },
   });
 

@@ -7,6 +7,8 @@ const nextConfig = {
     '@web3cash/db',
     '@web3cash/auth',
     '@web3cash/sybil',
+    '@web3cash/oauth',
+    '@web3cash/verifiers',
   ],
   experimental: {
     // Prisma + Next 14 — keep the Prisma client out of the edge runtime bundle.

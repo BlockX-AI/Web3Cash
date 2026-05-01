@@ -34,3 +34,13 @@ export const SESSION_TTL_SECONDS = 7 * 24 * 60 * 60;
 
 /** Max quest completions per wallet per hour (velocity limit). */
 export const MAX_COMPLETIONS_PER_HOUR = 5;
+
+/** OAuth state TTL in seconds (PKCE redirect dance must finish in this window). */
+export const OAUTH_STATE_TTL_SECONDS = 10 * 60;
+
+/** Queue names (single source of truth). */
+export const QUEUE_NAMES = {
+  COMPUTE_SYBIL_SCORE: 'compute-sybil-score',
+  RECHECK_QUEST: 'recheck-quest',
+  RELEASE_COMPLETION: 'release-completion',
+} as const;

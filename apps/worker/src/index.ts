@@ -1,9 +1,10 @@
 import { logger } from './lib/logger.js';
 import { startComputeSybilScoreWorker } from './jobs/compute-sybil-score.js';
+import { startRecheckQuestWorker } from './jobs/recheck-quest.js';
 
 logger.info('🚀 Web3Cash worker starting...');
 
-const workers = [startComputeSybilScoreWorker()];
+const workers = [startComputeSybilScoreWorker(), startRecheckQuestWorker()];
 
 logger.info({ workers: workers.length }, '✅ workers running');
 
