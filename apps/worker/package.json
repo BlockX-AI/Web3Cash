@@ -1,0 +1,26 @@
+{
+  "name": "@web3cash/worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "echo 'lint: ok'"
+  },
+  "dependencies": {
+    "@web3cash/db": "workspace:*",
+    "@web3cash/shared": "workspace:*",
+    "@web3cash/sybil": "workspace:*",
+    "bullmq": "^5.20.0",
+    "ioredis": "^5.4.1",
+    "pino": "^9.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "tsx": "^4.19.1",
+    "typescript": "^5.5.4"
+  }
+}

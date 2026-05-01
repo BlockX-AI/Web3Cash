@@ -1,0 +1,351 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// Web3Cash — Prisma Schema (Phase 1)
+//
+// Design principles (do not change without an ADR):
+//   1. The DB is a CACHE of the chain. Every state-changing on-chain action
+//      has a corresponding row with a tx_hash column.
+//   2. Wallet addresses are always lowercase (we normalize on write).
+//   3. Money is stored as Decimal(18,6) — never Float.
+//   4. All forward-compat columns (registry_tx_hash, escrow_address,
+//      payout_provider, chain_id, level, etc.) exist from Phase 1, nullable,
+//      so future phases never require a destructive migration.
+//   5. Append-only audit tables (verification_events, admin_reviews,
+//      payout_events) — no UPDATE/DELETE in app code.
+// ─────────────────────────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Enums ───────────────────────────────────────────────────────────────────
+
+enum SocialPlatform {
+  TWITTER
+  DISCORD
+  GITHUB
+  TELEGRAM
+}
+
+enum KycStatus {
+  NONE
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum UserTier {
+  FREE
+  SPARK
+  PRO
+  ELITE
+}
+
+enum ProjectStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum CampaignStatus {
+  DRAFT
+  FUNDED
+  ACTIVE
+  PAUSED
+  ENDED
+  REFUNDED
+}
+
+enum QuestType {
+  TWITTER_FOLLOW
+  DISCORD_JOIN
+  GITHUB_STAR
+  ON_CHAIN_DEPOSIT
+  INSTALL
+  VISIT
+  VIDEO
+}
+
+enum CompletionStatus {
+  PENDING
+  VERIFIED
+  HOLDING
+  FAILED
+  CANCELLED
+  PAID
+}
+
+enum PayoutProvider {
+  GNOSIS_SAFE
+  CIRCLE_API
+  ESCROW_CONTRACT
+}
+
+enum PayoutStatus {
+  QUEUED
+  SUBMITTED
+  CONFIRMED
+  FAILED
+}
+
+enum AdminTargetType {
+  PROJECT
+  COMPLETION
+  PAYOUT
+  USER
+  CAMPAIGN
+}
+
+// ── Core identity ──────────────────────────────────────────────────────────
+
+model User {
+  walletAddress      String     @id @map("wallet_address") @db.VarChar(42)
+  chainId            Int        @default(1) @map("chain_id")
+  sybilScore         Int        @default(0) @map("sybil_score")
+  sybilComputedAt    DateTime?  @map("sybil_computed_at")
+  kycStatus          KycStatus  @default(NONE) @map("kyc_status")
+  tier               UserTier   @default(FREE)
+  referralCode       String     @unique @map("referral_code") @db.VarChar(12)
+  referredByWallet   String?    @map("referred_by_wallet") @db.VarChar(42)
+  pendingBalanceUsdc Decimal    @default(0) @map("pending_balance_usdc") @db.Decimal(18, 6)
+  totalEarnedUsdc    Decimal    @default(0) @map("total_earned_usdc") @db.Decimal(18, 6)
+  email              String?    @db.VarChar(255)
+  telegramChatId     String?    @map("telegram_chat_id")
+  createdAt          DateTime   @default(now()) @map("created_at")
+  updatedAt          DateTime   @updatedAt @map("updated_at")
+
+  socialIdentities    SocialIdentity[]
+  questCompletions    QuestCompletion[]
+  payouts             Payout[]
+  referralsAsReferrer Referral[]        @relation("Referrer")
+  referralsAsReferee  Referral[]        @relation("Referee")
+
+  @@index([referredByWallet])
+  @@map("users")
+}
+
+model SocialIdentity {
+  id              String         @id @default(uuid()) @db.Uuid
+  userWallet      String         @map("user_wallet") @db.VarChar(42)
+  platform        SocialPlatform
+  platformId      String         @map("platform_id") @db.VarChar(255)
+  platformHandle  String?        @map("platform_handle") @db.VarChar(255)
+  accessToken     String?        @map("access_token") // AES-256 encrypted at rest (Phase 2)
+  refreshToken    String?        @map("refresh_token")
+  tokenExpiresAt  DateTime?      @map("token_expires_at")
+  // Phase 6 — written when the wallet ↔ social binding is committed to Web3CashRegistry.sol
+  onChainBound    Boolean        @default(false) @map("on_chain_bound")
+  registryTxHash  String?        @map("registry_tx_hash") @db.VarChar(66)
+  createdAt       DateTime       @default(now()) @map("created_at")
+
+  user User @relation(fields: [userWallet], references: [walletAddress], onDelete: Cascade)
+
+  @@unique([platform, platformId], name: "platform_id_unique")
+  @@unique([userWallet, platform], name: "one_account_per_platform_per_wallet")
+  @@index([userWallet])
+  @@map("social_identities")
+}
+
+// ── Projects, Campaigns, Quests ────────────────────────────────────────────
+
+model Project {
+  id                String        @id @default(uuid()) @db.Uuid
+  name              String        @db.VarChar(255)
+  walletAddress     String        @unique @map("wallet_address") @db.VarChar(42)
+  website           String?
+  twitterHandle     String?       @map("twitter_handle")
+  status            ProjectStatus @default(PENDING)
+  kycStatus         KycStatus     @default(NONE) @map("kyc_status")
+  verifiedBadge     Boolean       @default(false) @map("verified_badge")
+  totalSpentUsdc    Decimal       @default(0) @map("total_spent_usdc") @db.Decimal(18, 6)
+  contactEmail      String?       @map("contact_email")
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
+
+  campaigns Campaign[]
+
+  @@map("projects")
+}
+
+model Campaign {
+  id              String         @id @default(uuid()) @db.Uuid
+  projectId       String         @map("project_id") @db.Uuid
+  name            String         @db.VarChar(255)
+  budgetUsdc      Decimal        @map("budget_usdc") @db.Decimal(18, 6)
+  spentUsdc       Decimal        @default(0) @map("spent_usdc") @db.Decimal(18, 6)
+  status          CampaignStatus @default(DRAFT)
+  chainId         Int            @default(1) @map("chain_id")
+  // Phase 1: Gnosis Safe address. Phase 6: replaced by Web3CashEscrow contract address.
+  escrowAddress   String?        @map("escrow_address") @db.VarChar(42)
+  escrowTxHash   String?        @map("escrow_tx_hash") @db.VarChar(66)
+  startsAt        DateTime?      @map("starts_at")
+  endsAt          DateTime?      @map("ends_at")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  quests  Quest[]
+
+  @@index([projectId])
+  @@index([status])
+  @@map("campaigns")
+}
+
+model Quest {
+  id                 String    @id @default(uuid()) @db.Uuid
+  campaignId         String    @map("campaign_id") @db.Uuid
+  type               QuestType
+  title              String    @db.VarChar(255)
+  description        String?
+  rewardUsdc         Decimal   @map("reward_usdc") @db.Decimal(18, 6)
+  maxCompletions     Int       @map("max_completions")
+  completionsCount   Int       @default(0) @map("completions_count")
+  minSybilScore      Int       @default(40) @map("min_sybil_score")
+  // Quest-specific JSON config (e.g. { "twitterHandle": "ProjectX", "twitterId": "12345" })
+  requirements       Json
+  active             Boolean   @default(true)
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+
+  campaign    Campaign          @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  completions QuestCompletion[]
+
+  @@index([campaignId])
+  @@index([type, active])
+  @@map("quests")
+}
+
+// ── Quest completions (the heart of the system) ────────────────────────────
+
+model QuestCompletion {
+  id               String           @id @default(uuid()) @db.Uuid
+  questId          String           @map("quest_id") @db.Uuid
+  userWallet       String           @map("user_wallet") @db.VarChar(42)
+  status           CompletionStatus @default(PENDING)
+  rewardUsdc       Decimal          @map("reward_usdc") @db.Decimal(18, 6)
+  // For on-chain quests: the tx the user submitted as evidence. UNIQUE prevents replay.
+  evidenceTxHash   String?          @unique @map("evidence_tx_hash") @db.VarChar(66)
+  evidencePayload  Json?            @map("evidence_payload")
+  fraudFlags       Json             @default("[]") @map("fraud_flags")
+  failureReason    String?          @map("failure_reason")
+  verifiedAt       DateTime?        @map("verified_at")
+  releaseAt        DateTime?        @map("release_at") // computed = verifiedAt + hold window
+  paidAt           DateTime?        @map("paid_at")
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @updatedAt @map("updated_at")
+
+  quest  Quest    @relation(fields: [questId], references: [id], onDelete: Cascade)
+  user   User     @relation(fields: [userWallet], references: [walletAddress], onDelete: Cascade)
+  payout Payout?
+
+  @@unique([questId, userWallet], name: "no_duplicate_claim")
+  @@index([userWallet])
+  @@index([status])
+  @@index([releaseAt])
+  @@map("quest_completions")
+}
+
+// ── Payouts ────────────────────────────────────────────────────────────────
+
+model Payout {
+  id              String         @id @default(uuid()) @db.Uuid
+  completionId    String         @unique @map("completion_id") @db.Uuid
+  userWallet      String         @map("user_wallet") @db.VarChar(42)
+  amountUsdc      Decimal        @map("amount_usdc") @db.Decimal(18, 6)
+  provider        PayoutProvider @default(GNOSIS_SAFE)
+  status          PayoutStatus   @default(QUEUED)
+  chainId         Int            @default(1) @map("chain_id")
+  txHash          String?        @map("tx_hash") @db.VarChar(66)
+  // EIP-712 nonce, written when Phase 6 EscrowContractProvider is in use.
+  nonce           BigInt?
+  failureReason   String?        @map("failure_reason")
+  submittedAt     DateTime?      @map("submitted_at")
+  confirmedAt     DateTime?      @map("confirmed_at")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+
+  user       User            @relation(fields: [userWallet], references: [walletAddress])
+  completion QuestCompletion @relation(fields: [completionId], references: [id], onDelete: Cascade)
+
+  @@index([userWallet])
+  @@index([status])
+  @@map("payouts")
+}
+
+// ── Referrals ──────────────────────────────────────────────────────────────
+
+model Referral {
+  id              String   @id @default(uuid()) @db.Uuid
+  referrerWallet  String   @map("referrer_wallet") @db.VarChar(42)
+  refereeWallet   String   @unique @map("referee_wallet") @db.VarChar(42)
+  // Phase 1: always 1 (L1). Phase 7: also 2 (L2).
+  level           Int      @default(1)
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  referrer User @relation("Referrer", fields: [referrerWallet], references: [walletAddress])
+  referee  User @relation("Referee", fields: [refereeWallet], references: [walletAddress])
+
+  @@index([referrerWallet])
+  @@map("referrals")
+}
+
+// ── Append-only audit tables ───────────────────────────────────────────────
+
+model VerificationEvent {
+  id            String   @id @default(uuid()) @db.Uuid
+  completionId  String?  @map("completion_id") @db.Uuid
+  userWallet    String?  @map("user_wallet") @db.VarChar(42)
+  workerName    String   @map("worker_name") @db.VarChar(64)
+  outcome       String   @db.VarChar(32) // PASS | FAIL | ERROR
+  latencyMs     Int      @map("latency_ms")
+  payload       Json
+  errorMessage  String?  @map("error_message")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@index([completionId])
+  @@index([userWallet])
+  @@index([createdAt])
+  @@map("verification_events")
+}
+
+model AdminReview {
+  id          String          @id @default(uuid()) @db.Uuid
+  adminWallet String          @map("admin_wallet") @db.VarChar(42)
+  targetType  AdminTargetType @map("target_type")
+  targetId    String          @map("target_id")
+  decision    String          @db.VarChar(32)
+  rationale   String          // NOT NULL — admins must justify
+  createdAt   DateTime        @default(now()) @map("created_at")
+
+  @@index([targetType, targetId])
+  @@index([adminWallet])
+  @@map("admin_reviews")
+}
+
+// ── Auth / infra tables ────────────────────────────────────────────────────
+
+model SiweNonce {
+  nonce         String   @id @db.VarChar(64)
+  walletAddress String?  @map("wallet_address") @db.VarChar(42)
+  expiresAt     DateTime @map("expires_at")
+  consumed      Boolean  @default(false)
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@index([expiresAt])
+  @@map("siwe_nonces")
+}
+
+model IdempotencyKey {
+  key          String   @id @db.VarChar(128)
+  endpoint     String   @db.VarChar(128)
+  responseHash String?  @map("response_hash")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@map("idempotency_keys")
+}

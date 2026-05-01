@@ -1,0 +1,36 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: web3cash-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: web3cash
+      POSTGRES_PASSWORD: web3cash
+      POSTGRES_DB: web3cash
+    ports:
+      - "5432:5432"
+    volumes:
+      - web3cash_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U web3cash -d web3cash"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: web3cash-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - web3cash_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  web3cash_pg_data:
+  web3cash_redis_data:
