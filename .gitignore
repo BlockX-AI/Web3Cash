@@ -43,11 +43,3 @@ coverage/
 
 # Vercel
 .vercel
-
-# Legacy spec files (keep locally, do not push)
-growstreams-web3cash-comparisn.html
-growstream-web3cash-extension.html
-web3cash-git-repos.html
-web3cash-mvp.html
-web3cash-plan.html
-web3cash-tracking-fraud.html
