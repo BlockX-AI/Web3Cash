@@ -2,7 +2,7 @@
 
 Real money rewards for real on-chain actions. Verified Web3 cashback platform.
 
-> **Status**: Phase 1 — Foundation (auth, DB, sybil scoring). See `web3cash-mvp.html` and `web3cash-plan.html` for the full product spec.
+Web3Cash lets Web3 projects pay users in USDC for completing verified on-chain and social actions. Quests include following on Twitter, joining Discord, starring on GitHub, and on-chain deposits. All payouts are verified before release, with built-in anti-fraud mechanisms including Sybil scoring, 72-hour hold windows, and append-only audit logs.
 
 ---
 
@@ -17,12 +17,12 @@ web3cash/
 │   ├── shared/     Zod schemas, money helpers, constants, types
 │   ├── db/         Prisma schema + client (single source of truth)
 │   ├── auth/       SIWE (EIP-4361) + JWT session
-│   └── sybil/      Sybil scoring with pluggable adapters (Alchemy now, Passport/Moralis later)
+│   └── sybil/      Sybil scoring with pluggable adapters (Alchemy, Passport, etc.)
 ├── infra/          docker-compose.yml (local Postgres + Redis)
 └── .github/        CI workflows
 ```
 
-**Why a port/adapter pattern?** Phase 6 swaps Gnosis Safe → smart contract escrow with zero changes to anything outside `packages/payouts`. Phase 7 adds chains by adding RPC URLs only.
+The codebase uses a port/adapter pattern to make integrations swappable without touching core logic — escrow providers (Gnosis Safe → smart contracts), chain adapters (Ethereum → Base/Polygon/Arbitrum), and Sybil signal sources can be added by implementing interfaces.
 
 ## Stack
 
@@ -31,8 +31,8 @@ web3cash/
 - **Backend**: Next.js API routes (sync) + standalone Node worker (async)
 - **DB**: PostgreSQL via Prisma (Railway in prod, local docker in dev)
 - **Queue**: BullMQ on Redis (Upstash in prod, local docker in dev)
-- **Chain**: Ethereum mainnet (Phase 6+); Alchemy for reads
-- **Auth**: SIWE → JWT in HTTP-only cookie
+- **Chain**: Ethereum mainnet; Alchemy for on-chain reads
+- **Auth**: SIWE (EIP-4361) → JWT in HTTP-only cookie
 
 ## Local development
 
@@ -74,26 +74,16 @@ pnpm dev:worker
 
 Open http://localhost:3000, click **Connect Wallet**, sign the SIWE message, and you'll land at `/dashboard`.
 
-## Phase 1 — Done When
+## Features
 
-- [x] Wallet connect via RainbowKit (MetaMask + WalletConnect)
-- [x] SIWE (EIP-4361) sign-in with single-use server-issued nonce
-- [x] HTTP-only JWT session cookie
-- [x] User row created on first login with auto-generated referral code
-- [x] Referral code captured at landing-page edge (cookie set in middleware) — survives OAuth in Phase 2
-- [x] Sybil scoring (2 signals: wallet age + tx count via Alchemy)
-- [x] Forward-compat DB schema: every Phase 6/7 column already exists nullable
-- [x] Append-only `verification_events` and `admin_reviews` tables
-- [x] CI: typecheck + build green
-
-## Phase 2+ — Coming next
-
-- **Phase 2 (Quest Loop)**: Twitter OAuth + verifier, BullMQ 72h delayed re-check, atomic budget exhaustion check
-- **Phase 3 (Payouts + Referrals)**: Gnosis Safe 2-of-3 batch payouts, L1 referral payouts, Telegram + email
-- **Phase 4 (Public MVP)**: Quest feed, USDC dashboard, mobile, 3 paying projects
-- **Phase 5 (Hardening)**: Persona KYC, Discord verifier, on-chain quest verifier, 8-signal Sybil
-- **Phase 6 (Smart Contracts)**: `Web3CashEscrow.sol` + `Web3CashRegistry.sol` with EIP-712 release, audit
-- **Phase 7 (Multi-chain + Auto)**: Base + Polygon + Arbitrum, Circle USDC API, L2 referral, off-ramp
+- **Wallet Connect**: MetaMask + WalletConnect via RainbowKit
+- **SIWE Auth**: EIP-4361 sign-in with single-use server-issued nonces
+- **JWT Sessions**: HTTP-only session cookies with 7-day TTL
+- **Referral System**: Auto-generated referral codes, captured at landing page and persisted through OAuth flows
+- **Sybil Scoring**: Wallet age and transaction count analysis via Alchemy to filter low-quality accounts
+- **Quest Verification**: Social quest verifiers (Twitter, Discord, GitHub) with 72-hour hold windows to prevent unfollow fraud
+- **Payouts**: Batch USDC payouts via Gnosis Safe with append-only audit logs
+- **Multi-chain Support**: Extensible architecture for Ethereum, Base, Polygon, and Arbitrum
 
 ## Deployment
 
@@ -111,12 +101,13 @@ pnpm db:migrate     # Create + apply a new migration
 pnpm infra:logs     # Follow docker-compose logs
 ```
 
-## Security notes (Phase 1)
+## Security notes
 
 - All wallet addresses stored lowercase. UNIQUE constraints assume normalized input.
 - SIWE messages MUST match `SIWE_DOMAIN`. Mismatch = phishing-relay attempt → reject.
-- Nonces single-use (atomic `updateMany`); 5-minute TTL.
+- Nonces are single-use (atomic `updateMany`) with 5-minute TTL.
 - JWT secret must be ≥32 chars (enforced at boot).
-- `JWT_SECRET` rotation = forces all sessions to re-sign in. No revocation list in Phase 1.
-- Tokens for OAuth (Phase 2) will be AES-256 encrypted at rest before storage.
+- `JWT_SECRET` rotation forces all sessions to re-sign in.
+- OAuth tokens are AES-256 encrypted at rest before storage.
+- All verification events are logged to an append-only audit table for forensic analysis.
 
