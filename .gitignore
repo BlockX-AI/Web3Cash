@@ -50,3 +50,6 @@ packages/contracts/cache/
 packages/contracts/typechain-types/
 packages/contracts/coverage/
 packages/contracts/coverage.json
+
+# Local planning/docs HTML files
+*.html
