@@ -15,7 +15,7 @@ const nextConfig = {
     // Prisma + Next 14 — keep the Prisma client out of the edge runtime bundle.
     serverComponentsExternalPackages: ['@prisma/client', 'prisma'],
   },
-  webpack: (config) => {
+  webpack: (config, { isServer }) => {
     // RainbowKit / wagmi rely on WalletConnect which is ESM-only.
     config.externals.push('pino-pretty', 'lokijs', 'encoding');
     // Workspace packages use ESM-style `.js` extensions that point at `.ts` sources.
@@ -25,6 +25,14 @@ const nextConfig = {
       '.js': ['.ts', '.tsx', '.js', '.jsx'],
       '.jsx': ['.tsx', '.jsx'],
     };
+    // MetaMask SDK tries to import React Native modules in browser — ignore them.
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        '@react-native-async-storage/async-storage': false,
+        'react-native': false,
+      };
+    }
     return config;
   },
 };

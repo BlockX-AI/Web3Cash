@@ -26,6 +26,11 @@ interface CampaignSeed {
   id: string;
   name: string;
   budgetUsdc: string;
+  pricingModel?: 'CPA' | 'CPI' | 'CPC' | 'CPL' | 'CPM';
+  impressions?: number;
+  clicks?: number;
+  installs?: number;
+  leads?: number;
   chainId: number;
   quests: QuestSeed[];
 }
@@ -53,6 +58,9 @@ const SEEDS: ProjectSeed[] = [
         id: '00000000-0000-0000-0000-000000000001',
         name: 'Launch — Social proof',
         budgetUsdc: '500.000000',
+        pricingModel: 'CPA',
+        impressions: 1250,
+        clicks: 320,
         chainId: SEPOLIA,
         quests: [
           {
@@ -80,6 +88,9 @@ const SEEDS: ProjectSeed[] = [
         id: '00000000-0000-0000-0000-0000000000a1',
         name: 'Awareness Q3',
         budgetUsdc: '250.000000',
+        pricingModel: 'CPC',
+        impressions: 5400,
+        clicks: 890,
         chainId: SEPOLIA,
         quests: [
           {
@@ -117,6 +128,10 @@ const SEEDS: ProjectSeed[] = [
         id: '00000000-0000-0000-0000-0000000000b1',
         name: 'Validator onboarding',
         budgetUsdc: '1000.000000',
+        pricingModel: 'CPL',
+        impressions: 2100,
+        clicks: 420,
+        leads: 85,
         chainId: SEPOLIA,
         quests: [
           {

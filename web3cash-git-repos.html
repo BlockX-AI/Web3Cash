@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web3Cash — GitHub Repos to Build It</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:#0a0a0a;color:#fff;line-height:1.6;min-height:100vh;}
+
+/* NAV */
+nav{background:#0f0f0f;border-bottom:1px solid #1a1a1a;padding:0 32px;height:50px;display:flex;align-items:center;gap:0;position:sticky;top:0;z-index:100;overflow-x:auto;}
+.nav-logo{font-family:'DM Mono',monospace;font-size:12px;color:#555;letter-spacing:0.1em;margin-right:28px;white-space:nowrap;flex-shrink:0;}
+.nav-link{font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:0.1em;text-transform:uppercase;color:#444;padding:0 14px;height:50px;display:flex;align-items:center;cursor:pointer;white-space:nowrap;transition:color 0.15s;}
+.nav-link:hover{color:#888;}
+
+/* HERO */
+.hero{padding:72px 40px 52px;max-width:1100px;margin:0 auto;}
+.hero-eyebrow{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:#333;margin-bottom:16px;}
+.hero h1{font-size:clamp(32px,5vw,58px);font-weight:300;line-height:1.05;letter-spacing:-0.03em;margin-bottom:14px;}
+.hero h1 strong{font-weight:600;color:#fff;}
+.hero h1 span{color:#2a2a2a;}
+.hero-sub{font-size:14px;color:#444;max-width:520px;line-height:1.8;}
+.hero-stats{display:flex;gap:32px;margin-top:36px;flex-wrap:wrap;}
+.stat{display:flex;flex-direction:column;gap:3px;}
+.stat-val{font-family:'DM Mono',monospace;font-size:22px;color:#fff;font-weight:500;}
+.stat-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:#333;}
+
+/* SECTION */
+.section{padding:0 40px 72px;max-width:1100px;margin:0 auto;}
+.section-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:#333;margin-bottom:14px;padding-top:52px;border-top:1px solid #141414;}
+
+/* ARCH MAP */
+.arch{display:grid;grid-template-columns:1fr 80px 1fr 80px 1fr;gap:0;margin:24px 0;align-items:start;}
+.arch-col{display:flex;flex-direction:column;gap:2px;}
+.arch-arrow{display:flex;align-items:center;justify-content:center;padding-top:40px;color:#222;font-size:20px;}
+.arch-header{background:#141414;border:1px solid #1e1e1e;padding:12px 16px;margin-bottom:2px;}
+.arch-header-label{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.18em;text-transform:uppercase;color:#444;}
+.arch-header-title{font-size:14px;font-weight:600;margin-top:3px;}
+.arch-item{background:#0f0f0f;border:1px solid #161616;border-top:none;padding:10px 16px;font-size:12px;color:#777;display:flex;flex-direction:column;gap:2px;}
+.arch-item:hover{background:#111;color:#ccc;}
+.arch-item-repo{font-family:'DM Mono',monospace;font-size:10px;color:#3a3a3a;}
+
+/* REPO GRID */
+.repo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#141414;margin-top:24px;}
+.repo-card{background:#0a0a0a;padding:22px 20px;display:flex;flex-direction:column;gap:0;position:relative;transition:background 0.15s;}
+.repo-card:hover{background:#0e0e0e;}
+.repo-priority{position:absolute;top:12px;right:12px;font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.14em;text-transform:uppercase;padding:2px 7px;border-radius:2px;}
+.p-now{background:#0a2a0a;color:#2a8a2a;border:1px solid #1a4a1a;}
+.p-soon{background:#2a2000;color:#8a6a00;border:1px solid #4a3a00;}
+.p-later{background:#1a1a2a;color:#4a4a8a;border:1px solid #2a2a4a;}
+.repo-tag{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:#2a2a2a;margin-bottom:10px;}
+.repo-name{font-size:13px;font-weight:600;margin-bottom:4px;color:#fff;font-family:'DM Mono',monospace;}
+.repo-desc{font-size:12px;color:#555;line-height:1.6;margin-bottom:12px;flex:1;}
+.repo-meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.repo-stars{font-family:'DM Mono',monospace;font-size:10px;color:#333;}
+.repo-stars span{color:#555;}
+.repo-stack{display:flex;gap:5px;flex-wrap:wrap;}
+.stack-tag{font-family:'DM Mono',monospace;font-size:9px;padding:2px 6px;background:#111;color:#333;border:1px solid #1a1a1a;border-radius:2px;}
+.repo-url{font-family:'DM Mono',monospace;font-size:10px;color:#2a4a2a;margin-top:8px;word-break:break-all;}
+
+/* FEATURE MAP */
+.feature-map{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#141414;margin-top:24px;}
+.feature-row{background:#0a0a0a;padding:20px;}
+.feature-title{font-size:13px;font-weight:600;margin-bottom:14px;padding-bottom:9px;border-bottom:1px solid #141414;display:flex;align-items:center;gap:8px;}
+.feature-icon{font-size:16px;}
+.feature-items{display:flex;flex-direction:column;gap:6px;}
+.fi{display:flex;align-items:flex-start;gap:10px;font-size:12px;color:#555;line-height:1.5;}
+.fi-repo{font-family:'DM Mono',monospace;font-size:10px;color:#2a3a2a;flex-shrink:0;margin-top:1px;}
+.fi-desc{color:#555;}
+
+/* SHORTLIST */
+.shortlist{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#141414;margin-top:24px;}
+.short-card{background:#0a0a0a;padding:24px;}
+.short-num{font-family:'DM Mono',monospace;font-size:28px;color:#151515;margin-bottom:8px;font-weight:600;}
+.short-repo{font-family:'DM Mono',monospace;font-size:11px;color:#3a6a3a;margin-bottom:6px;}
+.short-title{font-size:14px;font-weight:600;margin-bottom:8px;}
+.short-why{font-size:12px;color:#555;line-height:1.6;}
+.short-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:12px;}
+.short-tag{font-family:'DM Mono',monospace;font-size:9px;padding:2px 7px;background:#111;color:#333;border:1px solid #1a1a1a;}
+
+/* CALLOUT */
+.callout{background:#0f1a0f;border:1px solid #1a2a1a;padding:24px 28px;margin:24px 0;}
+.callout-label{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.18em;text-transform:uppercase;color:#2a4a2a;margin-bottom:8px;}
+.callout-text{font-size:13px;color:#666;line-height:1.7;}
+.callout-text strong{color:#888;}
+
+/* TABLE */
+.map-table{width:100%;border-collapse:collapse;margin-top:20px;font-size:12px;}
+.map-table th{background:#0f0f0f;color:#333;padding:9px 14px;text-align:left;font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:0.12em;text-transform:uppercase;font-weight:400;border-bottom:1px solid #1a1a1a;}
+.map-table td{padding:10px 14px;border-bottom:1px solid #111;vertical-align:top;color:#555;line-height:1.6;}
+.map-table tr:hover td{background:#0d0d0d;}
+.map-table td:first-child{color:#aaa;font-weight:500;}
+.mono{font-family:'DM Mono',monospace;font-size:10px;color:#2a5a2a;}
+.badge-use{display:inline-block;font-family:'DM Mono',monospace;font-size:8px;padding:1px 6px;border-radius:2px;white-space:nowrap;}
+.b-fork{background:#0a2a0a;color:#2a7a2a;border:1px solid #1a4a1a;}
+.b-api{background:#001a2a;color:#1a5a8a;border:1px solid #0a3a5a;}
+.b-ref{background:#2a1a00;color:#7a5a00;border:1px solid #4a3a00;}
+.b-learn{background:#1a001a;color:#5a1a5a;border:1px solid #3a0a3a;}
+
+@media(max-width:768px){
+  nav,section,.section,.hero{padding-left:20px;padding-right:20px;}
+  .arch{grid-template-columns:1fr;}
+  .arch-arrow{display:none;}
+  .repo-grid,.feature-map,.shortlist{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Web3Cash · GitHub Map</div>
+  <div class="nav-link" onclick="document.getElementById('overview').scrollIntoView({behavior:'smooth',block:'start'})">Overview</div>
+  <div class="nav-link" onclick="document.getElementById('fullstack').scrollIntoView({behavior:'smooth',block:'start'})">Full Platform</div>
+  <div class="nav-link" onclick="document.getElementById('foundation').scrollIntoView({behavior:'smooth',block:'start'})">Foundation</div>
+  <div class="nav-link" onclick="document.getElementById('sybil').scrollIntoView({behavior:'smooth',block:'start'})">Anti-Sybil</div>
+  <div class="nav-link" onclick="document.getElementById('payouts').scrollIntoView({behavior:'smooth',block:'start'})">Payouts</div>
+  <div class="nav-link" onclick="document.getElementById('referral').scrollIntoView({behavior:'smooth',block:'start'})">Referral</div>
+  <div class="nav-link" onclick="document.getElementById('social').scrollIntoView({behavior:'smooth',block:'start'})">Social Auth</div>
+  <div class="nav-link" onclick="document.getElementById('shortcut').scrollIntoView({behavior:'smooth',block:'start'})">Shortcut</div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">Web3Cash · GitHub Reference Map · April 2026</div>
+  <h1><strong>Every repo you need</strong><br><span>mapped to every feature</span><br><strong>of Web3Cash.</strong></h1>
+  <p class="hero-sub">Categorised by product layer — full platforms, wallet foundation, anti-Sybil, USDC payouts, referral engine, and social verification. Each repo is rated by how directly it applies to what you're building.</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-val">24</div><div class="stat-lbl">Repos listed</div></div>
+    <div class="stat"><div class="stat-val">6</div><div class="stat-lbl">Product layers</div></div>
+    <div class="stat"><div class="stat-val">3</div><div class="stat-lbl">MVP shortcuts</div></div>
+    <div class="stat"><div class="stat-val">0</div><div class="stat-lbl">Need to build from scratch</div></div>
+  </div>
+</div>
+
+<!-- OVERVIEW -->
+<div class="section" id="overview">
+  <div class="section-label">Product Architecture → Repo Mapping</div>
+
+  <!-- FEATURE → REPO TABLE -->
+  <table class="map-table">
+    <thead>
+      <tr>
+        <th>Feature you need to build</th>
+        <th>Repo / Tool</th>
+        <th>How to use it</th>
+        <th>Stars</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Wallet connect + signature auth</td>
+        <td><span class="mono">scaffold-eth/scaffold-eth-2</span></td>
+        <td><span class="badge-use b-fork">Fork as base</span></td>
+        <td>7k+</td>
+      </tr>
+      <tr>
+        <td>Next.js + wagmi v2 + RainbowKit</td>
+        <td><span class="mono">Pedrojok01/Next-Web3-Boilerplate</span></td>
+        <td><span class="badge-use b-fork">Fork as base</span></td>
+        <td>400+</td>
+      </tr>
+      <tr>
+        <td>Complete quest system (closest match)</td>
+        <td><span class="mono">thirdweb-example/quest-rewards</span></td>
+        <td><span class="badge-use b-fork">Fork + adapt</span></td>
+        <td>New</td>
+      </tr>
+      <tr>
+        <td>Full decentralised quest chains</td>
+        <td><span class="mono">quest-chains/dapp</span></td>
+        <td><span class="badge-use b-ref">Reference</span></td>
+        <td>200+</td>
+      </tr>
+      <tr>
+        <td>Sybil score (wallet humanity score)</td>
+        <td><span class="mono">passportxyz/passport</span> (API)</td>
+        <td><span class="badge-use b-api">API — 2 calls</span></td>
+        <td>800+</td>
+      </tr>
+      <tr>
+        <td>Next.js Gitcoin Passport integration</td>
+        <td><span class="mono">dabit3/nextjs-gitcoin-passport</span></td>
+        <td><span class="badge-use b-fork">Copy auth logic</span></td>
+        <td>100+</td>
+      </tr>
+      <tr>
+        <td>Score-gated quest access</td>
+        <td><span class="mono">dabit3/sybil-form</span></td>
+        <td><span class="badge-use b-fork">Adapt form → quest gate</span></td>
+        <td>80+</td>
+      </tr>
+      <tr>
+        <td>Bot farm / cluster detection</td>
+        <td><span class="mono">ArbitrumFoundation/sybil-detection</span></td>
+        <td><span class="badge-use b-ref">Reference logic</span></td>
+        <td>300+</td>
+      </tr>
+      <tr>
+        <td>Radial/sequential Sybil patterns</td>
+        <td><span class="mono">forkoooor/Sybil-Defender</span></td>
+        <td><span class="badge-use b-ref">Copy detection logic</span></td>
+        <td>100+</td>
+      </tr>
+      <tr>
+        <td>ML Sybil identification</td>
+        <td><span class="mono">TrustaLabs/Airdrop-Sybil-Identification</span></td>
+        <td><span class="badge-use b-learn">Study + Phase 2</span></td>
+        <td>200+</td>
+      </tr>
+      <tr>
+        <td>USDC batch payout contract</td>
+        <td><span class="mono">Uniswap/merkle-distributor</span></td>
+        <td><span class="badge-use b-fork">Deploy for payouts</span></td>
+        <td>1k+</td>
+      </tr>
+      <tr>
+        <td>USDC airdrop with signature verify</td>
+        <td><span class="mono">Cyfrin/2024-04-airdropper</span></td>
+        <td><span class="badge-use b-fork">Adapt to your flow</span></td>
+        <td>100+</td>
+      </tr>
+      <tr>
+        <td>Referral tracking (Web3-native)</td>
+        <td><span class="mono">Web3 referral-platform repo (57★)</span></td>
+        <td><span class="badge-use b-fork">Fork referral module</span></td>
+        <td>57</td>
+      </tr>
+      <tr>
+        <td>Referral platform (self-hosted)</td>
+        <td><span class="mono">amicalhq/refref</span></td>
+        <td><span class="badge-use b-fork">Self-host or adapt</span></td>
+        <td>58+</td>
+      </tr>
+      <tr>
+        <td>Web3 referral with Solidity contracts</td>
+        <td><span class="mono">Rifero (referral-platform topic)</span></td>
+        <td><span class="badge-use b-ref">Reference contracts</span></td>
+        <td>12</td>
+      </tr>
+      <tr>
+        <td>Twitter OAuth + USDC + referrals</td>
+        <td><span class="mono">RamiD22/phosphors</span></td>
+        <td><span class="badge-use b-fork">Copy auth + payout modules</span></td>
+        <td>New</td>
+      </tr>
+      <tr>
+        <td>All Passport integration patterns</td>
+        <td><span class="mono">passportxyz/awesome-gitcoin-passports</span></td>
+        <td><span class="badge-use b-ref">Reference hub</span></td>
+        <td>Curated</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- FULL PLATFORM REPOS -->
+<div class="section" id="fullstack">
+  <div class="section-label">01 — Full Platform Repos (Closest to Web3Cash)</div>
+
+  <div class="repo-grid">
+
+    <div class="repo-card">
+      <span class="repo-priority p-now">Start here</span>
+      <div class="repo-tag">Quest Platform</div>
+      <div class="repo-name">thirdweb-example/quest-rewards</div>
+      <div class="repo-desc">Next.js quest system with wallet auth via ConnectButton, quest management UI, token reward tracking, daily claim cooldowns, AND built-in Twitter Bearer token verification. This is the closest open source repo to Web3Cash's core loop.</div>
+      <div class="repo-meta">
+        <div class="repo-stack">
+          <span class="stack-tag">Next.js</span>
+          <span class="stack-tag">thirdweb</span>
+          <span class="stack-tag">Twitter API</span>
+          <span class="stack-tag">Solidity</span>
+        </div>
+      </div>
+      <div class="repo-url">github.com/thirdweb-example/quest-rewards</div>
+    </div>
+
+    <div class="repo-card">
+      <span class="repo-priority p-now">Fork this</span>
+      <div class="repo-tag">Decentralised Quest Chains</div>
+      <div class="repo-name">quest-chains/dapp</div>
+      <div class="repo-desc">Full decentralised quest chain platform with wallet connect, multi-step quests, soulbound NFT on completion, role-based admin (reviewer / editor / admin). Separate smart contracts repo. MIT licensed. The most complete open source quest dApp.</div>
+      <div class="repo-meta">
+        <div class="repo-stack">
+          <span class="stack-tag">React</span>
+          <span class="stack-tag">Ethers.js</span>
+          <span class="stack-tag">Solidity</span>
+          <span class="stack-tag">The Graph</span>
+        </div>
+      </div>
+      <div class="repo-url">github.com/quest-chains/dapp</div>
+    </div>
+
+    <div class="repo-card">
+      <span class="repo-priority p-soon">Smart contracts</span>
+      <div class="repo-tag">Quest Chain Contracts</div>
+      <div class="repo-name">quest-chains/contracts</div>
+      <div class="repo-desc">Solidity contracts for the quest chains platform. Quest creation, completion submission, reviewer approval, soulbound NFT minting on quest chain completion. Audited and production-used. Companion to the dapp repo above.</div>
+      <div class="repo-meta">
+        <div class="repo-stack">
+          <span class="stack-tag">Solidity</span>
+          <span class="stack-tag">Hardhat</span>
+          <span class="stack-tag">OpenZeppelin</span>
+        </div>
+      </div>
+      <div class="repo-url">github.com/quest-chains/contracts</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOUNDATION -->
+<div class="section" id="foundation">
+  <div class="section-label">02 — App Foundation (Wallet + Next.js Scaffold)</div>
+
+  <div class="repo-grid">
+
+    <div class="repo-card">
+      <span class="repo-priority p-now">Best foundation</span>
+      <div class="repo-tag">ETH Dev Stack</div>
+      <div class="repo-name">scaffold-eth/scaffold-eth-2</div>
+      <div class="repo-desc">The gold standard Web3 app scaffold. Next.js 14 + RainbowKit + wagmi v2 + Hardhat or Foundry + TypeScript. Contract hot reload so your frontend auto-updates as you edit contracts. Burner wallet + local faucet for instant testing.</div>
+      <div class="repo-meta">
+        <div class="repo-stars">⭐ <span>7,400+</span></div>
+        <div class="repo-stack">
+          <span class="stack-tag">Next.js</span>
+          <span class="stack-tag">wagmi v2</span>
+          <span class="stack-tag">RainbowKit</span>
+          <span class="stack-tag">Hardhat</span>
+        </div>
+      </div>
+      <div class="repo-url">github.com/scaffold-eth/scaffold-eth-2</div>
+    </div>
+
+    <div class="repo-card">
+      <span class="repo-priority p-now">Modern stack</span>
+      <div class="repo-tag">Next.js Web3 Boilerplate</div>
+      <div class="repo-name">Pedrojok01/Next-Web3-Boilerplate</div>
+      <div class="repo-desc">Next.js 14 + wagmi v2 + viem + RainbowKit + Chakra UI. No smart contract tooling — just the frontend stack. More production-ready than scaffold-eth for apps that don't need contract dev tools baked in. Exactly your tech stack.</div>
+      <div class="repo-meta">
+        <div class="repo-stars">⭐ <span>450+</span></div>
+        <div class="repo-stack">
+          <span class="stack-tag">Next.js 14</span>
+          <span class="stack-tag">wagmi v2</span>
+          <span class="stack-tag">viem</span>
+          <span class="stack-tag">RainbowKit</span>
+        </div>
+      </div>
+      <div class="repo-url">github.com/Pedrojok01/Next-Web3-Boilerplate</div>
+    </div>
+
+    <div class="repo-card">
+      <span class="repo-priority p-soon">Twitter + USDC</span>
+      <div class="repo-tag">Twitter Verify + Payments</div>
+      <div class="repo-name">RamiD22/phosphors</div>
+      <div class="repo-desc">Has 5 of your core modules already written in one repo: X (Twitter) OAuth verification, on-chain USDC payment verification, referral/bounty tracking, rate limiting, and Supabase as the database. Built with Next.js + Vercel serverless.</div>
+      <div class="repo-meta">
+        <div class="repo-stack">
+          <span class="stack-tag">Next.js</span>
+          <span class="stack-tag">Supabase</span>
+          <span class="stack-tag">Twitter OAuth</span>
+          <span class="stack-tag">USDC</span>
+        </div>
+      </div>
+      <div class="repo-url">github.com/RamiD22/phosphors</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ANTI-SYBIL -->
+<div class="section" id="sybil">
+  <div class="section-label">03 — Anti-Sybil / Bot Prevention</div>
+
+  <div class="callout">
+    <div class="callout-label">The fastest integration</div>
+    <div class="callout-text">The Gitcoin Passport (now Human Passport) API gives you a <strong>0–100 humanity score for any EVM wallet in 2 API calls</strong>, trained on millions of wallets and 2M+ passport holders. Free tier available. Integrating it is 10x faster than building your own scoring. Use it for MVP and build your own scoring in Phase 2.</div>
+  </div>
+
+  <div class="repo-grid">
+
+    <div class="repo-card">
+      <span class="repo-priority p-now">Use this API</span>
+      <div class="repo-tag">Sybil Resistance Protocol</div>
+      <div class="repo-name">passportxyz/passport</div>
+      <div class="repo-desc">Gitcoin/Human Passport — the leading open source Sybil defense. ML models trained on ETH L1 + L2 on-chain activity vs known Sybil lists. Free API. 2M+ users already scored. You call GET /score/{wallet} → you get a human/bot classification back. Used by Galxe, Arbitrum, Uniswap.</div>
+      <div class="repo-meta">
+        <div class="repo-stars">⭐ <span>800+</span></div>
+        <div class="repo-stack">
+          <span class="stack-tag">TypeScript</span>
+          <span class="stack-tag">Python ML</span>
+          <span class="stack-tag">REST API</span>
+        </div>
+      </div>
+      <div class="repo-url">github.com/gitcoinco/passport | docs.passport.gitcoin.co</div>
+    </div>
+
+    <div class="repo-card">
+      <span class="repo-priority p-now">Copy this</span>
+      <div class="repo-tag">Next.js Passport Integration</div>
+      <div class="repo-name">dabit3/nextjs-gitcoin-passport</div>
+      <div class="repo-desc">Minimal Next.js app showing exactly how to fetch a wallet's Passport score with 2 env vars and gate content behind a score threshold. This is the template you paste into your quest access control. 15 minutes to integrate.</div>
+      <div class="repo-meta">
+        <div class="repo-stack">
+          <span class="stack-tag">Next.js</span>
+          <span class="stack-tag">Passport API</span>
+          <span class="stack-tag">wagmi</span>
+        </div>
+      </div>
+      <div class="repo-url">github.com/dabit3/nextjs-gitcoin-passport</div>
+    </div>
+
+    <div class="repo-card">
+      <span class="repo-priority p-now">Score gate</span>
+      <div class="repo-tag">Sybil-Resistant Form</div>
+      <div class="repo-name">dabit3/sybil-form</div>
+      <div class="repo-desc">Gitcoin Passport + wallet signature + score threshold gate. Adapt the form to a quest access gate: score above 20 → quest available. Score below 20 → locked. Has full server-side re-verification so users can't bypass the client-side check.</div>
+      <div class="repo-meta">
+        <div class="repo-stack">
+          <span class="stack-tag">Next.js</span>
+          <span class="stack-tag">Arweave</span>
+          <span class="stack-tag">Passport SDK</span>
+        </div>
+      </div>
+      <div class="repo-url">github.com/dabit3/sybil-form</div>
+    </div>
+
+    <div class="repo-card">
+      <span class="repo-priority p-soon">Fraud detection</span>
+      <div class="repo-tag">Wallet Cluster Detection</div>
+      <div class="repo-name">ArbitrumFoundation/sybil-detection</div>
+      <div class="repo-desc">How Arbitrum identified Sybils for their $120M airdrop. Analyzes on-chain transfer graphs — finds star patterns (one funder → many wallets) and tree patterns. Louvain Community Detection algorithm. The exact logic for flagging bot farm clusters hitting your campaigns.</div>
+      <div class="repo-meta">
+        <div class="repo-stars">⭐ <span>300+</span></div>
+        <div class="repo-stack">
+          <span class="stack-tag">Python</span>
+          <span class="stack-tag">NetworkX</span>
+          <span class="stack-tag">Louvain</span>
+        </div>
+      </div>
+      <div class="repo-url">github.com/ArbitrumFoundation/sybil-detection</div>
+    </div>
+
+    <div class="repo-card">
+      <span class="repo-priority p-soon">Pattern matching</span>
+      <div class="repo-tag">EVM Sybil Defender</div>
+      <div class="repo-name">forkoooor/Sybil-Defender</div>
+      <div class="repo-desc">Detects radial (one funder → many wallets), sequential (chain funding A→B→C), and wash trading patterns on Ethereum, Arbitrum, Optimism, Polygon, BSC, Avalanche, Fantom. TypeScript. Built for Forta Network. Directly adaptable to flag suspicious wallets before quest access.</div>
+      <div class="repo-meta">
+        <div class="repo-stars">⭐ <span>100+</span></div>
+        <div class="repo-stack">
+          <span class="stack-tag">TypeScript</span>
+          <span class="stack-tag">Forta</span>
+          <span class="stack-tag">EVM</span>
+        </div>
+      </div>
+      <div class="repo-url">github.com/forkoooor/Sybil-Defender</div>
+    </div>
+
+    <div class="repo-card">
+      <span class="repo-priority p-later">Phase 2 ML</span>
+      <div class="repo-tag">ML Sybil Framework</div>
+      <div class="repo-name">TrustaLabs/Airdrop-Sybil-Identification</div>
+      <div class="repo-desc">Trusta's 2-phase ML framework: Phase 1 uses graph mining (K-Core, Louvain) to detect Sybil communities from asset transfer graphs. Phase 2 uses K-means on behavioural variables (tx frequency, amounts, contract interactions) to refine. Full Python/Jupyter notebooks.</div>
+      <div class="repo-meta">
+        <div class="repo-stars">⭐ <span>200+</span></div>
+        <div class="repo-stack">
+          <span class="stack-tag">Python</span>
+          <span class="stack-tag">Jupyter</span>
+          <span class="stack-tag">K-means</span>
+        </div>
+      </div>
+      <div class="repo-url">github.com/TrustaLabs/Airdrop-Sybil-Identification</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PAYOUTS -->
+<div class="section" id="payouts">
+  <div class="section-label">04 — USDC Escrow and Batch Payouts</div>
+
+  <div class="repo-grid">
+
+    <div class="repo-card">
+      <span class="repo-priority p-now">Deploy this</span>
+      <div class="repo-tag">Merkle Distributor</div>
+      <div class="repo-name">Uniswap/merkle-distributor</div>
+      <div class="repo-desc">Uniswap's battle-tested Merkle tree token distribution contract. Instead of storing every eligible wallet on-chain (expensive), you store one Merkle root. Users prove eligibility with a proof. Gas-efficient for any batch size. 1k+ stars, battle-tested in production at Uniswap scale. Your escrow payout contract.</div>
+      <div class="repo-meta">
+        <div class="repo-stars">⭐ <span>1,200+</span></div>
+        <div class="repo-stack">
+          <span class="stack-tag">Solidity</span>
+          <span class="stack-tag">Merkle Tree</span>
+          <span class="stack-tag">ERC20</span>
+        </div>
+      </div>
+      <div class="repo-url">github.com/Uniswap/merkle-distributor</div>
+    </div>
+
+    <div class="repo-card">
+      <span class="repo-priority p-now">USDC specific</span>
+      <div class="repo-tag">USDC Airdrop Contract</div>
+      <div class="repo-name">Cyfrin/2024-04-airdropper</div>
+      <div class="repo-desc">Merkle-based USDC airdrop built for zkSync by Cyfrin. Sends USDC to multiple wallet addresses from a smart contract with signature verification, replay attack protection, and a claim fee. Shows exactly the payout flow your platform needs — users claim their earned USDC with a proof.</div>
+      <div class="repo-meta">
+        <div class="repo-stars">⭐ <span>100+</span></div>
+        <div class="repo-stack">
+          <span class="stack-tag">Solidity</span>
+          <span class="stack-tag">Foundry</span>
+          <span class="stack-tag">USDC</span>
+          <span class="stack-tag">zkSync</span>
+        </div>
+      </div>
+      <div class="repo-url">github.com/Cyfrin/2024-04-airdropper</div>
+    </div>
+
+    <div class="repo-card">
+      <span class="repo-priority p-later">Phase 2</span>
+      <div class="repo-tag">All Passport Integrations</div>
+      <div class="repo-name">passportxyz/awesome-gitcoin-passports</div>
+      <div class="repo-desc">Curated hub of every Passport integration pattern: score gating, airdrop address collection, sybil-resistant forms, scaffold-eth starter, and a Next.js airdrop app specifically for collecting addresses and verifying humanity before token distribution. Start here for any Passport-related build question.</div>
+      <div class="repo-meta">
+        <div class="repo-stack">
+          <span class="stack-tag">Curated List</span>
+          <span class="stack-tag">All patterns</span>
+        </div>
+      </div>
+      <div class="repo-url">github.com/gitcoinco/awesome-gitcoin-passports</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- REFERRAL -->
+<div class="section" id="referral">
+  <div class="section-label">05 — Referral and Affiliate Engine</div>
+
+  <div class="repo-grid">
+
+    <div class="repo-card">
+      <span class="repo-priority p-now">Best Web3 ref</span>
+      <div class="repo-tag">Web3 Referral Platform</div>
+      <div class="repo-name">Web3 referral-platform (57★)</div>
+      <div class="repo-desc">Open Source Referrals and Partnerships Platform with Web3 integration and Crypto Remittance. Next.js + Node.js + TypeScript + Ethereum + Polygon + Binance, with affiliate tracking, referral links, and crypto payout. The most directly relevant open source referral repo for Web3Cash's referral engine.</div>
+      <div class="repo-meta">
+        <div class="repo-stars">⭐ <span>57</span></div>
+        <div class="repo-stack">
+          <span class="stack-tag">Next.js</span>
+          <span class="stack-tag">TypeScript</span>
+          <span class="stack-tag">Ethereum</span>
+          <span class="stack-tag">Polygon</span>
+        </div>
+      </div>
+      <div class="repo-url">github.com/topics/referral-platform → "Web3 referral" repo with affiliate-tracking + web3 tags</div>
+    </div>
+
+    <div class="repo-card">
+      <span class="repo-priority p-now">Self-hosted</span>
+      <div class="repo-tag">Open Source Referral SaaS</div>
+      <div class="repo-name">amicalhq/refref</div>
+      <div class="repo-desc">Open source self-hosted referral and affiliate platform. Next.js + Drizzle ORM + PostgreSQL. Referral attribution via JS snippet, customisable rewards, referrer portal, partner portal, fraud monitoring, and automated nudges. Deploy it as your referral tracking backend.</div>
+      <div class="repo-meta">
+        <div class="repo-stars">⭐ <span>58+</span></div>
+        <div class="repo-stack">
+          <span class="stack-tag">Next.js</span>
+          <span class="stack-tag">Drizzle</span>
+          <span class="stack-tag">Postgres</span>
+          <span class="stack-tag">TypeScript</span>
+        </div>
+      </div>
+      <div class="repo-url">github.com/amicalhq/refref</div>
+    </div>
+
+    <div class="repo-card">
+      <span class="repo-priority p-soon">Solidity ref</span>
+      <div class="repo-tag">Web3 Referral Contracts</div>
+      <div class="repo-name">Rifero (referral-platform topic)</div>
+      <div class="repo-desc">Web3 referral platform with wallet connect, Solidity referral contracts (OpenZeppelin), and ethers.js frontend. Tracks referrals on-chain, pays out referral bonuses in tokens. React + JavaScript. Small but directly relevant — the on-chain referral tracking you'll need in Phase 2.</div>
+      <div class="repo-meta">
+        <div class="repo-stars">⭐ <span>12</span></div>
+        <div class="repo-stack">
+          <span class="stack-tag">React</span>
+          <span class="stack-tag">Solidity</span>
+          <span class="stack-tag">OpenZeppelin</span>
+          <span class="stack-tag">ethers.js</span>
+        </div>
+      </div>
+      <div class="repo-url">github.com/topics/referral-platform → Rifero</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SOCIAL AUTH -->
+<div class="section" id="social">
+  <div class="section-label">06 — Social Verification (Twitter / Discord / GitHub)</div>
+
+  <div class="feature-map">
+    <div class="feature-row">
+      <div class="feature-title"><span class="feature-icon">🐦</span> Twitter / X Follow Verification</div>
+      <div class="feature-items">
+        <div class="fi"><div class="fi-repo">RamiD22/phosphors</div><div class="fi-desc">Has a complete verify.js for X (Twitter) OAuth 2.0 PKCE flow + account verification. Copy this module directly into your app.</div></div>
+        <div class="fi"><div class="fi-repo">Twitter API v2 Basic ($100/mo)</div><div class="fi-desc">GET /2/users/:id/following — check if user follows a target. OAuth 2.0 PKCE. Account age via created_at field on user object.</div></div>
+        <div class="fi"><div class="fi-repo">dabit3/nextjs-gitcoin-passport</div><div class="fi-desc">Shows Twitter stamp verification inside Passport. Use as reference for the OAuth callback flow in Next.js API routes.</div></div>
+      </div>
+    </div>
+    <div class="feature-row">
+      <div class="feature-title"><span class="feature-icon">🔒</span> Wallet Signature Authentication</div>
+      <div class="feature-items">
+        <div class="fi"><div class="fi-repo">scaffold-eth/scaffold-eth-2</div><div class="fi-desc">Has burner wallet + WalletConnect + MetaMask connect built in. Fork this and the wallet auth is done.</div></div>
+        <div class="fi"><div class="fi-repo">Pedrojok01/Next-Web3-Boilerplate</div><div class="fi-desc">RainbowKit ConnectButton + wagmi useSignMessage hook. 10 lines to add sign-in with Ethereum.</div></div>
+        <div class="fi"><div class="fi-repo">siwe (Sign-In with Ethereum)</div><div class="fi-desc">EIP-4361 standard — sign "Login to Web3Cash" + nonce. npm install siwe → verify on server with siwe.verify(). The auth standard used by Galxe and Layer3.</div></div>
+      </div>
+    </div>
+    <div class="feature-row">
+      <div class="feature-title"><span class="feature-icon">🎮</span> Discord Member Verification</div>
+      <div class="feature-items">
+        <div class="fi"><div class="fi-repo">discord.js v14</div><div class="fi-desc">getChatMember(guildId, userId) — verify user is in a Discord server. GUILD_MEMBER_REMOVE event for leave detection. Standard library, no specific repo needed beyond discord.js docs.</div></div>
+        <div class="fi"><div class="fi-repo">quest-chains/dapp</div><div class="fi-desc">Has Discord guild role verification built in as one of the quest completion types. Reference this for your Discord quest type.</div></div>
+      </div>
+    </div>
+    <div class="feature-row">
+      <div class="feature-title"><span class="feature-icon">📬</span> Job Queue (72hr Hold)</div>
+      <div class="feature-items">
+        <div class="fi"><div class="fi-repo">BullMQ (npm)</div><div class="fi-desc">bullmq.add('recheck', {completionId}, {delay: 72*60*60*1000}) — fires at exactly T+72hrs. Worker rechecks Twitter follow. On Upstash Redis for serverless. This is the core fraud prevention mechanism.</div></div>
+        <div class="fi"><div class="fi-repo">Upstash Redis</div><div class="fi-desc">Serverless Redis for BullMQ. Free tier covers 10k commands/day — enough for MVP. Pair with Railway for the worker process.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3-REPO SHORTCUT -->
+<div class="section" id="shortcut">
+  <div class="section-label">The Minimum Shortcut — 3 Repos to MVP in 6 Weeks</div>
+
+  <div class="callout">
+    <div class="callout-label">If you only fork 3 repos</div>
+    <div class="callout-text">You do not need to study all 24 repos. For the 6-week MVP, <strong>start with these 3 and add modules from the others as you need them.</strong> Every other repo in this guide feeds into one of these three base projects.</div>
+  </div>
+
+  <div class="shortlist">
+
+    <div class="short-card">
+      <div class="short-num">01</div>
+      <div class="short-repo">scaffold-eth/scaffold-eth-2</div>
+      <div class="short-title">Your entire app foundation</div>
+      <div class="short-why">Fork this as your project base. You get wallet connect, Next.js 14, wagmi v2, RainbowKit, and Hardhat all pre-wired together. Add Supabase for your database and you have the full frontend + backend scaffold in one repo. Everything else plugs into this.</div>
+      <div class="short-tags">
+        <span class="short-tag">Fork first</span>
+        <span class="short-tag">Day 1</span>
+        <span class="short-tag">7k stars</span>
+      </div>
+    </div>
+
+    <div class="short-card">
+      <div class="short-num">02</div>
+      <div class="short-repo">passportxyz/passport (API only)</div>
+      <div class="short-title">Your entire Sybil layer</div>
+      <div class="short-why">Don't build Sybil scoring from scratch. Call the Passport Models API: POST /score with a wallet address, get back a human/bot probability. Gate quests behind score > 20. Free tier. 2 API calls to integrate. This is what Galxe and Arbitrum use. Replace with custom scoring in Phase 2 if needed.</div>
+      <div class="short-tags">
+        <span class="short-tag">API call</span>
+        <span class="short-tag">Week 1</span>
+        <span class="short-tag">Free tier</span>
+      </div>
+    </div>
+
+    <div class="short-card">
+      <div class="short-num">03</div>
+      <div class="short-repo">Uniswap/merkle-distributor</div>
+      <div class="short-title">Your entire payout contract</div>
+      <div class="short-why">Deploy the Merkle distributor for USDC payouts. Every 72 hours after the recheck passes, add the wallet to your Merkle tree. Users claim their USDC with a proof. Audited, battle-tested at Uniswap scale, MIT licensed. No need to write your own escrow contract for MVP.</div>
+      <div class="short-tags">
+        <span class="short-tag">Deploy contract</span>
+        <span class="short-tag">Week 4</span>
+        <span class="short-tag">1k stars</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="callout" style="margin-top:28px;">
+    <div class="callout-label">Then add these 3 specific files from other repos</div>
+    <div class="callout-text">
+      From <strong>RamiD22/phosphors</strong> → copy <code style="font-family:'DM Mono',monospace;font-size:11px;background:#111;padding:1px 5px;">verify.js</code> for Twitter OAuth + X follow check<br>
+      From <strong>dabit3/nextjs-gitcoin-passport</strong> → copy <code style="font-family:'DM Mono',monospace;font-size:11px;background:#111;padding:1px 5px;">pages/api/passport.ts</code> for the Passport score fetch<br>
+      From <strong>amicalhq/refref</strong> → copy the referral attribution logic for your 10% Level 1 referral tracking<br><br>
+      Those three files + the three repos above = your entire MVP codebase. The rest is database schema (7 tables in Supabase), BullMQ jobs on Railway, and your UI.
+    </div>
+  </div>
+
+</div>
+
+<div style="padding:56px 40px;text-align:center;border-top:1px solid #141414;max-width:1100px;margin:0 auto;">
+  <div style="font-family:'DM Mono',monospace;font-size:10px;color:#222;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px;">Web3Cash · GitHub Reference Map · April 2026</div>
+  <div style="font-size:12px;color:#333;">24 repos. 6 layers. 0 features you need to build from scratch.</div>
+</div>
+
+</body>
+</html>

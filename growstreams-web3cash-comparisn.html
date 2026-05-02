@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GrowStreams → Web3Cash · Deal Memo</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Cormorant+SC:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0c0b08;
+  --parchment: #f6f3ee;
+  --cream: #faf8f4;
+  --gold: #b8932a;
+  --gold-light: #d4a93c;
+  --gold-pale: #f0e4c0;
+  --emerald: #0d5c3a;
+  --emerald-mid: #1a7a4e;
+  --emerald-pale: #d4ede2;
+  --cobalt: #0f2a5c;
+  --cobalt-mid: #1e4080;
+  --cobalt-pale: #d0daf0;
+  --rule: #d8d0c0;
+  --rule-dark: #2a2620;
+  --muted: #6b6355;
+  --warm-white: #fdfcf9;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  font-family: 'Libre Baskerville', Georgia, serif;
+  background: var(--ink);
+  color: var(--parchment);
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* ─── GRAIN OVERLAY ─── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0.4;
+}
+
+/* ─── MASTHEAD ─── */
+.masthead {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(12, 11, 8, 0.97);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(184, 147, 42, 0.25);
+  padding: 0 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.masthead-brand {
+  font-family: 'Cormorant SC', serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.mb-gs { color: var(--emerald-mid); }
+.mb-arrow { color: rgba(184,147,42,0.5); margin: 0 10px; }
+.mb-w3 { color: var(--gold-light); }
+
+.masthead-nav {
+  display: flex;
+  gap: 0;
+}
+.mn-link {
+  font-family: 'DM Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(246,243,238,0.35);
+  padding: 0 16px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: color 0.2s;
+  border-right: 1px solid rgba(255,255,255,0.05);
+}
+.mn-link:hover { color: var(--gold-light); }
+
+/* ─── TICKER TAPE ─── */
+.ticker {
+  background: var(--emerald);
+  border-bottom: 1px solid rgba(0,0,0,0.4);
+  height: 28px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+.ticker-inner {
+  display: flex;
+  animation: ticker-scroll 28s linear infinite;
+  white-space: nowrap;
+  gap: 0;
+}
+.ticker-item {
+  font-family: 'DM Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  color: rgba(255,255,255,0.7);
+  padding: 0 32px;
+  border-right: 1px solid rgba(255,255,255,0.15);
+  height: 28px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.ticker-item .up { color: #4ee68b; }
+.ticker-item .down { color: #ff6b6b; }
+@keyframes ticker-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ─── HERO ─── */
+.hero {
+  min-height: 92vh;
+  background: var(--ink);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 80px 56px 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-bg-lines {
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent, transparent calc(100%/12 - 1px),
+      rgba(184,147,42,0.04) calc(100%/12 - 1px),
+      rgba(184,147,42,0.04) calc(100%/12)
+    );
+  pointer-events: none;
+}
+.hero-glow-left {
+  position: absolute;
+  left: -200px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(ellipse, rgba(13,92,58,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-glow-right {
+  position: absolute;
+  right: -200px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(ellipse, rgba(184,147,42,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-inner {
+  max-width: 1320px;
+  margin: 0 auto;
+  width: 100%;
+  position: relative;
+}
+
+.hero-classification {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.hero-classification::before,
+.hero-classification::after {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 1px;
+  background: var(--gold);
+  opacity: 0.4;
+}
+
+.hero-kicker {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(246,243,238,0.3);
+  margin-bottom: 28px;
+}
+
+.hero h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(56px, 7.5vw, 112px);
+  font-weight: 300;
+  line-height: 0.92;
+  letter-spacing: -0.025em;
+  margin-bottom: 32px;
+  color: var(--parchment);
+}
+.hero h1 em {
+  font-style: italic;
+  color: var(--gold-light);
+}
+.hero h1 strong {
+  font-weight: 600;
+}
+
+.hero-deck {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  gap: 1px;
+  background: rgba(184,147,42,0.15);
+  max-width: 960px;
+  margin-top: 48px;
+  animation: fadeUp 1.2s ease both;
+  animation-delay: 0.4s;
+}
+.hd-stat {
+  background: var(--ink);
+  padding: 20px 22px;
+  border-top: 2px solid transparent;
+  transition: border-color 0.3s;
+}
+.hd-stat:hover { border-top-color: var(--gold); }
+.hd-stat:first-child { border-top-color: var(--emerald-mid); }
+.hd-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 7.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(246,243,238,0.3);
+  margin-bottom: 8px;
+}
+.hd-val {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.1;
+  color: var(--parchment);
+}
+.hd-val.gold { color: var(--gold-light); }
+.hd-val.emerald { color: #4ee68b; }
+.hd-val.cobalt { color: #7ab4f0; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── DIVIDER ─── */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold) 30%, var(--gold) 70%, transparent);
+  opacity: 0.2;
+  margin: 0;
+}
+
+/* ─── MAIN COMPARISON SECTION ─── */
+.comparison-section {
+  background: var(--parchment);
+  padding: 96px 56px;
+  position: relative;
+}
+
+.comparison-section::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--emerald) 0%, var(--emerald-mid) 50%, var(--cobalt-mid) 100%);
+}
+
+.cs-inner { max-width: 1320px; margin: 0 auto; }
+
+.cs-header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 0;
+  align-items: end;
+  margin-bottom: 64px;
+}
+.cs-header-left .eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+.cs-header-left h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(36px, 4vw, 56px);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.cs-header-left h2 em { font-style: italic; color: var(--emerald); }
+
+.vs-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 48px;
+  padding-bottom: 8px;
+}
+.vs-text {
+  font-family: 'Cormorant SC', serif;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--muted);
+  opacity: 0.5;
+}
+
+/* ─── COMPARISON CARDS ─── */
+.comp-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--rule);
+}
+
+.comp-card {
+  background: var(--warm-white);
+  padding: 0;
+  overflow: hidden;
+  position: relative;
+}
+.comp-card-gs { border-top: 3px solid var(--emerald); }
+.comp-card-w3 { border-top: 3px solid var(--cobalt-mid); }
+
+.comp-card-header {
+  padding: 32px 36px 28px;
+  border-bottom: 1px solid var(--rule);
+  position: relative;
+}
+.comp-card-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 36px; right: 36px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--rule), transparent);
+}
+
+.comp-product-name {
+  font-family: 'Cormorant SC', serif;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+.comp-product-name.gs { color: var(--emerald); }
+.comp-product-name.w3 { color: var(--cobalt-mid); }
+
+.comp-product-tagline {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 12px;
+  font-style: italic;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.comp-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  font-family: 'DM Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border: 1px solid;
+}
+.cs-live {
+  border-color: var(--emerald);
+  color: var(--emerald);
+  background: var(--emerald-pale);
+}
+.cs-proposed {
+  border-color: var(--cobalt-mid);
+  color: var(--cobalt-mid);
+  background: var(--cobalt-pale);
+}
+.cs-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* ─── DATA ROWS ─── */
+.comp-rows { padding: 0 36px 36px; }
+
+.comp-row {
+  padding: 18px 0;
+  border-bottom: 1px solid rgba(216,208,192,0.5);
+  display: grid;
+  grid-template-columns: 148px 1fr;
+  gap: 20px;
+  align-items: start;
+  position: relative;
+  transition: background 0.15s;
+}
+.comp-row:last-child { border-bottom: none; }
+.comp-row:hover { background: rgba(184,147,42,0.02); margin: 0 -36px; padding-left: 36px; padding-right: 36px; }
+
+.row-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding-top: 3px;
+  line-height: 1.4;
+}
+
+.row-value {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 13px;
+  color: var(--ink);
+  line-height: 1.65;
+}
+.row-value strong {
+  font-weight: 700;
+  color: var(--ink);
+}
+.row-value em {
+  font-style: italic;
+  color: var(--muted);
+}
+.row-value .highlight-gs {
+  color: var(--emerald);
+  font-weight: 700;
+}
+.row-value .highlight-w3 {
+  color: var(--cobalt-mid);
+  font-weight: 700;
+}
+.row-value .pill {
+  display: inline-block;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  padding: 2px 8px;
+  border: 1px solid;
+  margin: 2px 2px 0 0;
+  vertical-align: middle;
+}
+.pill-gs { border-color: var(--emerald); color: var(--emerald); background: var(--emerald-pale); }
+.pill-w3 { border-color: var(--cobalt-mid); color: var(--cobalt-mid); background: var(--cobalt-pale); }
+.pill-gold { border-color: var(--gold); color: var(--gold-light); background: var(--gold-pale); }
+
+/* ─── GAP ROW ─── */
+.gap-row {
+  margin-top: 8px;
+  padding: 16px;
+  border-left: 3px solid;
+  background: rgba(0,0,0,0.02);
+}
+.gap-row.gs-gap { border-left-color: var(--emerald); }
+.gap-row.w3-gap { border-left-color: var(--cobalt-mid); }
+.gap-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 7.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.gap-text {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 12px;
+  font-style: italic;
+  color: var(--ink);
+  line-height: 1.55;
+}
+
+/* ─── CONNECTOR STRIP ─── */
+.connector-strip {
+  background: var(--ink);
+  padding: 80px 56px;
+  position: relative;
+  overflow: hidden;
+}
+.connector-strip::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg, transparent, transparent calc(100%/16 - 1px),
+    rgba(184,147,42,0.04) calc(100%/16 - 1px), rgba(184,147,42,0.04) calc(100%/16)
+  );
+}
+
+.conn-inner { max-width: 1320px; margin: 0 auto; position: relative; }
+
+.conn-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.conn-eyebrow::after {
+  content: '';
+  flex: 1;
+  max-width: 60px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.4;
+}
+
+.conn-headline {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(32px, 4vw, 52px);
+  font-weight: 300;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--parchment);
+  margin-bottom: 56px;
+  max-width: 680px;
+}
+.conn-headline em {
+  font-style: italic;
+  color: var(--gold-light);
+}
+
+.conn-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: rgba(184,147,42,0.12);
+}
+.conn-card {
+  background: #0f0e0b;
+  padding: 28px 26px;
+  border-top: 2px solid transparent;
+  transition: border-color 0.3s, background 0.3s;
+}
+.conn-card:hover {
+  background: #131109;
+  border-top-color: var(--gold);
+}
+.cc-number {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 52px;
+  font-weight: 300;
+  color: rgba(184,147,42,0.12);
+  line-height: 1;
+  margin-bottom: 12px;
+  letter-spacing: -0.04em;
+}
+.cc-title {
+  font-family: 'Cormorant SC', serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--parchment);
+  margin-bottom: 8px;
+}
+.cc-body {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 12.5px;
+  color: rgba(246,243,238,0.45);
+  line-height: 1.7;
+}
+.cc-tag {
+  display: inline-block;
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.16em;
+  padding: 3px 8px;
+  border: 1px solid rgba(184,147,42,0.3);
+  color: var(--gold);
+  margin-top: 12px;
+}
+
+/* ─── VERDICT SECTION ─── */
+.verdict-section {
+  background: #0e0c09;
+  padding: 96px 56px;
+  position: relative;
+  border-top: 1px solid rgba(184,147,42,0.15);
+}
+.verdict-section::before {
+  content: '"';
+  position: absolute;
+  top: 40px; left: 52px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 320px;
+  line-height: 1;
+  color: rgba(184,147,42,0.04);
+  pointer-events: none;
+  font-style: italic;
+}
+
+.verdict-inner { max-width: 1320px; margin: 0 auto; position: relative; }
+
+.verdict-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: rgba(184,147,42,0.6);
+  margin-bottom: 28px;
+}
+
+.verdict-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(22px, 2.8vw, 36px);
+  font-weight: 300;
+  line-height: 1.45;
+  color: var(--parchment);
+  max-width: 900px;
+  margin-bottom: 56px;
+}
+.verdict-text strong {
+  font-weight: 600;
+  color: var(--gold-light);
+}
+.verdict-text em {
+  font-style: italic;
+  color: rgba(246,243,238,0.55);
+}
+
+.verdict-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: rgba(246,243,238,0.06);
+  margin-top: 56px;
+}
+.vg-box {
+  background: var(--ink);
+  padding: 28px 24px;
+  position: relative;
+  overflow: hidden;
+}
+.vg-box::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--gold);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
+}
+.vg-box:hover::after { transform: scaleX(1); }
+.vg-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 48px;
+  font-weight: 500;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.vg-num.gold { color: var(--gold-light); }
+.vg-num.emerald { color: #4ee68b; }
+.vg-num.red { color: #ff7070; }
+.vg-num.cobalt { color: #7ab4f0; }
+.vg-desc {
+  font-family: 'DM Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(246,243,238,0.3);
+  line-height: 1.5;
+}
+
+/* ─── FOOTER ─── */
+footer {
+  background: #060504;
+  border-top: 1px solid rgba(184,147,42,0.12);
+  padding: 48px 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.footer-brand {
+  font-family: 'Cormorant SC', serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: rgba(246,243,238,0.3);
+}
+.footer-meta {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(246,243,238,0.2);
+  text-align: right;
+}
+
+/* ─── ANIMATIONS ─── */
+.fade-in {
+  opacity: 0;
+  transform: translateY(16px);
+  animation: fadeUp 0.9s ease both;
+}
+.fade-in:nth-child(1) { animation-delay: 0.1s; }
+.fade-in:nth-child(2) { animation-delay: 0.2s; }
+.fade-in:nth-child(3) { animation-delay: 0.3s; }
+.fade-in:nth-child(4) { animation-delay: 0.4s; }
+.fade-in:nth-child(5) { animation-delay: 0.5s; }
+.fade-in:nth-child(6) { animation-delay: 0.6s; }
+
+/* ─── SCROLL INDICATOR ─── */
+.scroll-hint {
+  position: absolute;
+  bottom: 32px;
+  left: 56px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  opacity: 0.3;
+  animation: fadeUp 1s ease 1.2s both;
+}
+.sh-line {
+  width: 24px;
+  height: 1px;
+  background: var(--gold);
+}
+.sh-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 900px) {
+  .masthead, .hero, .comparison-section, .connector-strip, .verdict-section, footer {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+  .comp-grid { grid-template-columns: 1fr; }
+  .conn-grid { grid-template-columns: 1fr; }
+  .verdict-grid { grid-template-columns: 1fr 1fr; }
+  .hero-deck { grid-template-columns: 1fr 1fr; }
+  .cs-header { grid-template-columns: 1fr; }
+  .vs-badge { display: none; }
+  .masthead-nav { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ─── MASTHEAD ─── -->
+<header class="masthead">
+  <div class="masthead-brand">
+    <span class="mb-gs">GrowStreams</span>
+    <span class="mb-arrow">→</span>
+    <span class="mb-w3">Web3Cash</span>
+  </div>
+  <nav class="masthead-nav">
+    <span class="mn-link" onclick="go('comparison')">Comparison</span>
+    <span class="mn-link" onclick="go('synergies')">Synergies</span>
+    <span class="mn-link" onclick="go('verdict')">Executive View</span>
+  </nav>
+</header>
+
+<!-- ─── TICKER ─── -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <!-- First set -->
+    <div class="ticker-item">VARA·TESTNET <span class="up">▲ 6 / 9 Contracts Live</span></div>
+    <div class="ticker-item">PROTOCOL·FEE <span class="up">2.5% streaming</span> vs <span class="down">20% Upwork</span></div>
+    <div class="ticker-item">TX·COST <span class="up">$0.001 on Vara</span> vs <span class="down">$0.80 EVM L2</span></div>
+    <div class="ticker-item">CI·COVERAGE <span class="up">59/59 API · 53/53 E2E</span></div>
+    <div class="ticker-item">CAMPAIGN·POOL <span class="up">$500 USDC · 21 Days</span></div>
+    <div class="ticker-item">MARKET·SIZE <span class="up">Galxe 26M · Layer3 1M+</span></div>
+    <div class="ticker-item">W3CASH·MARGIN <span class="up">15% CPA + Subscriptions</span></div>
+    <div class="ticker-item">DEV·REUSE <span class="up">68% infrastructure shared</span></div>
+    <!-- Duplicate for seamless loop -->
+    <div class="ticker-item">VARA·TESTNET <span class="up">▲ 6 / 9 Contracts Live</span></div>
+    <div class="ticker-item">PROTOCOL·FEE <span class="up">2.5% streaming</span> vs <span class="down">20% Upwork</span></div>
+    <div class="ticker-item">TX·COST <span class="up">$0.001 on Vara</span> vs <span class="down">$0.80 EVM L2</span></div>
+    <div class="ticker-item">CI·COVERAGE <span class="up">59/59 API · 53/53 E2E</span></div>
+    <div class="ticker-item">CAMPAIGN·POOL <span class="up">$500 USDC · 21 Days</span></div>
+    <div class="ticker-item">MARKET·SIZE <span class="up">Galxe 26M · Layer3 1M+</span></div>
+    <div class="ticker-item">W3CASH·MARGIN <span class="up">15% CPA + Subscriptions</span></div>
+    <div class="ticker-item">DEV·REUSE <span class="up">68% infrastructure shared</span></div>
+  </div>
+</div>
+
+<!-- ─── HERO ─── -->
+<section class="hero">
+  <div class="hero-bg-lines"></div>
+  <div class="hero-glow-left"></div>
+  <div class="hero-glow-right"></div>
+
+  <div class="hero-inner">
+    <div class="hero-classification fade-in">Deal Memorandum</div>
+    <div class="hero-kicker fade-in">Confidential · Internal Distribution Only · April 2026</div>
+
+    <h1 class="fade-in">
+      What each<br>
+      product <em>does,</em><br>
+      where it <strong>wins,</strong><br>
+      and where<br>
+      the <em>gap</em> is.
+    </h1>
+
+    <div class="hero-deck">
+      <div class="hd-stat fade-in">
+        <div class="hd-label">Protocol Type</div>
+        <div class="hd-val">AI-Verified<br>Money Streaming</div>
+      </div>
+      <div class="hd-stat fade-in">
+        <div class="hd-label">Chain</div>
+        <div class="hd-val emerald">Vara Network<br><small style="font-size:14px;opacity:0.6">Substrate L1</small></div>
+      </div>
+      <div class="hd-stat fade-in">
+        <div class="hd-label">Readiness</div>
+        <div class="hd-val gold">38%</div>
+      </div>
+      <div class="hd-stat fade-in">
+        <div class="hd-label">Campaign Pool</div>
+        <div class="hd-val">$500 USDC</div>
+      </div>
+      <div class="hd-stat fade-in">
+        <div class="hd-label">W3Cash Mkt</div>
+        <div class="hd-val cobalt">26M+<br><small style="font-size:14px;opacity:0.6">Addressable</small></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <div class="sh-line"></div>
+    <span class="sh-text">Side-by-side analysis below</span>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ─── COMPARISON ─── -->
+<section class="comparison-section" id="comparison">
+  <div class="cs-inner">
+    <div class="cs-header">
+      <div class="cs-header-left">
+        <div class="eyebrow">Side-by-Side Comparison</div>
+        <h2>What each product does,<br>where it <em>wins,</em> and where the gap is.</h2>
+      </div>
+      <div class="vs-badge">
+        <div class="vs-text">versus</div>
+      </div>
+    </div>
+
+    <div class="comp-grid">
+
+      <!-- ─── GROWSTREAMS ─── -->
+      <div class="comp-card comp-card-gs">
+        <div class="comp-card-header">
+          <div class="comp-product-name gs">GrowStreams</div>
+          <div class="comp-product-tagline">The AI-verified quality streaming protocol.<br>Work is scored. Tokens stream. USDC follows.</div>
+          <div class="comp-status cs-live">
+            <span class="cs-dot"></span>
+            Live on Vara Testnet
+          </div>
+        </div>
+
+        <div class="comp-rows">
+          <div class="comp-row">
+            <div class="row-label">Core Model</div>
+            <div class="row-value">Contributors do verified work <strong>→</strong> AI scores quality <strong>→</strong> GROW streams per second into wallet <strong>→</strong> USDC payout</div>
+          </div>
+          <div class="comp-row">
+            <div class="row-label">Who Pays</div>
+            <div class="row-value">Companies and DAOs deposit a campaign pool <em>(e.g. $500 USDC)</em></div>
+          </div>
+          <div class="comp-row">
+            <div class="row-label">Who Earns</div>
+            <div class="row-value">Developers <span class="pill pill-gs">OSS PRs</span> and creators <span class="pill pill-gs">X content</span> — earnings proportional to quality score</div>
+          </div>
+          <div class="comp-row">
+            <div class="row-label">Verification</div>
+            <div class="row-value">LLM agent — <span class="highlight-gs">GitHub PR rubric</span> (Correctness 30%, Tests 25%, Quality 20%, Relevance 15%, Completeness 10%) + X engagement scoring</div>
+          </div>
+          <div class="comp-row">
+            <div class="row-label">Payment Mechanism</div>
+            <div class="row-value">Per-second streaming <span class="pill pill-gs">GROW token → USDC</span> — Vara's $0.001/tx makes micropayments viable at scale</div>
+          </div>
+          <div class="comp-row">
+            <div class="row-label">Anti-Gaming</div>
+            <div class="row-value">AI quality threshold <strong>70/100</strong> enforced by LLM + velocity limits + identity binding (one wallet per GitHub/X)</div>
+          </div>
+          <div class="comp-row">
+            <div class="row-label">Chain</div>
+            <div class="row-value">Vara Network <em>(Rust)</em> + Canton <em>(Daml)</em> — Substrate-based L1 with parallel message processing</div>
+          </div>
+          <div class="comp-row">
+            <div class="row-label">Existing Users</div>
+            <div class="row-value"><em>Zero — no live campaign yet. First campaign is the 21-day testnet launch.</em></div>
+          </div>
+          <div class="comp-row">
+            <div class="row-label">Revenue Model</div>
+            <div class="row-value"><strong>2.5%</strong> of all verified streaming volume. At $1M/month flow: <strong>$25K MRR</strong></div>
+          </div>
+
+          <div class="gap-row gs-gap">
+            <div class="gap-label">Identified Gap</div>
+            <div class="gap-text">No company-facing UI, no quest marketplace, no cashback mechanic for general crypto users. Protocol is proven — the B2B and consumer layers are entirely absent.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── WEB3CASH ─── -->
+      <div class="comp-card comp-card-w3">
+        <div class="comp-card-header">
+          <div class="comp-product-name w3">Web3Cash (proposed)</div>
+          <div class="comp-product-tagline">The performance marketing layer for Web3.<br>Complete quests. Earn USDC. Instantly.</div>
+          <div class="comp-status cs-proposed">
+            <span class="cs-dot"></span>
+            Extension — 4-Week Build on GrowStreams
+          </div>
+        </div>
+
+        <div class="comp-rows">
+          <div class="comp-row">
+            <div class="row-label">Core Model</div>
+            <div class="row-value">Companies create quests <strong>→</strong> users complete on-chain actions <strong>→</strong> verified completion <strong>→</strong> USDC cashback paid instantly</div>
+          </div>
+          <div class="comp-row">
+            <div class="row-label">Who Pays</div>
+            <div class="row-value">Web3 projects running <span class="pill pill-w3">CPA</span> <span class="pill pill-w3">CPI</span> <span class="pill pill-w3">CPL</span> <span class="pill pill-w3">CPS</span> campaigns — escrow held before quests go live</div>
+          </div>
+          <div class="comp-row">
+            <div class="row-label">Who Earns</div>
+            <div class="row-value"><em>Any</em> crypto user — complete quests, earn <span class="highlight-w3">real USDC cashback</span> directly to wallet. No quality score required.</div>
+          </div>
+          <div class="comp-row">
+            <div class="row-label">Verification</div>
+            <div class="row-value">On-chain indexer <span class="pill pill-w3">Alchemy</span> <span class="pill pill-w3">Moralis</span> + social API checks — binary pass/fail, no LLM needed for standard quests</div>
+          </div>
+          <div class="comp-row">
+            <div class="row-label">Payment Mechanism</div>
+            <div class="row-value">Instant USDC payout on verified quest completion — 72-hour hold with unfollow re-check. Gnosis Safe escrow for MVP.</div>
+          </div>
+          <div class="comp-row">
+            <div class="row-label">Anti-Gaming</div>
+            <div class="row-value">Sybil scoring <strong>8 signals</strong> via Gitcoin Passport + <strong>72-hour hold</strong> + velocity limits + KYC gate at $500 cumulative</div>
+          </div>
+          <div class="comp-row">
+            <div class="row-label">Chain</div>
+            <div class="row-value">Multi-chain EVM <span class="pill pill-w3">Ethereum</span> <span class="pill pill-w3">BNB</span> <span class="pill pill-w3">Polygon</span> <span class="pill pill-w3">Base</span> <span class="pill pill-w3">Arbitrum</span></div>
+          </div>
+          <div class="comp-row">
+            <div class="row-label">Market</div>
+            <div class="row-value">Galxe <strong>26M users</strong>, Layer3 <strong>1M+</strong>, Zealy, Intract — proven demand for quest-based crypto rewards</div>
+          </div>
+          <div class="comp-row">
+            <div class="row-label">Revenue Model</div>
+            <div class="row-value"><strong>15% margin</strong> on CPA + subscription tiers <span class="pill pill-gold">$5/$10/$25/mo</span> + exclusive promo codes</div>
+          </div>
+
+          <div class="gap-row w3-gap">
+            <div class="gap-label">Identified Gap</div>
+            <div class="gap-text">No AI quality verification — anyone can game low-effort quests. GrowStreams's LLM verification layer is the missing primitive Web3Cash needs to maintain payout integrity.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ─── SYNERGIES ─── -->
+<section class="connector-strip" id="synergies">
+  <div class="conn-inner">
+    <div class="conn-eyebrow">Strategic Fit Analysis</div>
+    <div class="conn-headline">
+      The gaps in each product are<br><em>precisely</em> what the other already built.
+    </div>
+
+    <div class="conn-grid">
+      <div class="conn-card fade-in">
+        <div class="cc-number">01</div>
+        <div class="cc-title">Shared Identity Layer</div>
+        <div class="cc-body">GrowStreams's Identity Registry contract binds wallet ↔ GitHub/X on-chain. Web3Cash needs the exact same primitive. Zero rebuild required — the same contract serves both products.</div>
+        <div class="cc-tag">100% Reuse · Live on Vara Testnet</div>
+      </div>
+      <div class="conn-card fade-in">
+        <div class="cc-number">02</div>
+        <div class="cc-title">AI Verification Layer</div>
+        <div class="cc-body">GrowStreams has LLM rubrics for quality scoring. Web3Cash's biggest gap is anti-gaming. Extend the existing pipeline: binary API checks for social quests, LLM scoring for content quests.</div>
+        <div class="cc-tag">Extend · Replace LLM with API for simple quests</div>
+      </div>
+      <div class="conn-card fade-in">
+        <div class="cc-number">03</div>
+        <div class="cc-title">72h Hold = T+6h Pattern</div>
+        <div class="cc-body">GrowStreams re-evaluates X posts at T+6h and T+24h using BullMQ delayed jobs. Web3Cash's unfollow detection is the same pattern extended to T+72h. Same queue, same infrastructure.</div>
+        <div class="cc-tag">Extend · BullMQ delayed job at T+72h</div>
+      </div>
+      <div class="conn-card fade-in">
+        <div class="cc-number">04</div>
+        <div class="cc-title">Market Distribution</div>
+        <div class="cc-body">GrowStreams has zero users but proven infrastructure. Web3Cash targets Galxe's 26M addressable users with a simpler UX. Web3Cash is GrowStreams's consumer distribution layer.</div>
+        <div class="cc-tag">Web3Cash = GrowStreams's user acquisition engine</div>
+      </div>
+      <div class="conn-card fade-in">
+        <div class="cc-number">05</div>
+        <div class="cc-title">Campaign Economics</div>
+        <div class="cc-body">GrowStreams: 2.5% fee on streaming volume. Web3Cash: 15% margin on CPA. Combined: the same infrastructure monetises at 2 different price points for 2 different buyer types — developers vs marketing teams.</div>
+        <div class="cc-tag">Combined ARR potential: $3M+ at scale</div>
+      </div>
+      <div class="conn-card fade-in">
+        <div class="cc-number">06</div>
+        <div class="cc-title">Build Once Principle</div>
+        <div class="cc-body">Telegram bot, Supabase schema, Railway deployment, Redis cache, anti-gaming dedup — built once, shared across both products. 68% of Web3Cash infrastructure exists in GrowStreams today.</div>
+        <div class="cc-tag">4-week build · Not a 6-week rebuild</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── VERDICT ─── -->
+<section class="verdict-section" id="verdict">
+  <div class="verdict-inner">
+    <div class="verdict-label">Executive Summary · April 2026</div>
+    <div class="verdict-text">
+      GrowStreams has <strong>no quest marketplace and no cashback layer.</strong>
+      Web3Cash has <strong>no AI verification and no streaming infrastructure.</strong>
+      <em>These are not competing products — they are the B2B protocol and the consumer application of the same technical foundation.</em>
+      Building Web3Cash as an extension of GrowStreams eliminates 68% of the engineering work and ships a combined product in 4 weeks that neither team could build alone in under 10.
+    </div>
+
+    <div class="verdict-grid">
+      <div class="vg-box">
+        <div class="vg-num gold">68%</div>
+        <div class="vg-desc">Infrastructure reusable<br>from GrowStreams today</div>
+      </div>
+      <div class="vg-box">
+        <div class="vg-num emerald">4 wks</div>
+        <div class="vg-desc">Time to working MVP<br>vs 10 weeks standalone</div>
+      </div>
+      <div class="vg-box">
+        <div class="vg-num cobalt" style="color:#7ab4f0;">0</div>
+        <div class="vg-desc">New blockchain contracts<br>required for Web3Cash MVP</div>
+      </div>
+      <div class="vg-box">
+        <div class="vg-num red">5</div>
+        <div class="vg-desc">Net-new components<br>to build for Web3Cash only</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─── -->
+<footer>
+  <div class="footer-brand">GrowStreams → Web3Cash · Deal Memo</div>
+  <div class="footer-meta">
+    Engineering & Product Analysis · v1.0 · April 2026<br>
+    Internal Distribution · Not for external circulation
+  </div>
+</footer>
+
+<script>
+function go(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 56, behavior: 'smooth' });
+}
+
+// Intersection observer for fade-in on scroll
+var io = new IntersectionObserver(function(entries) {
+  entries.forEach(function(entry) {
+    if (entry.isIntersecting) {
+      entry.target.style.opacity = '1';
+      entry.target.style.transform = 'translateY(0)';
+      io.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.conn-card').forEach(function(card, i) {
+  card.style.opacity = '0';
+  card.style.transform = 'translateY(20px)';
+  card.style.transition = 'opacity 0.6s ease ' + (i * 0.1) + 's, transform 0.6s ease ' + (i * 0.1) + 's';
+  io.observe(card);
+});
+
+document.querySelectorAll('.vg-box').forEach(function(box, i) {
+  box.style.opacity = '0';
+  box.style.transform = 'translateY(16px)';
+  box.style.transition = 'opacity 0.5s ease ' + (i * 0.08) + 's, transform 0.5s ease ' + (i * 0.08) + 's';
+  io.observe(box);
+});
+
+// Nav active state
+window.addEventListener('scroll', function() {
+  var current = '';
+  ['comparison','synergies','verdict'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && window.pageYOffset >= el.offsetTop - 120) current = id;
+  });
+  document.querySelectorAll('.mn-link').forEach(function(l) {
+    var oc = l.getAttribute('onclick') || '';
+    l.style.color = (current && oc.indexOf("'"+current+"'") > -1) ? 'var(--gold-light)' : '';
+  });
+});
+</script>
+</body>
+</html>

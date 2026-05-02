@@ -18,6 +18,11 @@ interface Quest {
     budgetUsdc: string;
     spentUsdc: string;
     remainingUsdc: string;
+    pricingModel: string;
+    impressions: number;
+    clicks: number;
+    installs: number;
+    leads: number;
     project: { name: string; verifiedBadge: boolean } | null;
   };
   userCompletion: { status: string; releaseAt: string | null } | null;
@@ -162,6 +167,13 @@ function QuestCard({
               className="h-full bg-emerald-500/70"
               style={{ width: `${100 - pct}%` }}
             />
+          </div>
+          <div className="mt-2 flex flex-wrap gap-3 font-mono text-[10px] text-neutral-600">
+            <span className="text-neutral-400">{quest.campaign.pricingModel}</span>
+            {quest.campaign.impressions > 0 && <span>👁 {quest.campaign.impressions.toLocaleString()}</span>}
+            {quest.campaign.clicks > 0 && <span>🖱 {quest.campaign.clicks.toLocaleString()}</span>}
+            {quest.campaign.installs > 0 && <span>📦 {quest.campaign.installs.toLocaleString()}</span>}
+            {quest.campaign.leads > 0 && <span>🎯 {quest.campaign.leads.toLocaleString()}</span>}
           </div>
         </div>
       </div>
