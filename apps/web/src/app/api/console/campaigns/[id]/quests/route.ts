@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
-import { requireProjectAuth } from '@web3cash/auth/project-auth';
+import { requireProjectAuth } from '@/lib/project-auth';
 import { prisma } from '@web3cash/db';
-import { Decimal } from 'decimal.js';
 
 export async function POST(
   request: Request,
@@ -48,7 +47,7 @@ export async function POST(
         type,
         title,
         description,
-        rewardUsdc: new Decimal(rewardUsdc),
+        rewardUsdc: String(rewardUsdc),
         maxCompletions,
         minSybilScore: minSybilScore || 40,
         requirements: requirements || {},

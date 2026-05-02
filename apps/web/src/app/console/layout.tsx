@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { getProjectSession } from '@web3cash/auth/project-auth';
+import { getProjectSession } from '@/lib/project-auth';
 import Link from 'next/link';
 
 export default async function ConsoleLayout({

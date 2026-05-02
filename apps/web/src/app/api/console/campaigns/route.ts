@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
-import { requireProjectAuth } from '@web3cash/auth/project-auth';
+import { requireProjectAuth } from '@/lib/project-auth';
 import { prisma } from '@web3cash/db';
-import { Decimal } from 'decimal.js';
 
 export async function POST(request: Request) {
   try {
@@ -21,7 +20,7 @@ export async function POST(request: Request) {
       data: {
         projectId: session.projectId,
         name,
-        budgetUsdc: new Decimal(budgetUsdc),
+        budgetUsdc: String(budgetUsdc),
         chainId: parseInt(chainId) || 1,
         status: 'DRAFT',
         startsAt: startsAt ? new Date(startsAt) : null,

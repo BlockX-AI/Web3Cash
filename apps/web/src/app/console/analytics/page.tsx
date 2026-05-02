@@ -1,4 +1,4 @@
-import { requireProjectAuth } from '@web3cash/auth/project-auth';
+import { requireProjectAuth } from '@/lib/project-auth';
 import { prisma } from '@web3cash/db';
 
 export default async function AnalyticsPage() {
