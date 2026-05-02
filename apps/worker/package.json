@@ -8,11 +8,13 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit",
-    "lint": "echo 'lint: ok'"
+    "lint": "echo 'lint: ok'",
+    "payouts:submit": "tsx src/scripts/submit-payouts.ts"
   },
   "dependencies": {
     "@web3cash/db": "workspace:*",
     "@web3cash/oauth": "workspace:*",
+    "@web3cash/payouts": "workspace:*",
     "@web3cash/shared": "workspace:*",
     "@web3cash/sybil": "workspace:*",
     "@web3cash/verifiers": "workspace:*",

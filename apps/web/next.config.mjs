@@ -8,6 +8,7 @@ const nextConfig = {
     '@web3cash/auth',
     '@web3cash/sybil',
     '@web3cash/oauth',
+    '@web3cash/payouts',
     '@web3cash/verifiers',
   ],
   experimental: {

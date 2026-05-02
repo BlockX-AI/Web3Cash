@@ -4,6 +4,9 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { QuestFeed } from '@/components/quest-feed';
 import { TwitterLinkButton } from '@/components/twitter-link-button';
+import { WithdrawCard } from '@/components/withdraw-card';
+import { ReferralCard } from '@/components/referral-card';
+import { PayoutHistory } from '@/components/payout-history';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -43,6 +46,14 @@ export default async function DashboardPage() {
         <Stat label="Tier" value={user.tier} />
       </div>
 
+      <section className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-2">
+        <WithdrawCard
+          pendingBalanceUsdc={user.pendingBalanceUsdc.toString()}
+          kycStatus={user.kycStatus}
+        />
+        <ReferralCard />
+      </section>
+
       <section className="mt-12">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">Connected accounts</h2>
@@ -57,6 +68,17 @@ export default async function DashboardPage() {
         </p>
         <div className="mt-6">
           <QuestFeed />
+        </div>
+      </section>
+
+      <section className="mt-12">
+        <h2 className="text-xl font-semibold">Withdrawals</h2>
+        <p className="mt-1 text-sm text-neutral-500">
+          Batched on-chain via Gnosis Safe. Confirmation typically within minutes
+          of the next signed batch.
+        </p>
+        <div className="mt-6">
+          <PayoutHistory />
         </div>
       </section>
 

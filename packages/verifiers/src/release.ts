@@ -1,11 +1,14 @@
-import { prisma } from '@web3cash/db';
+import { prisma, Prisma } from '@web3cash/db';
+import { REFERRAL_L1_RATE_BPS } from '@web3cash/shared';
 import { getVerifier } from './registry.js';
 
 /**
  * Re-verify a HOLDING completion after the hold window elapses.
  * Called by the worker's `recheck-quest` job.
  *
- * - Still PASS       → status=VERIFIED, credit pendingBalanceUsdc.
+ * - Still PASS       → status=VERIFIED, credit pendingBalanceUsdc, AND if the
+ *                       user has a referrer, credit the referrer's L1 share
+ *                       (REFERRAL_L1_RATE_BPS basis points) atomically.
  * - FAIL / INVALID   → status=FAILED, release the reserved completion slot.
  * - RETRY            → leave HOLDING; the job will be re-scheduled.
  */
@@ -44,8 +47,21 @@ export async function recheckCompletion(
   if (result.outcome === 'RETRY') return 'RETRY';
 
   if (result.outcome === 'PASS') {
-    // Credit pending balance and mark VERIFIED. Actual payout is Phase 3.
-    await prisma.$transaction([
+    // Credit referee's pending balance and (if applicable) the referrer's L1
+    // share — all in one transaction so the ledger never desyncs.
+    const referee = await prisma.user.findUnique({
+      where: { walletAddress: completion.userWallet },
+      select: { referredByWallet: true },
+    });
+
+    const referralAmount = referee?.referredByWallet
+      ? completion.rewardUsdc
+          .mul(REFERRAL_L1_RATE_BPS)
+          .div(10_000)
+          .toDecimalPlaces(6, Prisma.Decimal.ROUND_DOWN)
+      : null;
+
+    const writes: Prisma.PrismaPromise<unknown>[] = [
       prisma.questCompletion.update({
         where: { id: completionId },
         data: { status: 'VERIFIED' },
@@ -57,7 +73,35 @@ export async function recheckCompletion(
           totalEarnedUsdc: { increment: completion.rewardUsdc },
         },
       }),
-    ]);
+    ];
+
+    if (
+      referee?.referredByWallet &&
+      referralAmount &&
+      referralAmount.gt(0)
+    ) {
+      writes.push(
+        prisma.referralEarning.create({
+          data: {
+            referrerWallet: referee.referredByWallet,
+            refereeWallet: completion.userWallet,
+            completionId,
+            level: 1,
+            rateBps: REFERRAL_L1_RATE_BPS,
+            amountUsdc: referralAmount,
+          },
+        }),
+        prisma.user.update({
+          where: { walletAddress: referee.referredByWallet },
+          data: {
+            pendingBalanceUsdc: { increment: referralAmount },
+            totalEarnedUsdc: { increment: referralAmount },
+          },
+        }),
+      );
+    }
+
+    await prisma.$transaction(writes);
     return 'PROMOTED';
   }
 

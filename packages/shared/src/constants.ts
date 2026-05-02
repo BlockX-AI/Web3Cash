@@ -43,4 +43,20 @@ export const QUEUE_NAMES = {
   COMPUTE_SYBIL_SCORE: 'compute-sybil-score',
   RECHECK_QUEST: 'recheck-quest',
   RELEASE_COMPLETION: 'release-completion',
+  CONFIRM_PAYOUT: 'confirm-payout',
 } as const;
+
+/** Referral L1 rate in basis points (matches REFERRAL_L1_RATE = 0.10). */
+export const REFERRAL_L1_RATE_BPS = Math.round(REFERRAL_L1_RATE * 10_000);
+
+/** Minimum withdrawable USDC. Below this we keep balance pending. */
+export const MIN_WITHDRAWAL_USDC = 1;
+
+/** Referral cookie name set when a `?ref=CODE` lands on the marketing site. */
+export const REFERRAL_COOKIE = 'w3c_ref';
+
+/** Referral cookie TTL (30 days). */
+export const REFERRAL_COOKIE_TTL_SECONDS = 30 * 24 * 60 * 60;
+
+/** Confirmations required before a payout tx is considered final. */
+export const PAYOUT_CONFIRMATIONS = 3;

@@ -5,8 +5,7 @@ import { redisConnection } from './lib/redis.js';
 export const QueueNames = {
   ComputeSybilScore: 'compute-sybil-score',
   RecheckQuest: 'recheck-quest',
-  // Phase 3:
-  // ReleasePayout: 'release-payout',
+  ConfirmPayout: 'confirm-payout',
 } as const;
 
 export interface ComputeSybilScoreJobData {
@@ -16,6 +15,10 @@ export interface ComputeSybilScoreJobData {
 
 export interface RecheckQuestJobData {
   completionId: string;
+}
+
+export interface ConfirmPayoutJobData {
+  payoutId: string;
 }
 
 const defaults = {
@@ -37,6 +40,26 @@ export const recheckQuestQueue = new Queue<RecheckQuestJobData>(
   QueueNames.RecheckQuest,
   defaults,
 );
+
+export const confirmPayoutQueue = new Queue<ConfirmPayoutJobData>(
+  QueueNames.ConfirmPayout,
+  defaults,
+);
+
+/**
+ * Schedule a tx-confirmation poll for a SUBMITTED payout. Use a stable jobId
+ * so the same payout never has duplicate concurrent polls.
+ */
+export async function scheduleConfirmPayout(
+  payoutId: string,
+  delayMs = 30_000,
+): Promise<void> {
+  await confirmPayoutQueue.add(
+    'confirm',
+    { payoutId },
+    { delay: delayMs, jobId: `confirm:${payoutId}` },
+  );
+}
 
 /**
  * Schedules a re-check of a HOLDING completion at `releaseAt`.

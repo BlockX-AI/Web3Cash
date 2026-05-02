@@ -15,6 +15,7 @@
     "@web3cash/auth": "workspace:*",
     "@web3cash/db": "workspace:*",
     "@web3cash/oauth": "workspace:*",
+    "@web3cash/payouts": "workspace:*",
     "@web3cash/shared": "workspace:*",
     "@web3cash/sybil": "workspace:*",
     "@web3cash/verifiers": "workspace:*",
