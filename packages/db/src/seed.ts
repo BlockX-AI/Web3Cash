@@ -152,7 +152,7 @@ const SEEDS: ProjectSeed[] = [
             rewardUsdc: '1.000000',
             maxCompletions: 250,
             minSybilScore: 30,
-            requirements: { repo: 'noderunners/runner-cli' },
+            requirements: { owner: 'noderunners', repo: 'runner-cli' },
           },
         ],
       },
