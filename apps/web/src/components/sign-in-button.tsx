@@ -70,11 +70,11 @@ export function SignInButton() {
           <button
             onClick={signIn}
             disabled={status === 'signing' || status === 'verifying'}
-            className="rounded bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+            className="rounded-xl bg-gradient-to-r from-yellow-500 to-yellow-600 px-6 py-3 text-sm font-bold text-black transition hover:from-yellow-400 hover:to-yellow-500 disabled:opacity-50"
           >
-            {status === 'signing' && 'Awaiting signature...'}
-            {status === 'verifying' && 'Verifying...'}
-            {(status === 'idle' || status === 'error') && 'Sign in with Ethereum'}
+            {status === 'signing' && '⏳ Awaiting signature...'}
+            {status === 'verifying' && '🔄 Verifying...'}
+            {(status === 'idle' || status === 'error') && '🔐 Sign in with Ethereum'}
           </button>
           {status === 'error' && error && (
             <button
