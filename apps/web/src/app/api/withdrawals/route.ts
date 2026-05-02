@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@web3cash/db';
 import { createWithdrawal } from '@web3cash/payouts';
 import { getSessionWallet } from '@/lib/session';
+import { enforceRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 
@@ -19,6 +20,9 @@ export async function POST() {
   if (!wallet) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
+
+  const limited = enforceRateLimit(`withdraw:${wallet}`, RATE_LIMITS.WITHDRAWAL);
+  if (limited) return limited;
 
   const result = await createWithdrawal(wallet, {
     chainId: Number(process.env.DEFAULT_CHAIN_ID ?? '1'),

@@ -77,4 +77,54 @@ export class AlchemyAdapter implements ChainAnalyticsAdapter {
     const ageDays = Math.floor((Date.now() - firstTxMs) / (1000 * 60 * 60 * 24));
     return { ageDays: Math.max(0, ageDays) };
   }
+
+  async getNativeBalanceWei(walletAddress: string, chainId: number): Promise<string> {
+    const json = await this.rpc<{ result?: string }>(chainId, 'eth_getBalance', [
+      walletAddress,
+      'latest',
+    ]);
+    if (!json.result) return '0';
+    return BigInt(json.result).toString();
+  }
+
+  async getTokenDiversity(walletAddress: string, chainId: number): Promise<number> {
+    // alchemy_getTokenBalances returns ALL non-zero ERC-20 balances.
+    const json = await this.rpc<{
+      result?: { tokenBalances: Array<{ tokenBalance: string }> };
+    }>(chainId, 'alchemy_getTokenBalances', [walletAddress, 'erc20']);
+    const balances = json.result?.tokenBalances ?? [];
+    return balances.filter((b) => b.tokenBalance && b.tokenBalance !== '0x0').length;
+  }
+
+  async getNftCount(walletAddress: string, chainId: number): Promise<number> {
+    const network = CHAIN_ID_TO_ALCHEMY_NETWORK[chainId];
+    if (!network) return 0;
+    const url = `https://${network}.g.alchemy.com/nft/v3/${this.apiKey}/getContractsForOwner?owner=${walletAddress}&pageSize=100`;
+    const res = await fetch(url);
+    if (!res.ok) return 0;
+    const json = (await res.json()) as { totalCount?: number; contracts?: unknown[] };
+    return json.totalCount ?? json.contracts?.length ?? 0;
+  }
+
+  async getContractsInteracted(walletAddress: string, chainId: number): Promise<number> {
+    // External transfers TO contract addresses are a proxy for DeFi/dApp breadth.
+    const json = await this.rpc<{
+      result?: { transfers: Array<{ to: string | null }> };
+    }>(chainId, 'alchemy_getAssetTransfers', [
+      {
+        fromBlock: '0x0',
+        toBlock: 'latest',
+        fromAddress: walletAddress,
+        category: ['external', 'erc20', 'erc721', 'erc1155'],
+        maxCount: '0x3e8', // 1000
+        withMetadata: false,
+      },
+    ]);
+    const transfers = json.result?.transfers ?? [];
+    const unique = new Set<string>();
+    for (const t of transfers) {
+      if (t.to) unique.add(t.to.toLowerCase());
+    }
+    return unique.size;
+  }
 }

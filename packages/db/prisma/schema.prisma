@@ -133,6 +133,10 @@ model User {
   totalEarnedUsdc    Decimal    @default(0) @map("total_earned_usdc") @db.Decimal(18, 6)
   email              String?    @db.VarChar(255)
   telegramChatId     String?    @map("telegram_chat_id")
+  /// Persona inquiry id used to correlate webhook updates to this user.
+  kycInquiryId       String?    @unique @map("kyc_inquiry_id") @db.VarChar(64)
+  /// JSON payload of the latest sybil signal vector — useful for forensics & UI.
+  sybilSignals       Json?      @map("sybil_signals")
   createdAt          DateTime   @default(now()) @map("created_at")
   updatedAt          DateTime   @updatedAt @map("updated_at")
 

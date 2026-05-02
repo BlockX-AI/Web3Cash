@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { twitter } from '@web3cash/oauth';
+import { discord } from '@web3cash/oauth';
 import { getSessionWallet } from '@/lib/session';
 import { enforceRateLimit, getClientIp, RATE_LIMITS } from '@/lib/rate-limit';
 
@@ -10,12 +10,12 @@ export async function GET(req: NextRequest) {
   if (!wallet) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
-  const limited = enforceRateLimit(`oauth:twitter:${getClientIp(req)}`, RATE_LIMITS.OAUTH_START);
+  const limited = enforceRateLimit(`oauth:discord:${getClientIp(req)}`, RATE_LIMITS.OAUTH_START);
   if (limited) return limited;
 
   const returnTo = req.nextUrl.searchParams.get('returnTo') ?? '/dashboard';
   try {
-    const { url } = await twitter.startAuth({ userWallet: wallet, returnTo });
+    const { url } = await discord.startAuth({ userWallet: wallet, returnTo });
     return NextResponse.redirect(url);
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'oauth_start_failed';

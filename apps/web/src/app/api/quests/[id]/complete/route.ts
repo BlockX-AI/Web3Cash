@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { attemptCompletion } from '@web3cash/verifiers';
 import { getSessionWallet } from '@/lib/session';
 import { scheduleRecheck } from '@/lib/queues';
+import { enforceRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 
@@ -13,6 +14,9 @@ export async function POST(
   if (!wallet) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
+
+  const limited = enforceRateLimit(`claim:${wallet}`, RATE_LIMITS.QUEST_CLAIM);
+  if (limited) return limited;
 
   const result = await attemptCompletion({
     userWallet: wallet,

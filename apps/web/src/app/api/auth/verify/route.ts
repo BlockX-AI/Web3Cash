@@ -2,6 +2,7 @@ import { signSession, upsertUserOnLogin, verifySiwe } from '@web3cash/auth';
 import { siweVerifyRequestSchema, SESSION_TTL_SECONDS } from '@web3cash/shared';
 import { cookies } from 'next/headers';
 import { NextResponse, type NextRequest } from 'next/server';
+import { enforceRateLimit, getClientIp, RATE_LIMITS } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 
@@ -9,6 +10,8 @@ const SESSION_COOKIE = 'w3c_session';
 const REFERRAL_COOKIE = 'w3c_ref';
 
 export async function POST(req: NextRequest) {
+  const limited = enforceRateLimit(`auth:verify:${getClientIp(req)}`, RATE_LIMITS.AUTH);
+  if (limited) return limited;
   try {
     const json = await req.json();
     const parsed = siweVerifyRequestSchema.safeParse(json);
