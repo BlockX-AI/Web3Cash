@@ -1,4 +1,4 @@
-﻿-- CreateEnum
+-- CreateEnum
 CREATE TYPE "SocialPlatform" AS ENUM ('TWITTER', 'DISCORD', 'GITHUB', 'TELEGRAM');
 
 -- CreateEnum

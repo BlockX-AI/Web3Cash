@@ -5,7 +5,7 @@
     "buildCommand": "pnpm install --frozen-lockfile --prod=false && pnpm db:generate && pnpm --filter @web3cash/web build"
   },
   "deploy": {
-    "startCommand": "pnpm db:migrate:deploy && pnpm --filter @web3cash/web start",
+    "startCommand": "(pnpm --filter @web3cash/db exec prisma migrate resolve --rolled-back 20250502_init || true) && pnpm db:migrate:deploy && pnpm --filter @web3cash/web start",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10,
     "healthcheckPath": "/api/health"
