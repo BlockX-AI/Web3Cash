@@ -1,10 +1,11 @@
 import type { PayoutProvider as DbPayoutProvider } from '@web3cash/db';
 import type { PayoutProviderAdapter } from '../types.js';
 import { GnosisSafeProvider } from './gnosis-safe.js';
+import { EscrowContractProvider } from './escrow.js';
 
 /**
- * Lazily instantiate a provider — Phase 6 will add `EscrowContractProvider`
- * here. The factory keeps env-loading constructors out of the hot path.
+ * Lazily instantiate a provider. The factory keeps env-loading constructors
+ * out of the hot path so a missing Escrow env doesn't break Gnosis Safe code.
  */
 let cached: Partial<Record<DbPayoutProvider, PayoutProviderAdapter>> = {};
 
@@ -14,10 +15,11 @@ export function getProvider(id: DbPayoutProvider): PayoutProviderAdapter {
     case 'GNOSIS_SAFE':
       cached[id] = new GnosisSafeProvider();
       return cached[id]!;
+    case 'ESCROW_CONTRACT':
+      cached[id] = new EscrowContractProvider();
+      return cached[id]!;
     case 'CIRCLE_API':
       throw new Error('CIRCLE_API provider is reserved for future use');
-    case 'ESCROW_CONTRACT':
-      throw new Error('ESCROW_CONTRACT provider lands in Phase 6');
     default: {
       const _exhaustive: never = id;
       throw new Error(`unknown payout provider: ${String(_exhaustive)}`);
@@ -30,4 +32,4 @@ export function __resetProviderCache() {
   cached = {};
 }
 
-export { GnosisSafeProvider };
+export { GnosisSafeProvider, EscrowContractProvider };

@@ -43,3 +43,10 @@ coverage/
 
 # Vercel
 .vercel
+
+# Hardhat
+packages/contracts/artifacts/
+packages/contracts/cache/
+packages/contracts/typechain-types/
+packages/contracts/coverage/
+packages/contracts/coverage.json
