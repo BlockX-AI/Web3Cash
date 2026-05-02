@@ -14,44 +14,40 @@ export default async function ConsoleLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex">
-              <div className="flex-shrink-0 flex items-center">
-                <h1 className="text-xl font-bold">Web3Cash Console</h1>
-              </div>
-              <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                <Link
-                  href="/console"
-                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                >
+    <div className="min-h-screen bg-black">
+      <nav className="border-b border-yellow-900/20 bg-black/80 backdrop-blur-sm sticky top-0 z-10">
+        <div className="mx-auto max-w-7xl px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-8">
+              <Link href="/" className="flex items-center gap-2">
+                <div className="h-7 w-7 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600" />
+                <span className="text-lg font-bold text-yellow-400">Web3Cash</span>
+                <span className="rounded-full bg-yellow-500/10 px-2 py-0.5 text-xs text-yellow-500">Console</span>
+              </Link>
+              <div className="hidden sm:flex sm:gap-6">
+                <Link href="/console" className="text-sm text-neutral-400 transition hover:text-yellow-400">
                   Overview
                 </Link>
-                <Link
-                  href="/console/campaigns"
-                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                >
+                <Link href="/console/campaigns" className="text-sm text-neutral-400 transition hover:text-yellow-400">
                   Campaigns
-                </Link>
-                <Link
-                  href="/console/analytics"
-                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                >
-                  Analytics
                 </Link>
               </div>
             </div>
-            <div className="flex items-center">
-              <span className="text-sm text-gray-500">
-                {session.walletAddress.slice(0, 6)}...{session.walletAddress.slice(-4)}
+            <div className="flex items-center gap-4">
+              <Link
+                href="/create"
+                className="rounded-xl bg-gradient-to-r from-yellow-500 to-yellow-600 px-4 py-2 text-xs font-bold text-black transition hover:from-yellow-400 hover:to-yellow-500"
+              >
+                + New Campaign
+              </Link>
+              <span className="rounded-full border border-yellow-500/20 bg-yellow-500/5 px-3 py-1.5 font-mono text-xs text-neutral-400">
+                {session.walletAddress.slice(0, 6)}…{session.walletAddress.slice(-4)}
               </span>
             </div>
           </div>
         </div>
       </nav>
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-7xl px-6 py-8">
         {children}
       </main>
     </div>

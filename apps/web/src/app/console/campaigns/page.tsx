@@ -19,88 +19,73 @@ export default async function CampaignsPage() {
   });
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8">
-      <div className="sm:flex sm:items-center">
-        <div className="sm:flex-auto">
-          <h1 className="text-2xl font-semibold text-gray-900">Campaigns</h1>
-          <p className="mt-2 text-sm text-gray-700">
-            Manage your marketing campaigns and track their performance
-          </p>
+    <div>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-yellow-400">Campaigns</h1>
+          <p className="mt-1 text-sm text-neutral-400">Manage your quest campaigns and track their on-chain performance</p>
         </div>
-        <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-          <Link
-            href="/console/campaigns/new"
-            className="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto"
-          >
-            Create Campaign
-          </Link>
-        </div>
+        <Link
+          href="/create"
+          className="rounded-xl bg-gradient-to-r from-yellow-500 to-yellow-600 px-5 py-2.5 text-sm font-bold text-black transition hover:from-yellow-400 hover:to-yellow-500"
+        >
+          + New Campaign
+        </Link>
       </div>
 
-      <div className="mt-8 flex flex-col">
-        <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
-          <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-            <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-              <table className="min-w-full divide-y divide-gray-300">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">
-                      Name
-                    </th>
-                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                      Status
-                    </th>
-                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                      Budget
-                    </th>
-                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                      Spent
-                    </th>
-                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                      Quests
-                    </th>
-                    <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6">
-                      <span className="sr-only">View</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 bg-white">
-                  {campaigns.map((campaign) => (
-                    <tr key={campaign.id}>
-                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                        {campaign.name}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                        <span className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${
-                          campaign.status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
-                          campaign.status === 'FUNDED' ? 'bg-blue-100 text-blue-800' :
-                          campaign.status === 'ENDED' ? 'bg-gray-100 text-gray-800' :
-                          'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {campaign.status}
-                        </span>
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                        ${campaign.budgetUsdc.toString()} USDC
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                        ${campaign.spentUsdc.toString()} USDC
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                        {campaign.quests.length}
-                      </td>
-                      <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                        <Link href={`/console/campaigns/${campaign.id}`} className="text-indigo-600 hover:text-indigo-900">
-                          View<span className="sr-only">, {campaign.name}</span>
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+      <div className="mt-8 space-y-4">
+        {campaigns.length === 0 ? (
+          <div className="rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-12 text-center">
+            <p className="text-neutral-400">No campaigns yet. Create your first campaign to get started.</p>
+            <Link
+              href="/create"
+              className="mt-4 inline-block rounded-xl bg-gradient-to-r from-yellow-500 to-yellow-600 px-6 py-2.5 text-sm font-bold text-black transition hover:from-yellow-400 hover:to-yellow-500"
+            >
+              Create First Campaign →
+            </Link>
           </div>
-        </div>
+        ) : (
+          campaigns.map((campaign) => {
+            const spent = Number(campaign.spentUsdc);
+            const budget = Number(campaign.budgetUsdc);
+            const pct = budget > 0 ? Math.min(100, Math.round((spent / budget) * 100)) : 0;
+            const totalCompletions = campaign.quests.reduce((s, q) => s + q.completionsCount, 0);
+            return (
+              <Link
+                key={campaign.id}
+                href={`/console/campaigns/${campaign.id}`}
+                className="block rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-6 transition hover:border-yellow-500/40 hover:bg-yellow-500/10"
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-lg font-semibold text-yellow-400">{campaign.name}</h3>
+                      <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold uppercase ${
+                        campaign.status === 'ACTIVE' ? 'bg-green-500/20 text-green-400' :
+                        campaign.status === 'FUNDED' ? 'bg-yellow-500/20 text-yellow-400' :
+                        campaign.status === 'ENDED' ? 'bg-neutral-700 text-neutral-400' :
+                        'bg-neutral-800 text-neutral-400'
+                      }`}>{campaign.status}</span>
+                    </div>
+                    <div className="mt-3 flex flex-wrap gap-6 text-sm">
+                      <span className="text-neutral-500">Budget: <span className="font-medium text-yellow-400">${campaign.budgetUsdc.toString()} USDC</span></span>
+                      <span className="text-neutral-500">Spent: <span className="font-medium text-neutral-300">${campaign.spentUsdc.toString()} USDC</span></span>
+                      <span className="text-neutral-500">Quests: <span className="font-medium text-neutral-300">{campaign.quests.length}</span></span>
+                      <span className="text-neutral-500">Completions: <span className="font-medium text-neutral-300">{totalCompletions}</span></span>
+                    </div>
+                    <div className="mt-3 flex items-center gap-3">
+                      <div className="h-2 flex-1 max-w-xs overflow-hidden rounded-full bg-neutral-800">
+                        <div className="h-full bg-gradient-to-r from-yellow-500 to-yellow-600 transition-all" style={{ width: `${pct}%` }} />
+                      </div>
+                      <span className="text-xs text-neutral-500">{pct}% spent</span>
+                    </div>
+                  </div>
+                  <span className="ml-4 text-neutral-500 text-lg">→</span>
+                </div>
+              </Link>
+            );
+          })
+        )}
       </div>
     </div>
   );

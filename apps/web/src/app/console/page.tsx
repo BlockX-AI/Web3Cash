@@ -35,115 +35,121 @@ export default async function ConsolePage() {
   );
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8">
-      <div className="sm:flex sm:items-center">
-        <div className="sm:flex-auto">
-          <h1 className="text-2xl font-semibold text-gray-900">{project.name}</h1>
-          <p className="mt-2 text-sm text-gray-700">
-            Manage your campaigns and track performance
-          </p>
+    <div>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-yellow-400">{project.name}</h1>
+          <p className="mt-1 text-sm text-neutral-400">Manage your campaigns and track on-chain performance</p>
         </div>
-        <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-          <Link
-            href="/console/campaigns/new"
-            className="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto"
-          >
-            Create Campaign
+        <Link
+          href="/create"
+          className="rounded-xl bg-gradient-to-r from-yellow-500 to-yellow-600 px-5 py-2.5 text-sm font-bold text-black transition hover:from-yellow-400 hover:to-yellow-500"
+        >
+          + New Campaign
+        </Link>
+      </div>
+
+      {/* Stats */}
+      <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {[
+          { label: 'Total Campaigns', value: totalCampaigns, icon: '📋' },
+          { label: 'Active Campaigns', value: activeCampaigns, icon: '🟢' },
+          { label: 'Total Quests', value: totalQuests, icon: '✨' },
+          { label: 'Completions', value: totalCompletions, icon: '✅' },
+        ].map((stat) => (
+          <div key={stat.label} className="rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-5">
+            <div className="text-2xl">{stat.icon}</div>
+            <div className="mt-2 text-3xl font-bold text-yellow-400">{stat.value}</div>
+            <div className="mt-1 text-sm text-neutral-400">{stat.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Contract Info */}
+      <div className="mt-8 rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-6">
+        <h2 className="text-sm font-semibold text-yellow-400">🔗 On-Chain Escrow Contract</h2>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <div>
+            <p className="text-xs text-neutral-500 uppercase tracking-wider">Escrow Address</p>
+            <a
+              href="https://sepolia.etherscan.io/address/0xA67F9b4a122Ef009Ef45eA4fd3C3c250C94F9dd7"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-1 block font-mono text-xs text-yellow-400 hover:underline"
+            >
+              0xA67F9b4a122Ef009Ef45eA4fd3C3c250C94F9dd7 ↗
+            </a>
+          </div>
+          <div>
+            <p className="text-xs text-neutral-500 uppercase tracking-wider">Registry Address</p>
+            <a
+              href="https://sepolia.etherscan.io/address/0x745006c263B74dF940F9571B16ef78edEAd9811A"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-1 block font-mono text-xs text-yellow-400 hover:underline"
+            >
+              0x745006c263B74dF940F9571B16ef78edEAd9811A ↗
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* Recent Campaigns */}
+      <div className="mt-8">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-yellow-400">Recent Campaigns</h2>
+          <Link href="/console/campaigns" className="text-sm text-neutral-400 hover:text-yellow-400 transition">
+            View all →
           </Link>
         </div>
-      </div>
-
-      <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="text-2xl font-semibold text-gray-900">{totalCampaigns}</div>
-              </div>
+        <div className="mt-4 space-y-3">
+          {project.campaigns.length === 0 ? (
+            <div className="rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-8 text-center">
+              <p className="text-neutral-400">No campaigns yet.</p>
+              <Link
+                href="/create"
+                className="mt-4 inline-block rounded-xl bg-gradient-to-r from-yellow-500 to-yellow-600 px-6 py-2.5 text-sm font-bold text-black transition hover:from-yellow-400 hover:to-yellow-500"
+              >
+                Create First Campaign →
+              </Link>
             </div>
-            <div className="mt-1">
-              <p className="text-sm font-medium text-gray-500">Total Campaigns</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="text-2xl font-semibold text-gray-900">{activeCampaigns}</div>
-              </div>
-            </div>
-            <div className="mt-1">
-              <p className="text-sm font-medium text-gray-500">Active Campaigns</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="text-2xl font-semibold text-gray-900">{totalQuests}</div>
-              </div>
-            </div>
-            <div className="mt-1">
-              <p className="text-sm font-medium text-gray-500">Total Quests</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="text-2xl font-semibold text-gray-900">{totalCompletions}</div>
-              </div>
-            </div>
-            <div className="mt-1">
-              <p className="text-sm font-medium text-gray-500">Total Completions</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-8">
-        <h2 className="text-lg font-medium text-gray-900">Recent Campaigns</h2>
-        <div className="mt-4 bg-white shadow overflow-hidden sm:rounded-md">
-          <ul className="divide-y divide-gray-200">
-            {project.campaigns.slice(0, 5).map((campaign) => (
-              <li key={campaign.id}>
-                <Link href={`/console/campaigns/${campaign.id}`} className="block hover:bg-gray-50">
-                  <div className="px-4 py-4 sm:px-6">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-indigo-600 truncate">
-                        {campaign.name}
-                      </p>
-                      <div className="ml-2 flex-shrink-0 flex">
-                        <p className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          campaign.status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
-                          campaign.status === 'FUNDED' ? 'bg-blue-100 text-blue-800' :
-                          'bg-gray-100 text-gray-800'
-                        }`}>
-                          {campaign.status}
-                        </p>
-                      </div>
+          ) : (
+            project.campaigns.slice(0, 5).map((campaign) => {
+              const spent = Number(campaign.spentUsdc);
+              const budget = Number(campaign.budgetUsdc);
+              const pct = budget > 0 ? Math.min(100, Math.round((spent / budget) * 100)) : 0;
+              return (
+                <Link
+                  key={campaign.id}
+                  href={`/console/campaigns/${campaign.id}`}
+                  className="flex items-center justify-between rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-5 transition hover:border-yellow-500/40 hover:bg-yellow-500/10"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-3">
+                      <h3 className="font-semibold text-yellow-400">{campaign.name}</h3>
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${
+                        campaign.status === 'ACTIVE' ? 'bg-green-500/20 text-green-400' :
+                        campaign.status === 'FUNDED' ? 'bg-yellow-500/20 text-yellow-400' :
+                        'bg-neutral-800 text-neutral-400'
+                      }`}>
+                        {campaign.status}
+                      </span>
                     </div>
-                    <div className="mt-2 sm:flex sm:justify-between">
-                      <div className="sm:flex">
-                        <p className="flex items-center text-sm text-gray-500">
-                          Budget: ${campaign.budgetUsdc.toString()} USDC
-                        </p>
-                        <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                          Spent: ${campaign.spentUsdc.toString()} USDC
-                        </p>
-                      </div>
+                    <div className="mt-2 flex gap-4 text-xs text-neutral-400">
+                      <span>Budget: <span className="text-yellow-400">${campaign.budgetUsdc.toString()} USDC</span></span>
+                      <span>Spent: <span className="text-neutral-300">${campaign.spentUsdc.toString()} USDC</span></span>
+                      <span>Quests: <span className="text-neutral-300">{campaign.quests.length}</span></span>
+                    </div>
+                    <div className="mt-2 h-1.5 w-48 overflow-hidden rounded-full bg-neutral-800">
+                      <div className="h-full bg-gradient-to-r from-yellow-500 to-yellow-600" style={{ width: `${pct}%` }} />
                     </div>
                   </div>
+                  <span className="ml-4 text-neutral-500">→</span>
                 </Link>
-              </li>
-            ))}
-          </ul>
+              );
+            })
+          )}
         </div>
       </div>
     </div>
