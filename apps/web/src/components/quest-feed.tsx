@@ -12,7 +12,14 @@ interface Quest {
   slotsRemaining: number;
   maxCompletions: number;
   requirements: Record<string, unknown>;
-  campaign: { id: string; name: string };
+  campaign: {
+    id: string;
+    name: string;
+    budgetUsdc: string;
+    spentUsdc: string;
+    remainingUsdc: string;
+    project: { name: string; verifiedBadge: boolean } | null;
+  };
   userCompletion: { status: string; releaseAt: string | null } | null;
 }
 
@@ -34,7 +41,7 @@ const ERR_COPY: Record<string, string> = {
   unauthorized: 'Please sign in first.',
 };
 
-export function QuestFeed() {
+export function QuestFeed({ readOnly = false }: { readOnly?: boolean } = {}) {
   const [quests, setQuests] = useState<Quest[] | null>(null);
   const [claim, setClaim] = useState<Record<string, ClaimState>>({});
   const [, startTransition] = useTransition();
@@ -82,6 +89,7 @@ export function QuestFeed() {
           quest={q}
           state={claim[q.id] ?? { kind: 'idle' }}
           onClaim={() => onClaim(q.id)}
+          readOnly={readOnly}
         />
       ))}
     </ul>
@@ -92,16 +100,22 @@ function QuestCard({
   quest,
   state,
   onClaim,
+  readOnly,
 }: {
   quest: Quest;
   state: ClaimState;
   onClaim: () => void;
+  readOnly: boolean;
 }) {
   const completed = quest.userCompletion;
   const disabled =
     state.kind === 'loading' ||
     !!completed ||
     quest.slotsRemaining <= 0;
+
+  const budget = Number(quest.campaign.budgetUsdc);
+  const spent = Number(quest.campaign.spentUsdc);
+  const pct = budget > 0 ? Math.min(100, Math.round((spent / budget) * 100)) : 0;
 
   return (
     <li className="flex flex-col gap-3 bg-neutral-950 p-5 md:flex-row md:items-center md:justify-between">
@@ -112,8 +126,16 @@ function QuestCard({
           </span>
           <span className="font-mono text-[10px] text-neutral-600">·</span>
           <span className="font-mono text-[10px] text-neutral-500">
-            {quest.campaign.name}
+            {quest.campaign.project?.name ?? quest.campaign.name}
           </span>
+          {quest.campaign.project?.verifiedBadge && (
+            <span
+              title="Verified project"
+              className="rounded-sm border border-emerald-700/40 bg-emerald-950/40 px-1.5 py-px font-mono text-[9px] uppercase tracking-wider text-emerald-300"
+            >
+              Verified
+            </span>
+          )}
         </div>
         <h3 className="mt-1 text-base font-medium">{quest.title}</h3>
         {quest.description && (
@@ -128,9 +150,23 @@ function QuestCard({
           </span>
           <span>Min sybil: {quest.minSybilScore}</span>
         </div>
+        <div className="mt-3 max-w-md">
+          <div className="flex items-center justify-between font-mono text-[10px] text-neutral-500">
+            <span>Campaign budget</span>
+            <span>
+              ${quest.campaign.remainingUsdc} / ${quest.campaign.budgetUsdc} USDC remaining
+            </span>
+          </div>
+          <div className="mt-1 h-1 overflow-hidden bg-neutral-800">
+            <div
+              className="h-full bg-emerald-500/70"
+              style={{ width: `${100 - pct}%` }}
+            />
+          </div>
+        </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex flex-col items-end gap-2 md:gap-3">
         {completed ? (
           <CompletionBadge completion={completed} />
         ) : state.kind === 'ok' ? (
@@ -142,13 +178,22 @@ function QuestCard({
             {ERR_COPY[state.code] ?? state.code}
           </span>
         ) : null}
-        <button
-          onClick={onClaim}
-          disabled={disabled}
-          className="rounded-md bg-white px-4 py-2 text-sm font-medium text-black disabled:cursor-not-allowed disabled:bg-neutral-800 disabled:text-neutral-500"
-        >
-          {state.kind === 'loading' ? 'Verifying…' : completed ? 'Done' : 'Claim'}
-        </button>
+        {readOnly ? (
+          <a
+            href="/"
+            className="rounded-md bg-white px-4 py-2 text-sm font-medium text-black"
+          >
+            Sign in to claim
+          </a>
+        ) : (
+          <button
+            onClick={onClaim}
+            disabled={disabled}
+            className="rounded-md bg-white px-4 py-2 text-sm font-medium text-black disabled:cursor-not-allowed disabled:bg-neutral-800 disabled:text-neutral-500"
+          >
+            {state.kind === 'loading' ? 'Verifying…' : completed ? 'Done' : 'Claim'}
+          </button>
+        )}
       </div>
     </li>
   );

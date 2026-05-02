@@ -105,7 +105,8 @@ export async function recheckCompletion(
     return 'PROMOTED';
   }
 
-  // FAIL or INVALID → free the reserved slot so another user can claim.
+  // FAIL or INVALID → free the reserved slot AND refund the campaign budget
+  // so another user can claim. Mirrors attemptCompletion's reservation.
   await prisma.$transaction([
     prisma.questCompletion.update({
       where: { id: completionId },
@@ -118,6 +119,10 @@ export async function recheckCompletion(
       where: { id: completion.questId },
       data: { completionsCount: { decrement: 1 } },
     }),
+    prisma.$executeRaw(Prisma.sql`
+      UPDATE campaigns SET spent_usdc = spent_usdc - ${completion.rewardUsdc}
+      WHERE id = ${completion.quest.campaignId}::uuid
+    `),
   ]);
   return 'FAILED';
 }

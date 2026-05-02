@@ -1,4 +1,4 @@
-import { prisma, type QuestType, type CompletionStatus } from '@web3cash/db';
+import { Prisma, prisma, type QuestType, type CompletionStatus } from '@web3cash/db';
 import {
   SOCIAL_QUEST_HOLD_MS,
   ONCHAIN_QUEST_HOLD_MS,
@@ -75,16 +75,34 @@ export async function attemptCompletion(
   if (user.sybilScore < quest.minSybilScore)
     return { ok: false, code: 'SYBIL_TOO_LOW' };
 
-  // Atomic budget reservation. Returns 0 if full; 1 if we got a slot.
-  const reserved = await prisma.quest.updateMany({
+  // Atomic budget reservation — TWO guards, both must hold:
+  //   (a) per-quest slot:  completions_count < max_completions
+  //   (b) per-campaign $:  spent_usdc + reward_usdc <= budget_usdc
+  // We do (b) first via raw SQL because Prisma can't express
+  // "WHERE col1 + $param <= col2". If (b) fails we never touch (a),
+  // so there's nothing to roll back.
+  const reward = quest.rewardUsdc;
+  const campaignReserved = await prisma.$executeRaw(Prisma.sql`
+    UPDATE campaigns
+    SET spent_usdc = spent_usdc + ${reward}
+    WHERE id = ${quest.campaignId}::uuid
+      AND spent_usdc + ${reward} <= budget_usdc
+  `);
+  if (campaignReserved === 0) return { ok: false, code: 'BUDGET_EXHAUSTED' };
+
+  const slotReserved = await prisma.quest.updateMany({
     where: { id: quest.id, completionsCount: { lt: quest.maxCompletions } },
     data: { completionsCount: { increment: 1 } },
   });
-  if (reserved.count === 0) return { ok: false, code: 'BUDGET_EXHAUSTED' };
+  if (slotReserved.count === 0) {
+    // Refund the campaign-level reservation if the per-quest slot is full.
+    await refundCampaign(quest.campaignId, reward);
+    return { ok: false, code: 'BUDGET_EXHAUSTED' };
+  }
 
   const verifier = getVerifier(quest.type);
   if (!verifier) {
-    await rollbackReservation(quest.id);
+    await rollbackReservation(quest.id, quest.campaignId, reward);
     return { ok: false, code: 'VERIFIER_MISSING' };
   }
 
@@ -107,7 +125,7 @@ export async function attemptCompletion(
   });
 
   if (result.outcome !== 'PASS') {
-    await rollbackReservation(quest.id);
+    await rollbackReservation(quest.id, quest.campaignId, reward);
     const codeMap = {
       FAIL: 'VERIFY_FAIL',
       INVALID: 'VERIFY_INVALID',
@@ -137,9 +155,26 @@ export async function attemptCompletion(
   return { ok: true, completionId: completion.id, status: 'HOLDING', releaseAt };
 }
 
-async function rollbackReservation(questId: string) {
-  await prisma.quest.update({
-    where: { id: questId },
-    data: { completionsCount: { decrement: 1 } },
-  });
+async function rollbackReservation(
+  questId: string,
+  campaignId: string,
+  reward: Prisma.Decimal,
+) {
+  await prisma.$transaction([
+    prisma.quest.update({
+      where: { id: questId },
+      data: { completionsCount: { decrement: 1 } },
+    }),
+    prisma.$executeRaw(Prisma.sql`
+      UPDATE campaigns SET spent_usdc = spent_usdc - ${reward}
+      WHERE id = ${campaignId}::uuid
+    `),
+  ]);
+}
+
+async function refundCampaign(campaignId: string, reward: Prisma.Decimal) {
+  await prisma.$executeRaw(Prisma.sql`
+    UPDATE campaigns SET spent_usdc = spent_usdc - ${reward}
+    WHERE id = ${campaignId}::uuid
+  `);
 }

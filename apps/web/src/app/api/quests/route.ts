@@ -18,7 +18,16 @@ export async function GET() {
     },
     orderBy: { createdAt: 'desc' },
     include: {
-      campaign: { select: { id: true, name: true, projectId: true } },
+      campaign: {
+        select: {
+          id: true,
+          name: true,
+          projectId: true,
+          budgetUsdc: true,
+          spentUsdc: true,
+          project: { select: { name: true, verifiedBadge: true } },
+        },
+      },
     },
   });
 
@@ -34,18 +43,29 @@ export async function GET() {
   }
 
   return NextResponse.json({
-    quests: quests.map((q) => ({
-      id: q.id,
-      type: q.type,
-      title: q.title,
-      description: q.description,
-      rewardUsdc: q.rewardUsdc.toString(),
-      minSybilScore: q.minSybilScore,
-      slotsRemaining: Math.max(0, q.maxCompletions - q.completionsCount),
-      maxCompletions: q.maxCompletions,
-      requirements: q.requirements,
-      campaign: q.campaign,
-      userCompletion: completionsByQuest.get(q.id) ?? null,
-    })),
+    quests: quests.map((q) => {
+      const remaining = q.campaign.budgetUsdc.minus(q.campaign.spentUsdc);
+      return {
+        id: q.id,
+        type: q.type,
+        title: q.title,
+        description: q.description,
+        rewardUsdc: q.rewardUsdc.toString(),
+        minSybilScore: q.minSybilScore,
+        slotsRemaining: Math.max(0, q.maxCompletions - q.completionsCount),
+        maxCompletions: q.maxCompletions,
+        requirements: q.requirements,
+        campaign: {
+          id: q.campaign.id,
+          name: q.campaign.name,
+          projectId: q.campaign.projectId,
+          budgetUsdc: q.campaign.budgetUsdc.toString(),
+          spentUsdc: q.campaign.spentUsdc.toString(),
+          remainingUsdc: remaining.toString(),
+          project: q.campaign.project,
+        },
+        userCompletion: completionsByQuest.get(q.id) ?? null,
+      };
+    }),
   });
 }
