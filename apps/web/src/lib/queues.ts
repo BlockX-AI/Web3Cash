@@ -44,6 +44,6 @@ export async function scheduleRecheck(completionId: string, releaseAt: Date) {
   await recheckQueue().add(
     'recheck',
     { completionId },
-    { delay, jobId: `recheck:${completionId}` },
+    { delay, jobId: `recheck_${completionId}` },
   );
 }
