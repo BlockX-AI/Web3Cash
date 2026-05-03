@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Providers } from './providers';
 import './globals.css';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Web3Cash',
   description: 'Verified on-chain cashback. Real money for real Web3 actions.',

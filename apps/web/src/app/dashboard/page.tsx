@@ -104,7 +104,6 @@ export default async function DashboardPage() {
       </section>
 
       <section className="mt-12 space-y-4">
-        <AdminTools />
         <TestEscrowButton />
         <ProcessPipelineButton />
       </section>

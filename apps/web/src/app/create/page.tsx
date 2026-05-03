@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { useState } from 'react';
 
+export const dynamic = 'force-dynamic';
+
 export default function CreatePage() {
   const [step, setStep] = useState<1 | 2>(1);
   const [campaign, setCampaign] = useState({ name: '', budgetUsdc: '', endsAt: '' });

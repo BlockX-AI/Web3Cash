@@ -2,6 +2,8 @@ import { requireProjectAuth } from '@/lib/project-auth';
 import { prisma } from '@web3cash/db';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default async function CampaignsPage() {
   const session = await requireProjectAuth();
 

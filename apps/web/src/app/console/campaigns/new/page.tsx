@@ -1,5 +1,7 @@
 import { CampaignForm } from '@/components/campaign-form';
 
+export const dynamic = 'force-dynamic';
+
 export default function NewCampaignPage() {
   return (
     <div className="px-4 sm:px-6 lg:px-8">
