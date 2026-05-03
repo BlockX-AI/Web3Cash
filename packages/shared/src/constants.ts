@@ -12,7 +12,8 @@ export const REFERRAL_L1_RATE = 0.10;
 export const REFERRAL_L2_RATE = 0.03;
 
 /** Hold window before social-quest payouts release (anti-unfollow). */
-export const SOCIAL_QUEST_HOLD_MS = 72 * 60 * 60 * 1000;
+// TODO: Change back to 72 * 60 * 60 * 1000 (72 hours) for production
+export const SOCIAL_QUEST_HOLD_MS = 1 * 60 * 1000; // 1 minute for MVP testing
 
 /** Hold window before on-chain quest payouts release. */
 export const ONCHAIN_QUEST_HOLD_MS = 30 * 60 * 1000;
