@@ -19,8 +19,16 @@ export async function getProjectSession(): Promise<ProjectSession | null> {
   const claims = await verifySession(token);
   if (!claims) return null;
 
-  const project = await prisma.project.findUnique({
+  // Auto-provision: any wallet-authenticated user can create campaigns.
+  // Projects are upserted on first access (approved by default for MVP).
+  const project = await prisma.project.upsert({
     where: { walletAddress: claims.sub },
+    update: {},
+    create: {
+      walletAddress: claims.sub,
+      name: `Project ${claims.sub.slice(0, 6)}…${claims.sub.slice(-4)}`,
+      status: 'APPROVED',
+    },
     select: {
       id: true,
       walletAddress: true,
@@ -28,7 +36,6 @@ export async function getProjectSession(): Promise<ProjectSession | null> {
     },
   });
 
-  if (!project) return null;
   if (project.status === 'REJECTED' || project.status === 'SUSPENDED') return null;
 
   return {
@@ -40,7 +47,7 @@ export async function getProjectSession(): Promise<ProjectSession | null> {
 export async function requireProjectAuth(): Promise<ProjectSession> {
   const session = await getProjectSession();
   if (!session) {
-    throw new Error('Unauthorized: Project authentication required');
+    throw new Error('Unauthorized: wallet sign-in required');
   }
   return session;
 }

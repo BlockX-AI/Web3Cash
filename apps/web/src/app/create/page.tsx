@@ -49,6 +49,9 @@ export default function CreatePage() {
 
       if (!campaignRes.ok) {
         const body = await campaignRes.json().catch(() => ({}));
+        if (campaignRes.status === 401) {
+          throw new Error('Please sign in with your wallet first. Go to the homepage to connect.');
+        }
         throw new Error(body.error ?? 'Failed to create campaign');
       }
       const newCampaign = await campaignRes.json();

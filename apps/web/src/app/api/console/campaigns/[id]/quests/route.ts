@@ -57,10 +57,12 @@ export async function POST(
 
     return NextResponse.json(quest);
   } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to create quest';
+    const isAuthError = message.toLowerCase().includes('unauthorized') || message.toLowerCase().includes('sign-in');
     console.error('Error creating quest:', error);
     return NextResponse.json(
-      { error: 'Failed to create quest' },
-      { status: 500 }
+      { error: message },
+      { status: isAuthError ? 401 : 500 }
     );
   }
 }

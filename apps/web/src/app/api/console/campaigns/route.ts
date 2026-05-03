@@ -22,7 +22,7 @@ export async function POST(request: Request) {
         name,
         budgetUsdc: String(budgetUsdc),
         chainId: parseInt(chainId) || 1,
-        status: 'DRAFT',
+        status: 'ACTIVE',
         startsAt: startsAt ? new Date(startsAt) : null,
         endsAt: endsAt ? new Date(endsAt) : null,
       },
@@ -30,10 +30,12 @@ export async function POST(request: Request) {
 
     return NextResponse.json(campaign);
   } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to create campaign';
+    const isAuthError = message.toLowerCase().includes('unauthorized') || message.toLowerCase().includes('sign-in');
     console.error('Error creating campaign:', error);
     return NextResponse.json(
-      { error: 'Failed to create campaign' },
-      { status: 500 }
+      { error: message },
+      { status: isAuthError ? 401 : 500 }
     );
   }
 }
@@ -59,10 +61,12 @@ export async function GET() {
 
     return NextResponse.json(campaigns);
   } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to fetch campaigns';
+    const isAuthError = message.toLowerCase().includes('unauthorized') || message.toLowerCase().includes('sign-in');
     console.error('Error fetching campaigns:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch campaigns' },
-      { status: 500 }
+      { error: message },
+      { status: isAuthError ? 401 : 500 }
     );
   }
 }
