@@ -9,6 +9,7 @@ import { GithubLinkButton } from '@/components/github-link-button';
 import { WithdrawCard } from '@/components/withdraw-card';
 import { ReferralCard } from '@/components/referral-card';
 import { PayoutHistory } from '@/components/payout-history';
+import { ProcessPipelineButton } from '@/components/process-pipeline-button';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -98,6 +99,10 @@ export default async function DashboardPage() {
         <div className="mt-6">
           <QuestFeed />
         </div>
+      </section>
+
+      <section className="mt-12">
+        <ProcessPipelineButton />
       </section>
 
       <section className="mt-12">
