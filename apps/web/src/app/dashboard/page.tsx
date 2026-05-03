@@ -10,6 +10,7 @@ import { WithdrawCard } from '@/components/withdraw-card';
 import { ReferralCard } from '@/components/referral-card';
 import { PayoutHistory } from '@/components/payout-history';
 import { ProcessPipelineButton } from '@/components/process-pipeline-button';
+import { TestEscrowButton } from '@/components/test-escrow-button';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -101,7 +102,8 @@ export default async function DashboardPage() {
         </div>
       </section>
 
-      <section className="mt-12">
+      <section className="mt-12 space-y-4">
+        <TestEscrowButton />
         <ProcessPipelineButton />
       </section>
 

@@ -77,10 +77,22 @@ export async function POST() {
   try {
     submitResult = await processQueuedPayouts({ provider, chainId });
     trace.push({ step: '3_submit_onchain', data: submitResult });
+    
+    // If submission returned empty array, check if there was a reason
+    if (submitResult.submitted.length === 0 && submitResult.reason) {
+      trace.push({
+        step: '3_submit_error',
+        data: { error: submitResult.reason, note: 'No payouts were submitted' },
+      });
+      return NextResponse.json({ ok: false, trace }, { status: 200 });
+    }
   } catch (err) {
     trace.push({
       step: '3_submit_onchain',
-      data: { error: err instanceof Error ? err.message : String(err) },
+      data: {
+        error: err instanceof Error ? err.message : String(err),
+        stack: err instanceof Error ? err.stack : undefined,
+      },
     });
     return NextResponse.json({ ok: false, trace }, { status: 200 });
   }
