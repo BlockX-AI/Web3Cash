@@ -122,13 +122,14 @@ export default async function DashboardPage() {
   );
 }
 
-function Stat({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
+function Stat({ label, value, mono, extra }: { label: string; value: string; mono?: boolean; extra?: React.ReactNode }) {
   return (
     <div className="bg-black px-5 py-4">
       <div className="font-mono text-[10px] uppercase tracking-widest text-yellow-500/70">
         {label}
       </div>
       <div className={`mt-2 text-lg text-yellow-400 ${mono ? 'font-mono' : ''}`}>{value}</div>
+      {extra && <div className="mt-2">{extra}</div>}
     </div>
   );
 }
