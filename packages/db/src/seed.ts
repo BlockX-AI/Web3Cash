@@ -56,103 +56,32 @@ const SEEDS: ProjectSeed[] = [
     campaigns: [
       {
         id: '00000000-0000-0000-0000-000000000001',
-        name: 'Launch — Social proof',
-        budgetUsdc: '500.000000',
+        name: 'Web3Cash MVP Launch',
+        budgetUsdc: '20.000000',
         pricingModel: 'CPA',
-        impressions: 1250,
-        clicks: 320,
+        impressions: 0,
+        clicks: 0,
         chainId: SEPOLIA,
         quests: [
           {
-            id: '00000000-0000-0000-0000-000000000002',
-            type: 'TWITTER_FOLLOW',
-            title: 'Follow @web3cash on Twitter',
-            description: 'Follow our official account. $1 USDC clears 72h after verification.',
+            id: '00000000-0000-0000-0000-000000000010',
+            type: 'DISCORD_JOIN',
+            title: 'Join Web3Cash Discord Server',
+            description: 'Join our Discord community to earn $1 USDC. Click claim after joining https://discord.gg/nehCzjPh',
             rewardUsdc: '1.000000',
-            maxCompletions: 500,
+            maxCompletions: 10,
             minSybilScore: 0,
-            requirements: { targetHandle: 'web3cash' },
-          },
-        ],
-      },
-    ],
-  },
-  {
-    walletAddress: '0x00000000000000000000000000000000000beef0',
-    name: 'Acme DeFi',
-    website: 'https://acme.fi',
-    twitterHandle: 'acmedefi',
-    verifiedBadge: false,
-    campaigns: [
-      {
-        id: '00000000-0000-0000-0000-0000000000a1',
-        name: 'Awareness Q3',
-        budgetUsdc: '250.000000',
-        pricingModel: 'CPC',
-        impressions: 5400,
-        clicks: 890,
-        chainId: SEPOLIA,
-        quests: [
-          {
-            id: '00000000-0000-0000-0000-0000000000a2',
-            type: 'TWITTER_FOLLOW',
-            title: 'Follow @acmedefi',
-            description: 'Stay on top of liquidity launches. $0.50 USDC.',
-            rewardUsdc: '0.500000',
-            maxCompletions: 400,
-            minSybilScore: 20,
-            requirements: { targetHandle: 'acmedefi' },
+            requirements: { guildId: '1500455233187352707', inviteUrl: 'https://discord.gg/nehCzjPh' },
           },
           {
-            id: '00000000-0000-0000-0000-0000000000a3',
-            type: 'VISIT',
-            title: 'Visit acme.fi',
-            description: 'Open the docs landing page. $0.25 USDC.',
-            rewardUsdc: '0.250000',
-            maxCompletions: 1000,
-            minSybilScore: 0,
-            requirements: { url: 'https://acme.fi' },
-          },
-        ],
-      },
-    ],
-  },
-  {
-    walletAddress: '0x00000000000000000000000000000000000beef1',
-    name: 'NodeRunners',
-    website: 'https://noderunners.xyz',
-    twitterHandle: 'noderunners',
-    verifiedBadge: true,
-    campaigns: [
-      {
-        id: '00000000-0000-0000-0000-0000000000b1',
-        name: 'Validator onboarding',
-        budgetUsdc: '1000.000000',
-        pricingModel: 'CPL',
-        impressions: 2100,
-        clicks: 420,
-        leads: 85,
-        chainId: SEPOLIA,
-        quests: [
-          {
-            id: '00000000-0000-0000-0000-0000000000b2',
-            type: 'TWITTER_FOLLOW',
-            title: 'Follow @noderunners',
-            description: 'Join the validator community. $2 USDC.',
-            rewardUsdc: '2.000000',
-            maxCompletions: 250,
-            minSybilScore: 30,
-            requirements: { targetHandle: 'noderunners' },
-          },
-          {
-            id: '00000000-0000-0000-0000-0000000000b3',
+            id: '00000000-0000-0000-0000-000000000011',
             type: 'GITHUB_STAR',
-            title: 'Star noderunners/runner-cli on GitHub',
-            description: 'Show GitHub support. $1 USDC. (Phase 5 verifier)',
+            title: 'Star Web3Cash on GitHub',
+            description: 'Star our GitHub repo BlockX-AI/Web3Cash to earn $1 USDC. Instant payout on-chain.',
             rewardUsdc: '1.000000',
-            maxCompletions: 250,
-            minSybilScore: 30,
-            requirements: { owner: 'noderunners', repo: 'runner-cli' },
+            maxCompletions: 10,
+            minSybilScore: 0,
+            requirements: { owner: 'BlockX-AI', repo: 'Web3Cash' },
           },
         ],
       },
@@ -237,6 +166,27 @@ async function main() {
         `  ✓ ${p.name} / ${c.name} (${c.quests.length} quest${c.quests.length === 1 ? '' : 's'})`,
       );
     }
+  }
+
+  // Deactivate any previously seeded quests that are no longer in the seed.
+  const seededQuestIds = SEEDS.flatMap((p) =>
+    p.campaigns.flatMap((c) => c.quests.map((q) => q.id)),
+  );
+  const seededCampaignIds = SEEDS.flatMap((p) => p.campaigns.map((c) => c.id));
+
+  const deactivatedQuests = await prisma.quest.updateMany({
+    where: { id: { notIn: seededQuestIds }, active: true },
+    data: { active: false },
+  });
+  const endedCampaigns = await prisma.campaign.updateMany({
+    where: { id: { notIn: seededCampaignIds }, status: 'ACTIVE' },
+    data: { status: 'ENDED' },
+  });
+
+  if (deactivatedQuests.count > 0 || endedCampaigns.count > 0) {
+    console.log(
+      `  ↳ deactivated ${deactivatedQuests.count} obsolete quest(s), ended ${endedCampaigns.count} obsolete campaign(s)`,
+    );
   }
 
   console.log('✅ Seed complete.');
