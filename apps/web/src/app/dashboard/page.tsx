@@ -11,6 +11,7 @@ import { ReferralCard } from '@/components/referral-card';
 import { PayoutHistory } from '@/components/payout-history';
 import { ProcessPipelineButton } from '@/components/process-pipeline-button';
 import { TestEscrowButton } from '@/components/test-escrow-button';
+import { SybilOverrideButton } from '@/components/sybil-override-button';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -65,7 +66,7 @@ export default async function DashboardPage() {
       <div className="mt-8 grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-yellow-500/20 bg-yellow-500/20 md:grid-cols-2">
         <Stat label="Wallet" value={`${user.walletAddress.slice(0, 6)}…${user.walletAddress.slice(-4)}`} />
         <Stat label="Chain" value={`#${user.chainId}`} />
-        <Stat label="Sybil score" value={`${user.sybilScore} / 100`} />
+        <Stat label="Sybil score" value={`${user.sybilScore} / 100`} extra={<SybilOverrideButton currentScore={user.sybilScore} />} />
         <Stat label="KYC" value={user.kycStatus} />
         <Stat label="Pending USDC" value={user.pendingBalanceUsdc.toString()} />
         <Stat label="Total earned USDC" value={user.totalEarnedUsdc.toString()} />
