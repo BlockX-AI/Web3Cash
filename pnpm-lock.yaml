@@ -38,6 +38,9 @@ importers:
       '@web3cash/auth':
         specifier: workspace:*
         version: link:../../packages/auth
+      '@web3cash/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       '@web3cash/db':
         specifier: workspace:*
         version: link:../../packages/db

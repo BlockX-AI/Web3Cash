@@ -66,7 +66,7 @@ export default function CreatePage() {
         if (input.startsWith('http')) {
           // Extract owner/repo from URL
           const match = input.match(/github\.com\/([^\/]+)\/([^\/\?#]+)/);
-          if (match) {
+          if (match && match[1] && match[2]) {
             requirements = { owner: match[1], repo: match[2] };
           } else {
             requirements = { owner: '', repo: '' };

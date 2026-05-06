@@ -24,6 +24,8 @@ pnpm-debug.log*
 # OS
 .DS_Store
 Thumbs.db
+__MACOSX/
+._*
 
 # IDE
 .vscode/
@@ -53,3 +55,7 @@ packages/contracts/coverage.json
 
 # Local planning/docs HTML files
 *.html
+
+# Temporary/test files
+minimal-frontend-new/
+test-*.js

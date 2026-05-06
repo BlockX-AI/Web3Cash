@@ -2,7 +2,7 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "NIXPACKS",
-    "buildCommand": "pnpm install --frozen-lockfile --prod=false && pnpm db:generate && pnpm --filter @web3cash/web build"
+    "buildCommand": "pnpm install --frozen-lockfile --prod=false && pnpm --filter @web3cash/contracts build && pnpm db:generate && pnpm --filter @web3cash/web build"
   },
   "deploy": {
     "startCommand": "sh -c \"pnpm --filter @web3cash/db exec prisma migrate resolve --rolled-back 20250502_init || true; pnpm db:migrate:deploy && pnpm --filter @web3cash/web start\"",
