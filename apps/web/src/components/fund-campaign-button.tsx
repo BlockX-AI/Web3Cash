@@ -111,7 +111,7 @@ export function FundCampaignButton({ campaignId, onSuccess }: FundCampaignButton
     <div className="rounded-2xl border border-border bg-card p-6">
       <h3 className="text-lg font-semibold">Fund Campaign</h3>
       <p className="mt-1 text-sm text-muted-foreground">
-        Add USDC to your campaign's on-chain balance
+        Add USDC to your campaign&apos;s on-chain balance
       </p>
 
       <div className="mt-4 space-y-4">
