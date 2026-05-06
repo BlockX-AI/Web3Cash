@@ -28,11 +28,11 @@ export function TestEscrowButton() {
   }
 
   return (
-    <div className="rounded-xl border border-red-500/30 bg-gradient-to-br from-red-500/10 to-transparent p-4">
+    <div className="rounded-2xl bg-muted p-4">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h4 className="text-sm font-bold text-red-400">Debug: Test Escrow</h4>
-          <p className="mt-1 text-xs text-neutral-400">
+          <h4 className="text-sm font-medium">Debug: Test Escrow</h4>
+          <p className="mt-1 text-xs text-muted-foreground">
             Attempts to submit 1 USDC to your wallet via escrow contract. Shows
             exact error if it fails.
           </p>
@@ -40,7 +40,7 @@ export function TestEscrowButton() {
         <button
           onClick={run}
           disabled={loading}
-          className="shrink-0 rounded-lg bg-red-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-400 disabled:opacity-50"
+          className="shrink-0 rounded-xl border border-border bg-background px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted disabled:opacity-50"
         >
           {loading ? 'Testing…' : 'Test'}
         </button>
@@ -52,12 +52,12 @@ export function TestEscrowButton() {
             <details
               key={i}
               open={i === trace.length - 1}
-              className="rounded border border-red-500/20 bg-black/40 p-2"
+              className="rounded-xl border border-border bg-background p-2"
             >
-              <summary className="cursor-pointer font-mono text-[10px] uppercase tracking-widest text-red-400">
+              <summary className="cursor-pointer font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
                 {t.step}
               </summary>
-              <pre className="mt-1.5 overflow-x-auto text-[10px] text-neutral-300">
+              <pre className="mt-1.5 overflow-x-auto text-[10px] text-foreground/80">
                 {JSON.stringify(t.data, null, 2)}
               </pre>
             </details>

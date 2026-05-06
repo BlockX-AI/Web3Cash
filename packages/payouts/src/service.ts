@@ -65,7 +65,7 @@ export async function createWithdrawal(
   opts: { provider?: PayoutProvider; chainId?: number } = {},
 ): Promise<CreateWithdrawalResult> {
   const wallet = userWallet.toLowerCase();
-  const provider = opts.provider ?? 'GNOSIS_SAFE';
+  const provider = opts.provider ?? (process.env.PAYOUT_PROVIDER as PayoutProvider | undefined) ?? 'ESCROW_CONTRACT';
   const chainId = opts.chainId ?? 1;
 
   return prisma.$transaction(async (tx) => {

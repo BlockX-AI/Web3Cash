@@ -7,10 +7,10 @@ export function GithubLinkButton({
 }) {
   if (linkedHandle) {
     return (
-      <div className="flex items-center gap-2 rounded-xl border border-yellow-500/30 bg-yellow-500/10 px-4 py-2 text-sm">
-        <span className="text-neutral-400">GitHub:</span>
-        <span className="font-mono text-yellow-400">@{linkedHandle}</span>
-        <span className="text-green-400">✓</span>
+      <div className="flex items-center gap-2 rounded-xl border border-border bg-background px-4 py-2 text-sm">
+        <span className="text-muted-foreground">GitHub:</span>
+        <span className="font-mono text-foreground">@{linkedHandle}</span>
+        <span className="text-green-600 dark:text-green-400">✓</span>
       </div>
     );
   }

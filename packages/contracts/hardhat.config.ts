@@ -53,6 +53,9 @@ const config: HardhatUserConfig = {
       baseSepolia: ETHERSCAN_KEY,
     },
   },
+  sourcify: {
+    enabled: false,
+  },
   gasReporter: {
     enabled: process.env.REPORT_GAS === 'true',
     currency: 'USD',

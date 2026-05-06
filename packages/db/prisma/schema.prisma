@@ -92,6 +92,7 @@ enum PayoutProvider {
   GNOSIS_SAFE
   CIRCLE_API
   ESCROW_CONTRACT
+  ESCROW_CONTRACT_V2
 }
 
 enum PayoutStatus {

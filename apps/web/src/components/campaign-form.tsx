@@ -39,10 +39,12 @@ export function CampaignForm() {
     }
   };
 
+  const inputClass = 'mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder-muted-foreground outline-none focus:border-accent/60 focus:ring-1 focus:ring-accent/30 transition-colors';
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="name" className="block text-sm font-medium">
           Campaign Name
         </label>
         <input
@@ -51,13 +53,13 @@ export function CampaignForm() {
           required
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          className={inputClass}
         />
       </div>
 
       <div>
-        <label htmlFor="budgetUsdc" className="block text-sm font-medium text-gray-700">
-          Budget (USDC)
+        <label htmlFor="budgetUsdc" className="block text-sm font-medium">
+          Budget <span className="text-accent">(USDC)</span>
         </label>
         <input
           type="number"
@@ -67,19 +69,19 @@ export function CampaignForm() {
           step="0.01"
           value={formData.budgetUsdc}
           onChange={(e) => setFormData({ ...formData, budgetUsdc: e.target.value })}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          className={inputClass}
         />
       </div>
 
       <div>
-        <label htmlFor="chainId" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="chainId" className="block text-sm font-medium">
           Chain
         </label>
         <select
           id="chainId"
           value={formData.chainId}
           onChange={(e) => setFormData({ ...formData, chainId: e.target.value })}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          className={inputClass}
         >
           <option value="1">Ethereum Mainnet</option>
           <option value="137">Polygon</option>
@@ -91,44 +93,44 @@ export function CampaignForm() {
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <div>
-          <label htmlFor="startsAt" className="block text-sm font-medium text-gray-700">
-            Start Date (Optional)
+          <label htmlFor="startsAt" className="block text-sm font-medium">
+            Start Date <span className="text-muted-foreground">(Optional)</span>
           </label>
           <input
             type="datetime-local"
             id="startsAt"
             value={formData.startsAt}
             onChange={(e) => setFormData({ ...formData, startsAt: e.target.value })}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className={inputClass}
           />
         </div>
 
         <div>
-          <label htmlFor="endsAt" className="block text-sm font-medium text-gray-700">
-            End Date (Optional)
+          <label htmlFor="endsAt" className="block text-sm font-medium">
+            End Date <span className="text-muted-foreground">(Optional)</span>
           </label>
           <input
             type="datetime-local"
             id="endsAt"
             value={formData.endsAt}
             onChange={(e) => setFormData({ ...formData, endsAt: e.target.value })}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className={inputClass}
           />
         </div>
       </div>
 
-      <div className="flex justify-end space-x-3">
+      <div className="flex justify-end gap-3">
         <button
           type="button"
           onClick={() => router.back()}
-          className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+          className="rounded-xl border border-border bg-background px-5 py-2.5 text-sm font-medium transition-colors hover:bg-muted"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50"
+          className="rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-black transition-all duration-500 hover:rounded-[50px] hover:shadow-lg hover:shadow-accent/20 disabled:opacity-50"
         >
           {isSubmitting ? 'Creating...' : 'Create Campaign'}
         </button>

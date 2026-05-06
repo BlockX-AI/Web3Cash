@@ -26,7 +26,7 @@ export function ReferralCard() {
 
   if (!stats) {
     return (
-      <div className="border border-neutral-800 bg-neutral-950 p-5 text-sm text-neutral-500">
+      <div className="rounded-2xl bg-muted p-5 text-sm text-muted-foreground">
         Loading referral stats\u2026
       </div>
     );
@@ -44,8 +44,8 @@ export function ReferralCard() {
   }
 
   return (
-    <div className="border border-neutral-800 bg-neutral-950 p-5">
-      <div className="font-mono text-[10px] uppercase tracking-widest text-neutral-500">
+    <div className="rounded-2xl bg-muted p-5">
+      <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
         Referrals
       </div>
       <div className="mt-3 grid grid-cols-3 gap-4">
@@ -55,21 +55,21 @@ export function ReferralCard() {
       </div>
 
       <div className="mt-5">
-        <div className="font-mono text-[10px] uppercase tracking-widest text-neutral-500">
+        <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
           Your link
         </div>
         <div className="mt-2 flex items-center gap-2">
-          <code className="flex-1 truncate rounded-md border border-neutral-800 bg-black px-3 py-2 font-mono text-xs">
+          <code className="flex-1 truncate rounded-xl border border-border bg-background px-3 py-2 font-mono text-xs">
             {link}
           </code>
           <button
             onClick={copy}
-            className="rounded-md border border-neutral-800 px-3 py-2 text-xs hover:bg-neutral-900"
+            className="rounded-xl border border-border px-3 py-2 text-xs transition-colors hover:bg-background"
           >
             {copied ? 'Copied' : 'Copy'}
           </button>
         </div>
-        <p className="mt-2 text-xs text-neutral-500">
+        <p className="mt-2 text-xs text-muted-foreground">
           You earn 10% of every quest your referees complete.
         </p>
       </div>
@@ -80,7 +80,7 @@ export function ReferralCard() {
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <div className="font-mono text-[10px] uppercase tracking-widest text-neutral-500">
+      <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
         {label}
       </div>
       <div className="mt-1 text-lg font-semibold">{value}</div>

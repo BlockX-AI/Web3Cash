@@ -5,6 +5,8 @@ import { useState } from 'react';
 
 export const dynamic = 'force-dynamic';
 
+const inputClass = 'mt-2 w-full rounded-xl border border-border bg-muted px-4 py-3 text-sm text-foreground placeholder-muted-foreground outline-none focus:border-accent/60 focus:ring-1 focus:ring-accent/30 transition-colors';
+
 export default function CreatePage() {
   const [step, setStep] = useState<1 | 2>(1);
   const [campaign, setCampaign] = useState({ name: '', budgetUsdc: '', endsAt: '' });
@@ -21,10 +23,10 @@ export default function CreatePage() {
   const [error, setError] = useState('');
 
   const QUEST_TYPES = [
-    { value: 'TWITTER_FOLLOW', label: '🐦 Twitter Follow', placeholder: 'e.g. web3cash' },
-    { value: 'DISCORD_JOIN', label: '💬 Discord Join', placeholder: 'e.g. discord.gg/web3cash' },
-    { value: 'GITHUB_STAR', label: '⭐ GitHub Star', placeholder: 'e.g. owner/repo' },
-    { value: 'VISIT', label: '🌐 Website Visit', placeholder: 'e.g. https://yoursite.com' },
+    { value: 'TWITTER_FOLLOW', label: 'Twitter Follow', placeholder: 'e.g. web3cash' },
+    { value: 'DISCORD_JOIN', label: 'Discord Join', placeholder: 'e.g. discord.gg/web3cash' },
+    { value: 'GITHUB_STAR', label: 'GitHub Star', placeholder: 'e.g. owner/repo or https://github.com/owner/repo' },
+    { value: 'VISIT', label: 'Website Visit', placeholder: 'e.g. https://yoursite.com' },
   ];
 
   async function handleSubmit(e: React.FormEvent) {
@@ -35,7 +37,6 @@ export default function CreatePage() {
     setError('');
 
     try {
-      // Create campaign
       const campaignRes = await fetch('/api/console/campaigns', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -56,17 +57,27 @@ export default function CreatePage() {
       }
       const newCampaign = await campaignRes.json();
 
-      // Build requirements object from quest type
-      const selectedType = QUEST_TYPES.find((t) => t.value === quest.type);
       let requirements: Record<string, string> = {};
       if (quest.type === 'TWITTER_FOLLOW') requirements = { targetHandle: quest.requirements };
       else if (quest.type === 'DISCORD_JOIN') requirements = { inviteUrl: quest.requirements };
       else if (quest.type === 'GITHUB_STAR') {
-        const parts = quest.requirements.split('/');
-        requirements = { owner: parts[0] ?? '', repo: parts[1] ?? '' };
+        // Handle both "owner/repo" and "https://github.com/owner/repo" formats
+        let input = quest.requirements.trim();
+        if (input.startsWith('http')) {
+          // Extract owner/repo from URL
+          const match = input.match(/github\.com\/([^\/]+)\/([^\/\?#]+)/);
+          if (match) {
+            requirements = { owner: match[1], repo: match[2] };
+          } else {
+            requirements = { owner: '', repo: '' };
+          }
+        } else {
+          // Parse as "owner/repo"
+          const parts = input.split('/');
+          requirements = { owner: parts[0] ?? '', repo: parts[1] ?? '' };
+        }
       } else if (quest.type === 'VISIT') requirements = { url: quest.requirements };
 
-      // Create quest
       const questRes = await fetch(`/api/console/campaigns/${newCampaign.id}/quests`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -96,88 +107,63 @@ export default function CreatePage() {
 
   if (status === 'done' && result) {
     return (
-      <div className="min-h-screen bg-black">
-        <nav className="border-b border-yellow-900/20 bg-black/50 backdrop-blur-sm">
-          <div className="mx-auto max-w-7xl px-6 py-4">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600" />
-              <span className="text-xl font-bold text-yellow-400">Web3Cash</span>
-            </Link>
-          </div>
-        </nav>
-        <main className="flex min-h-[80vh] items-center justify-center px-6">
+      <main className="flex min-h-[80vh] items-center justify-center px-6 pt-28">
           <div className="w-full max-w-md text-center">
-            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-yellow-500/10 text-4xl">
-              🎉
+            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-accent/10 text-4xl">
+              ✓
             </div>
-            <h1 className="mt-6 text-3xl font-bold text-yellow-400">Campaign Created!</h1>
-            <p className="mt-3 text-neutral-400">
-              Your campaign <span className="font-semibold text-yellow-400">{result.name}</span> is live.
+            <h1 className="mt-6 text-3xl font-medium tracking-tight">Campaign Created!</h1>
+            <p className="mt-3 text-muted-foreground">
+              Your campaign <span className="font-semibold text-foreground">{result.name}</span> is live.
               Quest completers can now earn USDC by completing your quests.
             </p>
-            <div className="mt-8 rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-4 text-left">
-              <p className="text-xs font-mono text-neutral-500 uppercase tracking-wider">Campaign ID</p>
-              <p className="mt-1 break-all font-mono text-sm text-yellow-400">{result.id}</p>
+            <div className="mt-8 rounded-xl bg-muted p-4 text-left">
+              <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground">Campaign ID</p>
+              <p className="mt-1 break-all font-mono text-sm text-foreground">{result.id}</p>
             </div>
             <div className="mt-6 flex flex-col gap-3">
               <Link
                 href="/quests"
-                className="block rounded-xl bg-gradient-to-r from-yellow-500 to-yellow-600 px-6 py-3 text-center text-sm font-bold text-black transition hover:from-yellow-400 hover:to-yellow-500"
+                className="block rounded-xl bg-accent px-6 py-3 text-center text-sm font-semibold text-black transition-all duration-500 hover:rounded-[50px] hover:shadow-lg hover:shadow-accent/20"
               >
-                View Live Quests →
+                View Live Quests
               </Link>
               <Link
                 href="/console"
-                className="block rounded-xl border border-yellow-500/30 bg-yellow-500/10 px-6 py-3 text-center text-sm font-medium text-yellow-400 transition hover:bg-yellow-500/20"
+                className="block rounded-xl bg-muted px-6 py-3 text-center text-sm font-medium text-foreground transition-colors hover:bg-muted/80"
               >
                 Go to Console
               </Link>
             </div>
           </div>
-        </main>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black">
-      <nav className="border-b border-yellow-900/20 bg-black/50 backdrop-blur-sm">
-        <div className="mx-auto max-w-7xl px-6 py-4">
-          <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600" />
-              <span className="text-xl font-bold text-yellow-400">Web3Cash</span>
-            </Link>
-            <Link href="/quests" className="text-sm text-neutral-400 hover:text-yellow-400 transition">
-              Browse Quests
-            </Link>
-          </div>
-        </div>
-      </nav>
-
-      <main className="mx-auto max-w-2xl px-6 py-16">
+    <main className="mx-auto max-w-2xl px-6 pb-20 pt-28">
         {/* Step indicators */}
         <div className="flex items-center gap-4 justify-center mb-10">
-          <div className={`flex items-center gap-2`}>
-            <div className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${step >= 1 ? 'bg-yellow-500 text-black' : 'bg-neutral-800 text-neutral-400'}`}>
+          <div className="flex items-center gap-2">
+            <div className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${step >= 1 ? 'bg-accent text-black' : 'bg-muted text-muted-foreground'}`}>
               1
             </div>
-            <span className={`text-sm font-medium ${step >= 1 ? 'text-yellow-400' : 'text-neutral-500'}`}>Campaign</span>
+            <span className={`text-sm font-medium ${step >= 1 ? 'text-foreground' : 'text-muted-foreground'}`}>Campaign</span>
           </div>
-          <div className={`h-px w-12 ${step >= 2 ? 'bg-yellow-500' : 'bg-neutral-800'}`} />
-          <div className={`flex items-center gap-2`}>
-            <div className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${step >= 2 ? 'bg-yellow-500 text-black' : 'bg-neutral-800 text-neutral-400'}`}>
+          <div className={`h-px w-12 ${step >= 2 ? 'bg-accent' : 'bg-border'}`} />
+          <div className="flex items-center gap-2">
+            <div className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${step >= 2 ? 'bg-accent text-black' : 'bg-muted text-muted-foreground'}`}>
               2
             </div>
-            <span className={`text-sm font-medium ${step >= 2 ? 'text-yellow-400' : 'text-neutral-500'}`}>Quest</span>
+            <span className={`text-sm font-medium ${step >= 2 ? 'text-foreground' : 'text-muted-foreground'}`}>Quest</span>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-yellow-500/20 bg-gradient-to-br from-yellow-500/5 to-transparent p-8">
-          <h1 className="text-2xl font-bold text-yellow-400">
-            {step === 1 ? '🚀 Create Campaign' : '✨ Add Quest'}
+        <div className="rounded-2xl bg-muted p-8">
+          <h1 className="text-2xl font-medium tracking-tight">
+            {step === 1 ? 'Create Campaign' : 'Add Quest'}
           </h1>
-          <p className="mt-2 text-sm text-neutral-400">
+          <p className="mt-2 text-sm text-muted-foreground">
             {step === 1
               ? 'Set up your campaign details and budget allocation.'
               : 'Define what action users need to complete to earn USDC.'}
@@ -187,19 +173,19 @@ export default function CreatePage() {
             {step === 1 && (
               <>
                 <div>
-                  <label className="block text-sm font-medium text-neutral-300">Campaign Name</label>
+                  <label className="block text-sm font-medium">Campaign Name</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. Web3Cash Launch — Social Proof"
                     value={campaign.name}
                     onChange={(e) => setCampaign({ ...campaign, name: e.target.value })}
-                    className="mt-2 w-full rounded-xl border border-yellow-500/20 bg-neutral-900 px-4 py-3 text-sm text-white placeholder-neutral-600 outline-none focus:border-yellow-500/60 focus:ring-1 focus:ring-yellow-500/30"
+                    className={inputClass}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-neutral-300">
-                    Total Budget <span className="text-yellow-400">(USDC)</span>
+                  <label className="block text-sm font-medium">
+                    Total Budget <span className="text-accent">(USDC)</span>
                   </label>
                   <input
                     type="number"
@@ -209,19 +195,19 @@ export default function CreatePage() {
                     placeholder="e.g. 500"
                     value={campaign.budgetUsdc}
                     onChange={(e) => setCampaign({ ...campaign, budgetUsdc: e.target.value })}
-                    className="mt-2 w-full rounded-xl border border-yellow-500/20 bg-neutral-900 px-4 py-3 text-sm text-white placeholder-neutral-600 outline-none focus:border-yellow-500/60 focus:ring-1 focus:ring-yellow-500/30"
+                    className={inputClass}
                   />
-                  <p className="mt-1.5 text-xs text-neutral-500">
+                  <p className="mt-1.5 text-xs text-muted-foreground">
                     Fund this campaign on-chain via the smart contract after creation.
                   </p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-neutral-300">End Date <span className="text-neutral-500">(optional)</span></label>
+                  <label className="block text-sm font-medium">End Date <span className="text-muted-foreground">(optional)</span></label>
                   <input
                     type="datetime-local"
                     value={campaign.endsAt}
                     onChange={(e) => setCampaign({ ...campaign, endsAt: e.target.value })}
-                    className="mt-2 w-full rounded-xl border border-yellow-500/20 bg-neutral-900 px-4 py-3 text-sm text-white placeholder-neutral-600 outline-none focus:border-yellow-500/60 focus:ring-1 focus:ring-yellow-500/30"
+                    className={inputClass}
                   />
                 </div>
               </>
@@ -230,11 +216,11 @@ export default function CreatePage() {
             {step === 2 && (
               <>
                 <div>
-                  <label className="block text-sm font-medium text-neutral-300">Quest Type</label>
+                  <label className="block text-sm font-medium">Quest Type</label>
                   <select
                     value={quest.type}
                     onChange={(e) => setQuest({ ...quest, type: e.target.value, requirements: '' })}
-                    className="mt-2 w-full rounded-xl border border-yellow-500/20 bg-neutral-900 px-4 py-3 text-sm text-white outline-none focus:border-yellow-500/60 focus:ring-1 focus:ring-yellow-500/30"
+                    className={inputClass}
                   >
                     {QUEST_TYPES.map((t) => (
                       <option key={t.value} value={t.value}>{t.label}</option>
@@ -242,28 +228,28 @@ export default function CreatePage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-neutral-300">Quest Title</label>
+                  <label className="block text-sm font-medium">Quest Title</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. Follow @web3cash on Twitter"
                     value={quest.title}
                     onChange={(e) => setQuest({ ...quest, title: e.target.value })}
-                    className="mt-2 w-full rounded-xl border border-yellow-500/20 bg-neutral-900 px-4 py-3 text-sm text-white placeholder-neutral-600 outline-none focus:border-yellow-500/60 focus:ring-1 focus:ring-yellow-500/30"
+                    className={inputClass}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-neutral-300">Description <span className="text-neutral-500">(optional)</span></label>
+                  <label className="block text-sm font-medium">Description <span className="text-muted-foreground">(optional)</span></label>
                   <textarea
                     rows={2}
                     placeholder="e.g. Follow our official account to earn $1 USDC."
                     value={quest.description}
                     onChange={(e) => setQuest({ ...quest, description: e.target.value })}
-                    className="mt-2 w-full rounded-xl border border-yellow-500/20 bg-neutral-900 px-4 py-3 text-sm text-white placeholder-neutral-600 outline-none focus:border-yellow-500/60 focus:ring-1 focus:ring-yellow-500/30"
+                    className={inputClass}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-neutral-300">
+                  <label className="block text-sm font-medium">
                     {QUEST_TYPES.find((t) => t.value === quest.type)?.label.split(' ').slice(1).join(' ')} Target
                   </label>
                   <input
@@ -272,13 +258,13 @@ export default function CreatePage() {
                     placeholder={QUEST_TYPES.find((t) => t.value === quest.type)?.placeholder}
                     value={quest.requirements}
                     onChange={(e) => setQuest({ ...quest, requirements: e.target.value })}
-                    className="mt-2 w-full rounded-xl border border-yellow-500/20 bg-neutral-900 px-4 py-3 text-sm text-white placeholder-neutral-600 outline-none focus:border-yellow-500/60 focus:ring-1 focus:ring-yellow-500/30"
+                    className={inputClass}
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-neutral-300">
-                      Reward per completion <span className="text-yellow-400">(USDC)</span>
+                    <label className="block text-sm font-medium">
+                      Reward <span className="text-accent">(USDC)</span>
                     </label>
                     <input
                       type="number"
@@ -288,11 +274,11 @@ export default function CreatePage() {
                       placeholder="e.g. 1.00"
                       value={quest.rewardUsdc}
                       onChange={(e) => setQuest({ ...quest, rewardUsdc: e.target.value })}
-                      className="mt-2 w-full rounded-xl border border-yellow-500/20 bg-neutral-900 px-4 py-3 text-sm text-white placeholder-neutral-600 outline-none focus:border-yellow-500/60 focus:ring-1 focus:ring-yellow-500/30"
+                      className={inputClass}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-neutral-300">Max completions</label>
+                    <label className="block text-sm font-medium">Max completions</label>
                     <input
                       type="number"
                       required
@@ -300,12 +286,12 @@ export default function CreatePage() {
                       placeholder="e.g. 500"
                       value={quest.maxCompletions}
                       onChange={(e) => setQuest({ ...quest, maxCompletions: e.target.value })}
-                      className="mt-2 w-full rounded-xl border border-yellow-500/20 bg-neutral-900 px-4 py-3 text-sm text-white placeholder-neutral-600 outline-none focus:border-yellow-500/60 focus:ring-1 focus:ring-yellow-500/30"
+                      className={inputClass}
                     />
                   </div>
                 </div>
                 {error && (
-                  <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">
+                  <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-500">
                     {error}
                   </div>
                 )}
@@ -317,45 +303,44 @@ export default function CreatePage() {
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="rounded-xl border border-yellow-500/30 bg-yellow-500/10 px-6 py-3 text-sm font-medium text-yellow-400 transition hover:bg-yellow-500/20"
+                  className="rounded-xl border border-border bg-background px-6 py-3 text-sm font-medium text-foreground transition-colors hover:bg-muted"
                 >
-                  ← Back
+                  Back
                 </button>
               )}
               <button
                 type="submit"
                 disabled={status === 'submitting'}
-                className="flex-1 rounded-xl bg-gradient-to-r from-yellow-500 to-yellow-600 px-6 py-3 text-sm font-bold text-black transition hover:from-yellow-400 hover:to-yellow-500 disabled:opacity-60"
+                className="flex-1 rounded-xl bg-accent px-6 py-3 text-sm font-semibold text-black transition-all duration-500 hover:rounded-[50px] hover:shadow-lg hover:shadow-accent/20 disabled:opacity-60"
               >
                 {status === 'submitting'
-                  ? '⏳ Creating...'
+                  ? 'Creating...'
                   : step === 1
-                  ? 'Next: Add Quest →'
-                  : '🚀 Launch Campaign'}
+                  ? 'Next: Add Quest'
+                  : 'Launch Campaign'}
               </button>
             </div>
           </form>
         </div>
 
         {/* Info box */}
-        <div className="mt-8 rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-6">
-          <h3 className="text-sm font-semibold text-yellow-400">💡 How Campaign Funding Works</h3>
-          <ol className="mt-3 space-y-2 text-sm text-neutral-400">
-            <li className="flex gap-2"><span className="text-yellow-400 font-bold">1.</span> Create your campaign here (stored in DB)</li>
-            <li className="flex gap-2"><span className="text-yellow-400 font-bold">2.</span> Approve USDC spend on the smart contract</li>
-            <li className="flex gap-2"><span className="text-yellow-400 font-bold">3.</span> Call <code className="rounded bg-neutral-800 px-1 py-0.5 text-yellow-400">escrow.createCampaign()</code> to lock funds on-chain</li>
-            <li className="flex gap-2"><span className="text-yellow-400 font-bold">4.</span> Users complete quests → smart contract pays them instantly</li>
+        <div className="mt-8 rounded-xl bg-muted p-6">
+          <h3 className="text-sm font-semibold">How Campaign Funding Works</h3>
+          <ol className="mt-3 space-y-2 text-sm text-muted-foreground">
+            <li className="flex gap-2"><span className="text-accent font-bold">1.</span> Create your campaign here (stored in DB)</li>
+            <li className="flex gap-2"><span className="text-accent font-bold">2.</span> Approve USDC spend on the smart contract</li>
+            <li className="flex gap-2"><span className="text-accent font-bold">3.</span> Call <code className="rounded bg-background px-1 py-0.5 text-foreground">escrow.createCampaign()</code> to lock funds on-chain</li>
+            <li className="flex gap-2"><span className="text-accent font-bold">4.</span> Users complete quests and the smart contract pays them</li>
           </ol>
           <a
             href="https://sepolia.etherscan.io/address/0xA67F9b4a122Ef009Ef45eA4fd3C3c250C94F9dd7"
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-4 inline-flex items-center gap-1.5 text-xs text-yellow-400 hover:underline"
+            className="mt-4 inline-flex items-center gap-1.5 text-xs text-accent hover:underline"
           >
-            🔗 View Escrow Contract on Etherscan
+            View Escrow Contract on Etherscan
           </a>
         </div>
       </main>
-    </div>
   );
 }

@@ -12,6 +12,11 @@ export const ESCROW_DOMAIN = {
   version: '1',
 } as const;
 
+export const ESCROW_V2_DOMAIN = {
+  name: 'Web3CashEscrowV2',
+  version: '2',
+} as const;
+
 export const REGISTRY_DOMAIN = {
   name: 'Web3CashRegistry',
   version: '1',
@@ -99,6 +104,128 @@ export const ESCROW_ABI = [
       { name: 'recipient', type: 'address', indexed: true },
       { name: 'claimId', type: 'bytes32', indexed: true },
       { name: 'amount', type: 'uint256', indexed: false },
+    ],
+    anonymous: false,
+  },
+] as const;
+
+/** EscrowV2 ABI with per-campaign balance tracking */
+export const ESCROW_V2_ABI = [
+  {
+    type: 'function',
+    name: 'createCampaign',
+    stateMutability: 'nonpayable',
+    inputs: [{ name: 'campaignId', type: 'bytes32' }],
+    outputs: [],
+  },
+  {
+    type: 'function',
+    name: 'fundCampaign',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { name: 'campaignId', type: 'bytes32' },
+      { name: 'amount', type: 'uint256' },
+    ],
+    outputs: [],
+  },
+  {
+    type: 'function',
+    name: 'fundPlatformReserve',
+    stateMutability: 'nonpayable',
+    inputs: [{ name: 'amount', type: 'uint256' }],
+    outputs: [],
+  },
+  {
+    type: 'function',
+    name: 'claim',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { name: 'campaignId', type: 'bytes32' },
+      { name: 'recipient', type: 'address' },
+      { name: 'amount', type: 'uint256' },
+      { name: 'claimId', type: 'bytes32' },
+      { name: 'deadline', type: 'uint256' },
+      { name: 'signature', type: 'bytes' },
+    ],
+    outputs: [],
+  },
+  {
+    type: 'function',
+    name: 'withdrawCampaignFunds',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { name: 'campaignId', type: 'bytes32' },
+      { name: 'amount', type: 'uint256' },
+    ],
+    outputs: [],
+  },
+  {
+    type: 'function',
+    name: 'deactivateCampaign',
+    stateMutability: 'nonpayable',
+    inputs: [{ name: 'campaignId', type: 'bytes32' }],
+    outputs: [],
+  },
+  {
+    type: 'function',
+    name: 'getCampaign',
+    stateMutability: 'view',
+    inputs: [{ name: 'campaignId', type: 'bytes32' }],
+    outputs: [
+      { name: 'creator', type: 'address' },
+      { name: 'balance', type: 'uint256' },
+      { name: 'spent', type: 'uint256' },
+      { name: 'active', type: 'bool' },
+    ],
+  },
+  {
+    type: 'function',
+    name: 'getAvailableFunds',
+    stateMutability: 'view',
+    inputs: [{ name: 'campaignId', type: 'bytes32' }],
+    outputs: [{ type: 'uint256' }],
+  },
+  {
+    type: 'function',
+    name: 'platformReserve',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint256' }],
+  },
+  {
+    type: 'function',
+    name: 'claimed',
+    stateMutability: 'view',
+    inputs: [{ name: 'claimId', type: 'bytes32' }],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    type: 'event',
+    name: 'CampaignCreated',
+    inputs: [
+      { name: 'campaignId', type: 'bytes32', indexed: true },
+      { name: 'creator', type: 'address', indexed: true },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'CampaignFunded',
+    inputs: [
+      { name: 'campaignId', type: 'bytes32', indexed: true },
+      { name: 'funder', type: 'address', indexed: true },
+      { name: 'amount', type: 'uint256', indexed: false },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'Claimed',
+    inputs: [
+      { name: 'campaignId', type: 'bytes32', indexed: true },
+      { name: 'recipient', type: 'address', indexed: true },
+      { name: 'amount', type: 'uint256', indexed: false },
+      { name: 'claimId', type: 'bytes32', indexed: false },
     ],
     anonymous: false,
   },

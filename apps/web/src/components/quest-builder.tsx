@@ -72,17 +72,19 @@ export function QuestBuilder({ campaignId, onSuccess }: QuestBuilderProps) {
     }
   };
 
+  const inputClass = 'mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder-muted-foreground outline-none focus:border-accent/60 focus:ring-1 focus:ring-accent/30 transition-colors';
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <label htmlFor="type" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="type" className="block text-sm font-medium">
           Quest Type
         </label>
         <select
           id="type"
           value={questType}
           onChange={(e) => setQuestType(e.target.value as any)}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          className={inputClass}
         >
           <option value="TWITTER_FOLLOW">Twitter Follow</option>
           <option value="TWITTER_RETWEET">Twitter Retweet</option>
@@ -91,7 +93,7 @@ export function QuestBuilder({ campaignId, onSuccess }: QuestBuilderProps) {
       </div>
 
       <div>
-        <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="title" className="block text-sm font-medium">
           Title
         </label>
         <input
@@ -100,12 +102,12 @@ export function QuestBuilder({ campaignId, onSuccess }: QuestBuilderProps) {
           required
           value={formData.title}
           onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          className={inputClass}
         />
       </div>
 
       <div>
-        <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="description" className="block text-sm font-medium">
           Description
         </label>
         <textarea
@@ -113,14 +115,14 @@ export function QuestBuilder({ campaignId, onSuccess }: QuestBuilderProps) {
           rows={3}
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          className={inputClass}
         />
       </div>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <div>
-          <label htmlFor="rewardUsdc" className="block text-sm font-medium text-gray-700">
-            Reward (USDC)
+          <label htmlFor="rewardUsdc" className="block text-sm font-medium">
+            Reward <span className="text-accent">(USDC)</span>
           </label>
           <input
             type="number"
@@ -130,12 +132,12 @@ export function QuestBuilder({ campaignId, onSuccess }: QuestBuilderProps) {
             step="0.01"
             value={formData.rewardUsdc}
             onChange={(e) => setFormData({ ...formData, rewardUsdc: e.target.value })}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className={inputClass}
           />
         </div>
 
         <div>
-          <label htmlFor="maxCompletions" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="maxCompletions" className="block text-sm font-medium">
             Max Completions
           </label>
           <input
@@ -145,13 +147,13 @@ export function QuestBuilder({ campaignId, onSuccess }: QuestBuilderProps) {
             min="1"
             value={formData.maxCompletions}
             onChange={(e) => setFormData({ ...formData, maxCompletions: e.target.value })}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className={inputClass}
           />
         </div>
       </div>
 
       <div>
-        <label htmlFor="minSybilScore" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="minSybilScore" className="block text-sm font-medium">
           Minimum Sybil Score (0-100)
         </label>
         <input
@@ -162,13 +164,13 @@ export function QuestBuilder({ campaignId, onSuccess }: QuestBuilderProps) {
           max="100"
           value={formData.minSybilScore}
           onChange={(e) => setFormData({ ...formData, minSybilScore: e.target.value })}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          className={inputClass}
         />
       </div>
 
       {questType === 'TWITTER_FOLLOW' && (
         <div>
-          <label htmlFor="twitterHandle" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="twitterHandle" className="block text-sm font-medium">
             Twitter Handle (without @)
           </label>
           <input
@@ -177,14 +179,14 @@ export function QuestBuilder({ campaignId, onSuccess }: QuestBuilderProps) {
             required
             value={formData.twitterHandle}
             onChange={(e) => setFormData({ ...formData, twitterHandle: e.target.value })}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className={inputClass}
           />
         </div>
       )}
 
       {(questType === 'TWITTER_RETWEET' || questType === 'TWITTER_LIKE') && (
         <div>
-          <label htmlFor="tweetUrl" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="tweetUrl" className="block text-sm font-medium">
             Tweet URL
           </label>
           <input
@@ -193,7 +195,7 @@ export function QuestBuilder({ campaignId, onSuccess }: QuestBuilderProps) {
             required
             value={formData.tweetUrl}
             onChange={(e) => setFormData({ ...formData, tweetUrl: e.target.value })}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className={inputClass}
           />
         </div>
       )}
@@ -202,7 +204,7 @@ export function QuestBuilder({ campaignId, onSuccess }: QuestBuilderProps) {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50"
+          className="rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-black transition-all duration-500 hover:rounded-[50px] hover:shadow-lg hover:shadow-accent/20 disabled:opacity-50"
         >
           {isSubmitting ? 'Creating...' : 'Create Quest'}
         </button>

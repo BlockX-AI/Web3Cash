@@ -25,7 +25,8 @@ export async function POST() {
   if (limited) return limited;
 
   const result = await createWithdrawal(wallet, {
-    chainId: Number(process.env.DEFAULT_CHAIN_ID ?? '1'),
+    provider: (process.env.PAYOUT_PROVIDER as 'GNOSIS_SAFE' | 'CIRCLE_API' | 'ESCROW_CONTRACT' | undefined) ?? 'ESCROW_CONTRACT',
+    chainId: Number(process.env.DEFAULT_CHAIN_ID ?? '11155111'),
   });
 
   if (!result.ok) {

@@ -25,7 +25,7 @@ export function SybilOverrideButton({ currentScore }: { currentScore: number }) 
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-xs text-neutral-500">Override:</span>
+      <span className="text-xs text-muted-foreground">Override:</span>
       <button
         onClick={() => setScore(100)}
         disabled={loading || currentScore === 100}

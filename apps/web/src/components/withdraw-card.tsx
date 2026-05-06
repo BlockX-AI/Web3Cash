@@ -53,42 +53,42 @@ export function WithdrawCard({
   }
 
   return (
-    <div className="border border-neutral-800 bg-neutral-950 p-5">
+    <div className="rounded-2xl bg-muted p-5">
       <div className="flex items-center justify-between">
         <div>
-          <div className="font-mono text-[10px] uppercase tracking-widest text-neutral-500">
+          <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
             Withdrawable
           </div>
           <div className="mt-2 text-2xl font-semibold">
             ${pendingBalanceUsdc}{' '}
-            <span className="text-sm text-neutral-500">USDC</span>
+            <span className="text-sm text-muted-foreground">USDC</span>
           </div>
         </div>
         <button
           onClick={onWithdraw}
           disabled={disabled}
-          className="rounded-md bg-white px-4 py-2 text-sm font-medium text-black disabled:cursor-not-allowed disabled:bg-neutral-800 disabled:text-neutral-500"
+          className="rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-black transition-all duration-500 hover:rounded-[50px] hover:shadow-lg hover:shadow-accent/20 disabled:cursor-not-allowed disabled:bg-border disabled:text-muted-foreground disabled:shadow-none"
         >
           {state.kind === 'loading' ? 'Queueing\u2026' : 'Withdraw'}
         </button>
       </div>
 
       {kycStatus !== 'VERIFIED' && (
-        <p className="mt-3 text-xs text-neutral-500">
+        <p className="mt-3 text-xs text-muted-foreground">
           KYC required at $500 cumulative. Current status:{' '}
           <span className="font-mono">{kycStatus}</span>.
         </p>
       )}
 
       {state.kind === 'ok' && (
-        <p className="mt-3 text-xs text-emerald-400">
+        <p className="mt-3 text-xs text-green-600 dark:text-green-400">
           Queued ${state.amountUsdc} USDC. Settles after the next batch is signed.
         </p>
       )}
       {state.kind === 'err' && (
-        <p className="mt-3 text-xs text-red-400">
+        <p className="mt-3 text-xs text-red-500">
           {ERR_COPY[state.code] ?? state.code}
-          {state.message && <span className="ml-2 text-neutral-500">({state.message})</span>}
+          {state.message && <span className="ml-2 text-muted-foreground">({state.message})</span>}
         </p>
       )}
     </div>

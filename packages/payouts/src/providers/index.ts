@@ -2,6 +2,7 @@ import type { PayoutProvider as DbPayoutProvider } from '@web3cash/db';
 import type { PayoutProviderAdapter } from '../types.js';
 import { GnosisSafeProvider } from './gnosis-safe.js';
 import { EscrowContractProvider } from './escrow.js';
+import { EscrowContractV2Provider } from './escrow-v2.js';
 
 /**
  * Lazily instantiate a provider. The factory keeps env-loading constructors
@@ -18,6 +19,9 @@ export function getProvider(id: DbPayoutProvider): PayoutProviderAdapter {
     case 'ESCROW_CONTRACT':
       cached[id] = new EscrowContractProvider();
       return cached[id]!;
+    case 'ESCROW_CONTRACT_V2':
+      cached[id] = new EscrowContractV2Provider();
+      return cached[id]!;
     case 'CIRCLE_API':
       throw new Error('CIRCLE_API provider is reserved for future use');
     default: {
@@ -32,4 +36,4 @@ export function __resetProviderCache() {
   cached = {};
 }
 
-export { GnosisSafeProvider, EscrowContractProvider };
+export { GnosisSafeProvider, EscrowContractProvider, EscrowContractV2Provider };

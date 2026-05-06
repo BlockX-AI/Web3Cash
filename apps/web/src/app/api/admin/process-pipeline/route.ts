@@ -65,12 +65,10 @@ export async function POST() {
   trace.push({ step: '1_recheck_holding', data: { count: holding.length, recheckResults } });
 
   // ── Step 2: Create a withdrawal (drains pendingBalance → QUEUED Payout) ───
-  const withdrawal = await createWithdrawal(wallet, { chainId });
+  const withdrawal = await createWithdrawal(wallet, { chainId, provider });
   trace.push({ step: '2_create_withdrawal', data: withdrawal });
 
-  if (!withdrawal.ok) {
-    return NextResponse.json({ ok: false, trace }, { status: 200 });
-  }
+  // Don't return early if withdrawal fails - there might be existing QUEUED payouts to process
 
   // ── Step 3: Submit the Payout on-chain via Escrow ─────────────────────────
   let submitResult;
