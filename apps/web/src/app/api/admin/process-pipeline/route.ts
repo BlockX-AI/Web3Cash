@@ -42,7 +42,8 @@ export async function POST() {
     (process.env.PAYOUT_PROVIDER as
       | 'GNOSIS_SAFE'
       | 'CIRCLE_API'
-      | 'ESCROW_CONTRACT') ?? 'ESCROW_CONTRACT';
+      | 'ESCROW_CONTRACT'
+      | 'ESCROW_CONTRACT_V2') ?? 'ESCROW_CONTRACT';
 
   // ── Step 1: Force-recheck all HOLDING completions for this wallet ─────────
   const holding = await prisma.questCompletion.findMany({

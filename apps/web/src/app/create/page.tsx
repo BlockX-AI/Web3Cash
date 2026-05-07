@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { FundCampaignButton } from '@/components/fund-campaign-button';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,7 +20,7 @@ export default function CreatePage() {
     requirements: '',
   });
   const [status, setStatus] = useState<'idle' | 'submitting' | 'done' | 'error'>('idle');
-  const [result, setResult] = useState<{ id: string; name: string } | null>(null);
+  const [result, setResult] = useState<{ id: string; name: string; budgetUsdc: string } | null>(null);
   const [error, setError] = useState('');
 
   const QUEST_TYPES = [
@@ -97,7 +98,7 @@ export default function CreatePage() {
         throw new Error(body.error ?? 'Failed to create quest');
       }
 
-      setResult({ id: newCampaign.id, name: newCampaign.name });
+      setResult({ id: newCampaign.id, name: newCampaign.name, budgetUsdc: campaign.budgetUsdc });
       setStatus('done');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
@@ -115,9 +116,12 @@ export default function CreatePage() {
             <h1 className="mt-6 text-3xl font-medium tracking-tight">Campaign Created!</h1>
             <p className="mt-3 text-muted-foreground">
               Your campaign <span className="font-semibold text-foreground">{result.name}</span> is live.
-              Quest completers can now earn USDC by completing your quests.
+              Fund it on-chain so quest rewards can be paid out automatically.
             </p>
-            <div className="mt-8 rounded-xl bg-muted p-4 text-left">
+            <div className="mt-8">
+              <FundCampaignButton campaignId={result.id} budgetUsdc={result.budgetUsdc} />
+            </div>
+            <div className="mt-6 rounded-xl bg-muted p-4 text-left">
               <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground">Campaign ID</p>
               <p className="mt-1 break-all font-mono text-sm text-foreground">{result.id}</p>
             </div>

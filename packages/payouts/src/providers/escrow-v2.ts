@@ -5,6 +5,7 @@ import {
   keccak256,
   toHex,
   toBytes,
+  concat,
   encodeFunctionData,
   type Address,
   type Hex,
@@ -87,57 +88,56 @@ export class EscrowContractV2Provider implements PayoutProviderAdapter {
 
   async submit(transfers: PayoutTransfer[]): Promise<SubmitResult> {
     if (transfers.length === 0) throw new Error('no transfers');
-    // For MVP we only support one-leg payouts (one user per Payout row). The
-    // service layer already coalesces a user's pendingBalance into a single
-    // Payout, so transfers.length === 1 in practice. The contract supports
-    // multi-claim batching natively if/when we relax this.
-    if (transfers.length > 1) {
-      throw new Error('EscrowContractV2Provider expects exactly one transfer per submit');
-    }
-    const t = transfers[0]!;
-
-    const recipient = t.to as Address;
-    const amount = t.amountUsdcAtomic;
-    const deadline = BigInt(Math.floor(Date.now() / 1000) + this.claimTtlSec);
-    const claimId = keccak256(
-      toBytes(`${t.payoutId}|${recipient.toLowerCase()}|${amount.toString()}`),
-    );
 
     const attestor = privateKeyToAccount(this.attestorPk);
     const relayer = privateKeyToAccount(this.relayerPk);
     const chain = getChain(this.chainId);
-
-    const signature = await attestor.signTypedData({
-      domain: {
-        ...ESCROW_V2_DOMAIN,
-        chainId: this.chainId,
-        verifyingContract: this.escrowAddress,
-      },
-      types: CLAIM_TYPES,
-      primaryType: 'Claim',
-      message: {
-        campaignId: this.campaignId,
-        recipient,
-        amount,
-        claimId,
-        deadline,
-      },
-    });
-
-    const data = encodeFunctionData({
-      abi: ESCROW_V2_ABI,
-      functionName: 'claim',
-      args: [this.campaignId, recipient, amount, claimId, deadline, signature],
-    });
-
     const wallet = createWalletClient({ account: relayer, chain, transport: http() });
-    const txHash = await wallet.sendTransaction({
-      to: this.escrowAddress,
-      data,
-      value: 0n,
-    });
 
-    return { providerRef: txHash, txHash };
+    // Submit each transfer as a separate claim transaction
+    // The contract supports batching but for simplicity we submit sequentially
+    const txHashes: string[] = [];
+    
+    for (const t of transfers) {
+      const recipient = t.to as Address;
+      const amount = t.amountUsdcAtomic;
+      const deadline = BigInt(Math.floor(Date.now() / 1000) + this.claimTtlSec);
+      const claimId = keccak256(
+        toBytes(`${t.payoutId}|${recipient.toLowerCase()}|${amount.toString()}`),
+      );
+
+      // Contract expects: keccak256(abi.encodePacked(campaignId, recipient, amount, claimId, deadline))
+      // abi.encodePacked concatenates without padding, so we use concat
+      const packed = concat([
+        this.campaignId,
+        recipient,
+        toHex(amount, { size: 32 }),
+        claimId,
+        toHex(deadline, { size: 32 }),
+      ]);
+      const messageHash = keccak256(packed);
+      
+      // signMessage automatically applies toEthSignedMessageHash prefix
+      const signature = await attestor.signMessage({ message: { raw: messageHash } });
+
+      const data = encodeFunctionData({
+        abi: ESCROW_V2_ABI,
+        functionName: 'claim',
+        args: [this.campaignId, recipient, amount, claimId, deadline, signature],
+      });
+
+      const txHash = await wallet.sendTransaction({
+        to: this.escrowAddress,
+        data,
+        value: 0n,
+      });
+
+      txHashes.push(txHash);
+    }
+
+    // Return the first tx hash as the primary reference
+    // All txs are recorded in the batch but the service expects a single ref
+    return { providerRef: txHashes[0]!, txHash: txHashes[0]! };
   }
 
   async checkStatus(input: {

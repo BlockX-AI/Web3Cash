@@ -6,6 +6,7 @@ const nextConfig = {
     '@web3cash/shared',
     '@web3cash/db',
     '@web3cash/auth',
+    '@web3cash/contracts',
     '@web3cash/sybil',
     '@web3cash/oauth',
     '@web3cash/payouts',

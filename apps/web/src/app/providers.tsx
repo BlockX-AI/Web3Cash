@@ -13,8 +13,8 @@ import { SmoothScroll } from '@/components/smooth-scroll';
 function RainbowKitThemed({ children }: { children: ReactNode }) {
   const { resolvedTheme } = useTheme();
   const rkTheme = resolvedTheme === 'dark'
-    ? darkTheme({ accentColor: '#ffd900', accentColorForeground: 'black', borderRadius: 'medium' })
-    : lightTheme({ accentColor: '#ffd900', accentColorForeground: 'black', borderRadius: 'medium' });
+    ? darkTheme({ accentColor: '#ffd900', accentColorForeground: 'black' })
+    : lightTheme({ accentColor: '#ffd900', accentColorForeground: 'black' });
 
   return (
     <RainbowKitProvider theme={rkTheme} modalSize="compact">

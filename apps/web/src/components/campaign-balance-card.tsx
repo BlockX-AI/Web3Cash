@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { createPublicClient, http, formatUnits } from 'viem';
+import { createPublicClient, http, formatUnits, keccak256, toHex } from 'viem';
 import { sepolia } from 'viem/chains';
 import { ESCROW_V2_ABI } from '@web3cash/contracts';
 
@@ -31,8 +31,8 @@ export function CampaignBalanceCard({ campaignId }: CampaignBalanceCardProps) {
           transport: http(),
         });
 
-        // Convert UUID to bytes32
-        const campaignIdBytes32 = `0x${campaignId.replace(/-/g, '')}` as `0x${string}`;
+        // Convert UUID to bytes32 (must match backend: keccak256(toHex(uuid)))
+        const campaignIdBytes32 = keccak256(toHex(campaignId));
 
         const [creator, balanceWei, spentWei, active] = await client.readContract({
           address: ESCROW_V2_ADDRESS,

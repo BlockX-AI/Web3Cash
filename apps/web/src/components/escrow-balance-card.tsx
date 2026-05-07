@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { createPublicClient, http, formatUnits } from 'viem';
 import { sepolia } from 'viem/chains';
 
-const ESCROW_ADDRESS = '0xA67F9b4a122Ef009Ef45eA4fd3C3c250C94F9dd7' as const;
+const ESCROW_ADDRESS = (process.env.NEXT_PUBLIC_ESCROW_CONTRACT_ADDRESS_V2 ?? '0x6726a4A8B149F59Db599FEBF450F279e82951560') as `0x${string}`;
 const USDC_SEPOLIA = '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238' as const;
 
 const USDC_ABI = [
@@ -58,12 +58,12 @@ export function EscrowBalanceCard() {
         <span className="text-sm text-muted-foreground">USDC</span>
       </div>
       <a
-        href={`https://sepolia.etherscan.io/address/${ESCROW_ADDRESS}`}
+        href={`https://sepolia.etherscan.io/address/${ESCROW_ADDRESS}#tokentxns`}
         target="_blank"
         rel="noopener noreferrer"
         className="mt-2 inline-block font-mono text-xs text-accent hover:underline"
       >
-        View on Etherscan ↗
+        View Contract on Etherscan ↗
       </a>
     </div>
   );
