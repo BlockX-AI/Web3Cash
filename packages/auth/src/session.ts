@@ -23,6 +23,9 @@ export interface UpsertUserInput {
   walletAddress: string;
   chainId: number;
   referredByCode?: string | null;
+  offer18ClickId?: string | null;
+  offer18AffId?: string | null;
+  offer18OfferId?: string | null;
 }
 
 /**
@@ -32,16 +35,21 @@ export interface UpsertUserInput {
  * Critical: referredByCode is ONLY written on creation, never on subsequent logins —
  * this prevents users from retroactively assigning themselves a referrer.
  */
-export async function upsertUserOnLogin(input: UpsertUserInput): Promise<SessionUser> {
+export async function upsertUserOnLogin(
+  input: UpsertUserInput,
+): Promise<{ user: SessionUser; isNew: boolean }> {
   const wallet = normalizeAddress(input.walletAddress);
 
   const existing = await prisma.user.findUnique({ where: { walletAddress: wallet } });
   if (existing) {
     return {
-      walletAddress: existing.walletAddress,
-      chainId: existing.chainId,
-      sybilScore: existing.sybilScore,
-      kycStatus: existing.kycStatus,
+      user: {
+        walletAddress: existing.walletAddress,
+        chainId: existing.chainId,
+        sybilScore: existing.sybilScore,
+        kycStatus: existing.kycStatus,
+      },
+      isNew: false,
     };
   }
 
@@ -64,6 +72,9 @@ export async function upsertUserOnLogin(input: UpsertUserInput): Promise<Session
         chainId: input.chainId,
         referralCode,
         referredByWallet: referrerWallet,
+        offer18ClickId: input.offer18ClickId ?? null,
+        offer18AffId: input.offer18AffId ?? null,
+        offer18OfferId: input.offer18OfferId ?? null,
       },
     });
     if (referrerWallet) {
@@ -79,9 +90,12 @@ export async function upsertUserOnLogin(input: UpsertUserInput): Promise<Session
   });
 
   return {
-    walletAddress: created.walletAddress,
-    chainId: created.chainId,
-    sybilScore: created.sybilScore,
-    kycStatus: created.kycStatus,
+    user: {
+      walletAddress: created.walletAddress,
+      chainId: created.chainId,
+      sybilScore: created.sybilScore,
+      kycStatus: created.kycStatus,
+    },
+    isNew: true,
   };
 }
