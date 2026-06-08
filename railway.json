@@ -2,10 +2,10 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "NIXPACKS",
-    "buildCommand": "pnpm install --frozen-lockfile --prod=false && pnpm --filter @web3cash/contracts build && pnpm db:generate && pnpm --filter @web3cash/web build"
+    "buildCommand": "npm install && npm run db:generate && npm run build -w @web3cash/web"
   },
   "deploy": {
-    "startCommand": "sh -c \"pnpm --filter @web3cash/db exec prisma migrate resolve --rolled-back 20250502_init || true; pnpm db:migrate:deploy && pnpm --filter @web3cash/web start\"",
+    "startCommand": "npm run db:migrate:deploy && npm run start -w @web3cash/api",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10,
     "healthcheckPath": "/api/health"
