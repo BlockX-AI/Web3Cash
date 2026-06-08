@@ -12,11 +12,11 @@
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit",
     "lint": "echo 'lint: ok'",
-    "generate": "prisma generate",
-    "migrate": "prisma migrate dev",
-    "migrate:deploy": "prisma migrate deploy",
-    "studio": "prisma studio",
-    "seed": "tsx src/seed.ts",
+    "generate": "dotenv -e ../../.env -- prisma generate",
+    "migrate": "dotenv -e ../../.env -- prisma migrate dev",
+    "migrate:deploy": "dotenv -e ../../.env -- prisma migrate deploy",
+    "studio": "dotenv -e ../../.env -- prisma studio",
+    "seed": "dotenv -e ../../.env -- tsx src/seed.ts",
     "format-schema": "prisma format"
   },
   "prisma": {
@@ -28,7 +28,8 @@
     "prisma": "^5.20.0"
   },
   "devDependencies": {
-    "@web3cash/shared": "workspace:*",
+    "@web3cash/shared": "*",
+    "dotenv-cli": "^11.0.0",
     "tsx": "^4.19.1",
     "typescript": "^5.5.4"
   }
