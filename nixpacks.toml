@@ -5,7 +5,7 @@ nixPkgs = ["nodejs_24", "npm-9_x", "openssl"]
 cmds = ["npm install", "npm run db:generate"]
 
 [start]
-cmd = "npm run db:migrate:deploy && npm run start -w @web3cash/api"
+cmd = "npm run migrate:deploy:prod -w @web3cash/db && npm run start:prod -w @web3cash/api"
 
 [variables]
 NODE_ENV = "production"
