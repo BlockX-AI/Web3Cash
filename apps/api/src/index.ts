@@ -16,7 +16,7 @@ import kycRoutes from './routes/kyc.js';
 import eventRoutes from './routes/events.js';
 
 const app = new Hono();
-const requestTimeoutMs = Number(process.env.API_REQUEST_TIMEOUT_MS ?? 2500);
+const requestTimeoutMs = Number(process.env.API_REQUEST_TIMEOUT_MS ?? 10000);
 
 const FRONTEND_ORIGINS = (process.env.FRONTEND_URL ?? 'http://localhost:5173')
   .split(',')
