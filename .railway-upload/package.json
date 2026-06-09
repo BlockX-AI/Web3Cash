@@ -1,0 +1,41 @@
+{
+  "name": "web3cash",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Web3Cash — verified on-chain cashback platform. Monorepo.",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build": "npm run build -ws --if-present",
+    "dev:web": "npm run dev -w @web3cash/web",
+    "dev:api": "npm run dev -w @web3cash/api",
+    "dev:admin": "npm run dev -w @web3cash/admin",
+    "dev:worker": "npm run dev -w @web3cash/worker",
+    "dev": "npm run dev -ws --if-present",
+    "lint": "npm run lint -ws --if-present",
+    "typecheck": "npm run typecheck -ws --if-present",
+    "test": "npm run test -ws --if-present",
+    "test:api": "tsx scripts/test-api.ts",
+    "test:all": "bash scripts/test-all.sh",
+    "db:generate": "npm run generate -w @web3cash/db",
+    "db:migrate": "npm run migrate -w @web3cash/db",
+    "db:migrate:deploy": "npm run migrate:deploy -w @web3cash/db",
+    "db:studio": "npm run studio -w @web3cash/db",
+    "db:seed": "npm run seed -w @web3cash/db",
+    "infra:up": "docker compose -f infra/docker-compose.yml up -d",
+    "infra:down": "docker compose -f infra/docker-compose.yml down",
+    "infra:logs": "docker compose -f infra/docker-compose.yml logs -f",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\""
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "prettier": "^3.3.3",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.4"
+  }
+}

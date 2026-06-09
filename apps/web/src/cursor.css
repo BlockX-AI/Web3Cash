@@ -1,0 +1,81 @@
+/* PROFESSIONAL LUXURY CURSOR */
+
+.pro-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  width: 10px;
+  height: 10px;
+
+  border-radius: 50%;
+
+  background: #9E7BFF; /* primary purple */
+
+  box-shadow: 0 0 12px rgba(158,123,255,0.45);
+
+  pointer-events: none;
+
+  z-index: 99999;
+
+  transform: translate(-50%, -50%);
+
+  transition: width 0.25s ease, height 0.25s ease, background 0.25s ease, transform 0.08s linear;
+}
+
+.pro-cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  width: 34px;
+  height: 34px;
+
+  border-radius: 50%;
+
+  border: 1px solid rgba(158,123,255,0.35);
+
+  pointer-events: none;
+
+  z-index: 99998;
+
+  transform: translate(-50%, -50%);
+
+  transition: width 0.3s ease, height 0.3s ease, border-color 0.3s ease, transform 0.12s ease-out, background 0.3s ease;
+}
+
+.cursor-hover .pro-cursor {
+  width: 14px;
+  height: 14px;
+  background: #ffffff;
+}
+
+.cursor-hover .pro-cursor-ring {
+  width: 54px;
+  height: 54px;
+  border-color: rgba(203,183,255,0.7);
+  background: rgba(158,123,255,0.05);
+}
+
+.cursor-click .pro-cursor {
+  transform: translate(-50%, -50%) scale(0.7);
+}
+
+.cursor-click .pro-cursor-ring {
+  transform: translate(-50%, -50%) scale(0.88);
+}
+
+.cursor-text .pro-cursor-ring {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+}
+
+.pro-cursor,
+.pro-cursor-ring { will-change: transform; }
+
+@media (max-width: 640px) {
+  /* disable custom cursor on small screens */
+  * { cursor: default; }
+  .pro-cursor, .pro-cursor-ring { display: none; }
+}

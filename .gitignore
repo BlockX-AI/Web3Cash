@@ -13,7 +13,6 @@ out/
 .env
 .env.local
 .env.*.local
-!.env.example
 
 # Logs
 logs/
@@ -53,8 +52,10 @@ packages/contracts/typechain-types/
 packages/contracts/coverage/
 packages/contracts/coverage.json
 
-# Local planning/docs HTML files
+# Local planning/docs HTML files (index.html is excluded from this rule)
 *.html
+!index.html
+!**/index.html
 
 # Temporary/test files
 minimal-frontend-new/

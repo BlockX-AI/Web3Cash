@@ -1,4 +1,0 @@
-{
-  "buildCommand": "cd ../.. && pnpm install && pnpm db:generate && pnpm --filter=@web3cash/web build",
-  "installCommand": "cd ../.. && pnpm install --frozen-lockfile"
-}

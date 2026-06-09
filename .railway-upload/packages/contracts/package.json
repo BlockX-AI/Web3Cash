@@ -1,0 +1,54 @@
+{
+  "name": "@web3cash/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "artifacts/contracts/**/*.json",
+    "contracts"
+  ],
+  "scripts": {
+    "build": "hardhat compile && pnpm exec tsc -p tsconfig.json",
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "node": "hardhat node",
+    "deploy:sepolia": "hardhat run scripts/deploy.ts --network sepolia",
+    "deploy:base-sepolia": "hardhat run scripts/deploy.ts --network baseSepolia",
+    "verify:sepolia": "hardhat verify --network sepolia",
+    "test-escrow": "hardhat run scripts/test-escrow.ts --network sepolia",
+    "clean": "hardhat clean && rimraf dist"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "5.0.2"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-chai-matchers": "2.0.7",
+    "@nomicfoundation/hardhat-ethers": "3.0.8",
+    "@nomicfoundation/hardhat-network-helpers": "1.0.11",
+    "@nomicfoundation/hardhat-toolbox": "5.0.0",
+    "@nomicfoundation/hardhat-verify": "2.0.11",
+    "@typechain/ethers-v6": "0.5.1",
+    "@typechain/hardhat": "9.1.0",
+    "@types/chai": "4.3.16",
+    "@types/mocha": "10.0.7",
+    "@types/node": "20.19.39",
+    "chai": "4.5.0",
+    "dotenv": "16.4.5",
+    "ethers": "6.13.4",
+    "hardhat": "2.22.18",
+    "hardhat-gas-reporter": "1.0.10",
+    "rimraf": "6.0.1",
+    "solidity-coverage": "0.8.13",
+    "ts-node": "10.9.2",
+    "typechain": "8.3.2",
+    "typescript": "5.9.3"
+  }
+}

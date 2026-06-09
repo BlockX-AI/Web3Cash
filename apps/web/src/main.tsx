@@ -16,6 +16,13 @@ import { WalletProvider } from './WalletProvider';
   if (offerId)  localStorage.setItem('o18_offer_id',  offerId);
 })();
 
+// Capture referral code from ?ref= and persist for auth.
+(function captureReferralCode() {
+  const p = new URLSearchParams(window.location.search);
+  const ref = p.get('ref');
+  if (ref) localStorage.setItem('w3c_ref', ref);
+})();
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <WalletProvider>
