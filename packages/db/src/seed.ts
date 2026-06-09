@@ -144,7 +144,7 @@ async function main() {
             rewardUsdc: q.rewardUsdc,
             maxCompletions: q.maxCompletions,
             minSybilScore: q.minSybilScore,
-            requirements: q.requirements,
+            requirements: q.requirements as any,
             active: true,
           },
           create: {
@@ -156,7 +156,7 @@ async function main() {
             rewardUsdc: q.rewardUsdc,
             maxCompletions: q.maxCompletions,
             minSybilScore: q.minSybilScore,
-            requirements: q.requirements,
+            requirements: q.requirements as any,
             active: true,
           },
         });
