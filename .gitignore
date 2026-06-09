@@ -60,6 +60,7 @@ packages/contracts/coverage.json
 # Temporary/test files
 minimal-frontend-new/
 test-*.js
+New-project/
 
 .vercel
 .env*.local
