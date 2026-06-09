@@ -95,12 +95,14 @@ export const authApi = {
     const offer18ClickId  = localStorage.getItem('o18_click_id')  ?? undefined;
     const offer18AffId    = localStorage.getItem('o18_aff_id')    ?? undefined;
     const offer18OfferId  = localStorage.getItem('o18_offer_id')  ?? undefined;
+    const referredByCode  = localStorage.getItem('w3c_ref')       ?? undefined;
     return api.post<{ success: boolean; walletAddress: string }>('/api/auth/verify', {
       message,
       signature,
       ...(offer18ClickId  && { offer18ClickId }),
       ...(offer18AffId    && { offer18AffId }),
       ...(offer18OfferId  && { offer18OfferId }),
+      ...(referredByCode  && { referredByCode }),
     });
   },
   me:     () => api.get<AuthUser>('/api/auth/me'),
@@ -109,6 +111,7 @@ export const authApi = {
 
 export const questsApi = {
   list:          () => api.get<{ quests: Quest[] }>('/api/quests'),
+  campaigns:     () => api.get<{ campaigns: any[] }>('/api/quests/campaigns'),
   myCompletions: () => api.get<{ completions: QuestCompletion[] }>('/api/quests/my-completions'),
   complete:      (questId: string) =>
     api.post<{ completionId: string; status: string; releaseAt: string }>(`/api/quests/${questId}/complete`),
