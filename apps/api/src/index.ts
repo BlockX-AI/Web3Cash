@@ -1,7 +1,3 @@
-import { config as loadEnv } from 'dotenv';
-import { fileURLToPath } from 'url';
-import { resolve, dirname } from 'path';
-loadEnv({ path: resolve(dirname(fileURLToPath(import.meta.url)), '../../../.env') });
 import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
