@@ -12,20 +12,22 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.13.0",
+    "@hono/zod-openapi": "^1.4.0",
     "@web3cash/auth": "workspace:*",
-    "@web3cash/offer18": "workspace:*",
     "@web3cash/db": "workspace:*",
     "@web3cash/oauth": "workspace:*",
+    "@web3cash/offer18": "workspace:*",
     "@web3cash/payouts": "workspace:*",
     "@web3cash/shared": "workspace:*",
     "@web3cash/sybil": "workspace:*",
     "@web3cash/verifiers": "workspace:*",
+    "bullmq": "^5.20.0",
     "dotenv": "^16.4.5",
     "hono": "^4.6.0",
-    "bullmq": "^5.20.0",
     "ioredis": "^5.4.1",
     "resend": "^4.0.0",
-    "tsx": "^4.19.0"
+    "tsx": "^4.19.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",

@@ -16,7 +16,7 @@ const requestTimeoutMs = Number(process.env.API_REQUEST_TIMEOUT_MS ?? 10000);
 
 const FRONTEND_ORIGINS = (process.env.FRONTEND_URL ?? 'http://localhost:5173')
   .split(',')
-  .concat(['http://localhost:5174', 'http://localhost:5175']);
+  .concat(['http://localhost:5174', 'http://localhost:5175', 'https://web3cash-app.vercel.app']);
 
 app.use('*', cors({ origin: FRONTEND_ORIGINS, credentials: true }));
 app.use('*', logger());
@@ -121,10 +121,78 @@ app.route('/api/oauth', oauthRoutes);
 app.route('/api/kyc', kycRoutes);
 app.route('/api/events', eventRoutes);
 
+/* ── API Documentation ───────────────────────────────────────────────────── */
+
+app.get('/docs', (c) => {
+  return c.json({
+    title: 'Web3Cash API',
+    version: '1.0.0',
+    description: 'Web3Cash backend API for quest completion, user management, and payouts',
+    endpoints: {
+      health: {
+        method: 'GET',
+        path: '/api/health',
+        description: 'Health check endpoint',
+      },
+      ready: {
+        method: 'GET',
+        path: '/api/ready',
+        description: 'Readiness check with database connectivity',
+      },
+      waitlist: {
+        method: 'POST',
+        path: '/api/waitlist',
+        description: 'Join the waitlist',
+        body: {
+          email: 'string (optional)',
+          walletAddress: 'string (optional)',
+        },
+      },
+      auth: {
+        method: 'GET',
+        path: '/api/auth/*',
+        description: 'Authentication endpoints (nonce, verify, session)',
+      },
+      quests: {
+        method: 'GET',
+        path: '/api/quests/*',
+        description: 'Quest listing and completion endpoints',
+      },
+      user: {
+        method: 'GET',
+        path: '/api/user/*',
+        description: 'User profile and withdrawal endpoints',
+      },
+      admin: {
+        method: 'GET',
+        path: '/api/admin/*',
+        description: 'Admin dashboard and management endpoints',
+      },
+      oauth: {
+        method: 'GET',
+        path: '/api/oauth/*',
+        description: 'OAuth integration endpoints (Twitter, Discord, GitHub)',
+      },
+      kyc: {
+        method: 'GET',
+        path: '/api/kyc/*',
+        description: 'KYC verification endpoints',
+      },
+      events: {
+        method: 'GET',
+        path: '/api/events/*',
+        description: 'Event tracking and verification endpoints',
+      },
+    },
+  });
+});
+
 /* ── Start ──────────────────────────────────────────────────────────────── */
 
 const port = parseInt(String(process.env.PORT || process.env.API_PORT || '3001').trim(), 10) || 3001;
-const hostname = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
+// Railway requires binding to 0.0.0.0 for external access
+// Force 0.0.0.0 if PORT is set (Railway always sets PORT)
+const hostname = process.env.PORT ? '0.0.0.0' : 'localhost';
 serve({ fetch: app.fetch, port, hostname }, (info) => {
   console.log(`🚀  Web3Cash API  →  http://${hostname}:${info.port}`);
 });
