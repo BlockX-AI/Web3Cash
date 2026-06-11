@@ -1,0 +1,14 @@
+# Enable shamefully-hoist for better compatibility with tools that don't support pnpm
+shamefully-hoist=true
+
+# Use node_modules linker style for better compatibility
+node-linker=hoisted
+
+# Enable strict peer dependencies to catch issues early
+strict-peer-dependencies=false
+
+# Increase network timeout for Railway builds
+network-timeout=300000
+
+# Use npm registry
+registry=https://registry.npmjs.org/

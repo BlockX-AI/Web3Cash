@@ -23,6 +23,7 @@ This guide will help you deploy Web3Cash to Railway with PostgreSQL, Redis, and 
 1. In your Railway project, click "New Service" → "Database" → "Add PostgreSQL"
 2. Railway will automatically provide a `DATABASE_URL` environment variable
 3. Note: Railway handles SSL automatically
+4. **Important**: The DATABASE_URL is automatically injected by Railway when you link the PostgreSQL service to your API service
 
 ## Step 3: Add Redis
 
@@ -103,16 +104,15 @@ The worker runs background jobs (Sybil scoring, quest rechecks, payout confirmat
 
 1. Click "New Service" → "Deploy from GitHub repo"
 2. Select the same Web3Cash repository
-3. In the service settings, change the start command to:
-   ```
-   npm run start -w @web3cash/worker
-   ```
+3. Use the `railway.worker.json` configuration file (Railway will auto-detect it)
 4. Add the same environment variables as the API service (they share the same PostgreSQL and Redis)
 5. Deploy
 
 **Important**: The worker needs access to the same PostgreSQL and Redis. You can either:
 - Use Railway service-to-service references (recommended)
 - Copy the DATABASE_URL and REDIS_URL from the API service
+
+**Note**: The worker is configured in `railway.worker.json` with pnpm build and start commands.
 
 ## Step 6: Deploy Frontend (Vercel Recommended)
 
@@ -169,6 +169,20 @@ Web3Cash Project
 Frontend is deployed separately on Vercel.
 
 ## Troubleshooting
+
+### Railway Configuration Issues
+
+**Problem**: Railway using npm instead of pnpm commands
+- **Solution**: Ensure `railway.json` is in the root directory and contains pnpm commands
+- **Action**: Delete the Railway service and redeploy from GitHub to pick up the new `railway.json`
+
+**Problem**: DATABASE_URL environment variable empty at startup
+- **Solution**: Ensure PostgreSQL service is linked to the API service
+- **Action**: In Railway dashboard, go to API service → Settings → Variables → Click "Add Variable" → Select "PostgreSQL" from the dropdown to link the DATABASE_URL
+
+**Problem**: Port configuration error (ERR_SOCKET_BAD_PORT NaN)
+- **Solution**: Ensure PORT or API_PORT environment variable is set to a valid number
+- **Action**: Add `PORT=3001` or `API_PORT=3001` in Railway environment variables
 
 ### Database Connection Issues
 - Ensure DATABASE_URL is set correctly

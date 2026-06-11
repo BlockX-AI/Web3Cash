@@ -123,7 +123,7 @@ app.route('/api/events', eventRoutes);
 
 /* ── Start ──────────────────────────────────────────────────────────────── */
 
-const port = parseInt((process.env.PORT || process.env.API_PORT || '3001').trim(), 10) || 3001;
+const port = parseInt(String(process.env.PORT || process.env.API_PORT || '3001').trim(), 10) || 3001;
 const hostname = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
 serve({ fetch: app.fetch, port, hostname }, (info) => {
   console.log(`🚀  Web3Cash API  →  http://${hostname}:${info.port}`);

@@ -13,9 +13,9 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@web3cash/contracts": "*",
-    "@web3cash/db": "*",
-    "@web3cash/shared": "*",
+    "@web3cash/contracts": "workspace:*",
+    "@web3cash/db": "workspace:*",
+    "@web3cash/shared": "workspace:*",
     "viem": "^2.21.7"
   },
   "devDependencies": {

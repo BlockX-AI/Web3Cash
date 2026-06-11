@@ -15,8 +15,8 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@web3cash/db": "*",
-    "@web3cash/shared": "*"
+    "@web3cash/db": "workspace:*",
+    "@web3cash/shared": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.12.0",

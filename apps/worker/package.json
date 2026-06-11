@@ -12,13 +12,13 @@
     "payouts:submit": "tsx src/scripts/submit-payouts.ts"
   },
   "dependencies": {
-    "@web3cash/db": "*",
-    "@web3cash/offer18": "*",
-    "@web3cash/oauth": "*",
-    "@web3cash/payouts": "*",
-    "@web3cash/shared": "*",
-    "@web3cash/sybil": "*",
-    "@web3cash/verifiers": "*",
+    "@web3cash/db": "workspace:*",
+    "@web3cash/offer18": "workspace:*",
+    "@web3cash/oauth": "workspace:*",
+    "@web3cash/payouts": "workspace:*",
+    "@web3cash/shared": "workspace:*",
+    "@web3cash/sybil": "workspace:*",
+    "@web3cash/verifiers": "workspace:*",
     "bullmq": "^5.20.0",
     "ioredis": "^5.4.1",
     "pino": "^9.4.0"

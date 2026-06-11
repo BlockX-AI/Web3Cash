@@ -14,8 +14,8 @@
     "lint": "echo 'lint: ok'"
   },
   "dependencies": {
-    "@web3cash/db": "*",
-    "@web3cash/shared": "*"
+    "@web3cash/db": "workspace:*",
+    "@web3cash/shared": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",
