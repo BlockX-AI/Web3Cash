@@ -82,6 +82,74 @@ app.get('/api/ready', async (c) => {
   }
 });
 
+/* ── API Status (comprehensive) ───────────────────────────────────────────── */
+
+app.get('/api/status', async (c) => {
+  const checks = {
+    database: false,
+    routes: {
+      auth: false,
+      quests: false,
+      user: false,
+      admin: false,
+      oauth: false,
+      kyc: false,
+      events: false,
+    },
+    endpoints: {
+      health: false,
+      ready: false,
+      waitlist: false,
+    },
+  };
+
+  // Check database
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    checks.database = true;
+  } catch (err) {
+    checks.database = false;
+  }
+
+  // Check route groups by testing if they're mounted
+  try {
+    checks.routes.auth = !!app.routes.find(r => r.path.includes('/api/auth'));
+    checks.routes.quests = !!app.routes.find(r => r.path.includes('/api/quests'));
+    checks.routes.user = !!app.routes.find(r => r.path.includes('/api/user'));
+    checks.routes.admin = !!app.routes.find(r => r.path.includes('/api/admin'));
+    checks.routes.oauth = !!app.routes.find(r => r.path.includes('/api/oauth'));
+    checks.routes.kyc = !!app.routes.find(r => r.path.includes('/api/kyc'));
+    checks.routes.events = !!app.routes.find(r => r.path.includes('/api/events'));
+  } catch (err) {
+    // Route check failed
+  }
+
+  // Check specific endpoints
+  try {
+    checks.endpoints.health = !!app.routes.find(r => r.path === '/api/health' && r.method === 'GET');
+    checks.endpoints.ready = !!app.routes.find(r => r.path === '/api/ready' && r.method === 'GET');
+    checks.endpoints.waitlist = !!app.routes.find(r => r.path === '/api/waitlist' && r.method === 'POST');
+  } catch (err) {
+    // Endpoint check failed
+  }
+
+  const allHealthy = checks.database && 
+    Object.values(checks.routes).every(v => v) && 
+    Object.values(checks.endpoints).every(v => v);
+
+  return c.json({
+    status: allHealthy ? 'healthy' : 'degraded',
+    timestamp: new Date().toISOString(),
+    checks,
+    summary: {
+      total: Object.keys(checks.routes).length + Object.keys(checks.endpoints).length + 1,
+      healthy: (checks.database ? 1 : 0) + 
+               Object.values(checks.routes).filter(Boolean).length + 
+               Object.values(checks.endpoints).filter(Boolean).length,
+    },
+  });
+});
+
 /* ── Waitlist (public) ──────────────────────────────────────────────────── */
 
 app.post('/api/waitlist', async (c) => {
