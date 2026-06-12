@@ -96,6 +96,12 @@ export const authApi = {
     const offer18AffId    = localStorage.getItem('o18_aff_id')    ?? undefined;
     const offer18OfferId  = localStorage.getItem('o18_offer_id')  ?? undefined;
     const referredByCode  = localStorage.getItem('w3c_ref')       ?? undefined;
+    console.log('[Offer18] Sending to backend:', {
+      offer18ClickId,
+      offer18AffId,
+      offer18OfferId,
+      referredByCode,
+    });
     return api.post<{ success: boolean; walletAddress: string }>('/api/auth/verify', {
       message,
       signature,
