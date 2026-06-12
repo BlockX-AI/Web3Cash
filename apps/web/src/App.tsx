@@ -1,6 +1,8 @@
 import { ArrowRight, Wallet, LogOut, Zap } from 'lucide-react';
 import Dashboard from './Dashboard';
+import AdminDashboard from './AdminDashboard';
 import React, { useEffect, useState } from "react";
+import { Routes, Route, Navigate } from 'react-router-dom';
 import "./badge.css";
 import EdelGlobeSection from './EdelGlobeSection';
 import Footer from './Footer';
@@ -65,20 +67,20 @@ function Navbar({ onWaitlist }: { onWaitlist: () => void }) {
   return (
     <nav className="absolute left-0 right-0 top-0 z-40 px-0 py-5 ">
       <div className="mx-auto flex max-w-[88rem] items-center justify-between">
-        <a href="#" className="flex items-center gap-2 text-black">
+        <a href="/" className="flex items-center gap-2 text-black">
           <LogoIcon className="h-7 w-7" />
          
         </a>
 
         <div className="hidden items-center gap-8 md:flex">
           {links.map((link) => (
-            <a
-              href="#"
+            <button
               key={link}
+              onClick={onWaitlist}
               className="text-base font-medium text-gray-700 transition-colors duration-200 hover:text-black"
             >
               {link}
-            </a>
+            </button>
           ))}
         </div>
 
@@ -553,26 +555,41 @@ export default function App() {
   const { address } = useAccount();
   const { user } = useAuth();
 
-  // Authenticated users go straight to the product dashboard
-  if (user) return <Dashboard />;
-
   return (
-    <main className="flex flex-col bg-[#F5F5F5]">
-      <WaitlistModal
-        open={waitlistOpen}
-        onClose={() => setWaitlistOpen(false)}
-        prefillWallet={address}
+    <Routes>
+      {/* Admin route */}
+      <Route path="/admin" element={<AdminDashboard />} />
+
+      {/* User dashboard route */}
+      <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/" replace />} />
+
+      {/* Landing page */}
+      <Route
+        path="/"
+        element={
+          user ? (
+            <Navigate to="/dashboard" replace />
+          ) : (
+            <main className="flex flex-col bg-[#F5F5F5]">
+              <WaitlistModal
+                open={waitlistOpen}
+                onClose={() => setWaitlistOpen(false)}
+                prefillWallet={address}
+              />
+              <div className="flex h-screen flex-col overflow-hidden bg-[#F5F5F5]">
+                <Navbar onWaitlist={() => setWaitlistOpen(true)} />
+                <HeroSection onWaitlist={() => setWaitlistOpen(true)} />
+              </div>
+              <InfoSection />
+              <EdelGlobeSection />
+              <LiveQuestsSection />
+              <UseCasesSection />
+              <FAQSection />
+              <Footer />
+            </main>
+          )
+        }
       />
-      <div className="flex h-screen flex-col overflow-hidden bg-[#F5F5F5]">
-        <Navbar onWaitlist={() => setWaitlistOpen(true)} />
-        <HeroSection onWaitlist={() => setWaitlistOpen(true)} />
-      </div>
-      <InfoSection />
-      <EdelGlobeSection />
-      <LiveQuestsSection />
-      <UseCasesSection />
-      <FAQSection />
-      <Footer />
-    </main>
+    </Routes>
   );
 }
