@@ -492,6 +492,8 @@ function CampaignCard({
 function LiveQuestsSection() {
   const [quests, setQuests] = useState<Quest[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAll, setShowAll] = useState(false);
+  const QUESTS_PER_PAGE = 3;
 
   useEffect(() => {
     questsApi
@@ -503,15 +505,29 @@ function LiveQuestsSection() {
 
   if (!loading && quests.length === 0) return null;
 
+  const displayedQuests = showAll ? quests : quests.slice(0, QUESTS_PER_PAGE);
+  const hasMore = quests.length > QUESTS_PER_PAGE;
+
   return (
     <section className="bg-white px-0 py-16 relative z-20">
       <div className="mx-auto max-w-[88rem]">
-        <h2
-          className="mb-8 text-3xl font-medium leading-tight text-black md:text-4xl"
-          style={{ letterSpacing: '-0.02em' }}
-        >
-          Live Quests
-        </h2>
+        <div className="flex items-center justify-between mb-8">
+          <h2
+            className="text-3xl font-medium leading-tight text-black md:text-4xl"
+            style={{ letterSpacing: '-0.02em' }}
+          >
+            Live Quests
+          </h2>
+          {hasMore && !showAll && (
+            <button
+              onClick={() => setShowAll(true)}
+              className="inline-flex items-center gap-2 rounded-full bg-[#564c8c] px-6 py-2.5 text-sm font-medium text-white hover:bg-[#3f3870] transition-colors"
+            >
+              More Quests
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          )}
+        </div>
         {loading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map((i) => (
@@ -520,7 +536,7 @@ function LiveQuestsSection() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {quests.map((q) => (
+            {displayedQuests.map((q) => (
               <article
                 key={q.id}
                 className="flex flex-col justify-between rounded-2xl border border-gray-100 bg-[#f8f8ff] p-6 hover:border-[#564c8c]/30 transition-colors"
