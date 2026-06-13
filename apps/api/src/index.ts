@@ -10,6 +10,7 @@ import adminRoutes from './routes/admin.js';
 import oauthRoutes from './routes/oauth.js';
 import kycRoutes from './routes/kyc.js';
 import eventRoutes from './routes/events.js';
+import offer18Routes from './routes/offer18.js';
 
 const app = new Hono();
 const requestTimeoutMs = Number(process.env.API_REQUEST_TIMEOUT_MS ?? 10000);
@@ -188,6 +189,7 @@ app.route('/api/admin', adminRoutes);
 app.route('/api/oauth', oauthRoutes);
 app.route('/api/kyc', kycRoutes);
 app.route('/api/events', eventRoutes);
+app.route('/api/offer18', offer18Routes);
 
 /* ── API Documentation ───────────────────────────────────────────────────── */
 
@@ -250,6 +252,11 @@ app.get('/docs', (c) => {
         method: 'GET',
         path: '/api/events/*',
         description: 'Event tracking and verification endpoints',
+      },
+      offer18: {
+        method: 'GET',
+        path: '/api/offer18/*',
+        description: 'Offer18 affiliate tracking postback endpoints',
       },
     },
   });
