@@ -599,11 +599,25 @@ function LiveQuestsSection() {
   const draggedRef = useRef(false);
 
   useEffect(() => {
-    questsApi
-      .list()
-      .then((r) => setQuests(r.quests))
-      .catch(() => setQuests([]))
-      .finally(() => setLoading(false));
+    let attempts = 0;
+    const MAX = 3;
+    function tryFetch() {
+      questsApi
+        .list()
+        .then((r) => {
+          setQuests(r.quests);
+          setLoading(false);
+        })
+        .catch(() => {
+          attempts++;
+          if (attempts < MAX) {
+            setTimeout(tryFetch, 1200 * attempts);
+          } else {
+            setLoading(false);
+          }
+        });
+    }
+    tryFetch();
   }, []);
 
   useLayoutEffect(() => {
@@ -630,7 +644,7 @@ function LiveQuestsSection() {
     };
   }, [quests]);
 
-  if (!loading && quests.length === 0) return null;
+  /* Always render the section frame — empty state shows skeleton placeholder */
 
   const QUEST_LOGO: Record<string, string> = {
     visit: 'https://runner.now/favicon.ico',
@@ -697,6 +711,20 @@ function LiveQuestsSection() {
             <div className="flex gap-4 px-4 sm:px-6 pb-4">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="flex-shrink-0 w-[85vw] sm:w-[380px] md:w-[560px] h-[260px] sm:h-[300px] animate-pulse rounded-xl bg-white/70" />
+              ))}
+            </div>
+          ) : quests.length === 0 ? (
+            <div className="flex gap-4 px-4 sm:px-6 pb-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-white rounded-xl shadow-sm flex-shrink-0 w-[85vw] sm:w-[380px] md:w-[560px] max-w-[560px] p-2 flex flex-col">
+                  <div className="rounded-lg h-[160px] sm:h-[200px] md:h-[230px] bg-gradient-to-br from-[#1a1033] to-[#564c8c] flex items-center justify-center">
+                    <div className="text-white/30 text-sm font-medium">Loading quests…</div>
+                  </div>
+                  <div className="px-3 py-3 flex items-center gap-3">
+                    <div className="h-8 w-24 rounded-full bg-gray-100 animate-pulse" />
+                    <div className="h-8 flex-1 rounded-full bg-gray-100 animate-pulse" />
+                  </div>
+                </div>
               ))}
             </div>
           ) : (

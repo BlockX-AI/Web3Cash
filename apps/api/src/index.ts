@@ -17,7 +17,7 @@ const requestTimeoutMs = Number(process.env.API_REQUEST_TIMEOUT_MS ?? 10000);
 
 const FRONTEND_ORIGINS = (process.env.FRONTEND_URL ?? 'http://localhost:5173')
   .split(',')
-  .concat(['http://localhost:5174', 'http://localhost:5175', 'https://web3cash-app.vercel.app']);
+  .concat(['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'https://web3cash-app.vercel.app', 'https://web3cash-5chi5qob2-arpit-singhs-projects-46af6f40.vercel.app']);
 
 app.use('*', cors({ origin: FRONTEND_ORIGINS, credentials: true }));
 app.use('*', logger());
