@@ -495,87 +495,80 @@ function UseCasesSection() {
   return (
     <section className="bg-[#f5f5f5] px-4 sm:px-6 md:px-8 py-16 sm:py-20 md:py-24 relative z-20">
       <div className="mx-auto grid max-w-[88rem] grid-cols-1 items-stretch gap-6 sm:gap-8 md:grid-cols-2">
-        <article className="relative min-h-[420px] sm:min-h-[560px] md:min-h-[720px] overflow-hidden rounded-3xl flex">
-          <video
+
+        {/* LEFT — static image + stats overlay */}
+        <article className="relative min-h-[420px] sm:min-h-[560px] md:min-h-[640px] overflow-hidden rounded-3xl">
+          <img
+            src="/platform.png"
+            alt="Web3Cash platform"
             className="absolute inset-0 h-full w-full object-cover"
-            src={useCasesVideo}
-            autoPlay
-            muted
-            loop
-            playsInline
           />
-          <div className="relative z-10 p-6 sm:p-8 md:p-12 flex-1 h-full flex flex-col justify-start items-start" data-usecases-stats>
-            <div className="w-full">
-              <div className="mb-4">
-                <h4 className="text-sm font-bold text-white/90 uppercase tracking-widest">The platform that pays for real</h4>
+          {/* subtle dark gradient so stat boxes read cleanly at top */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/20 to-transparent" />
+          <div className="relative z-10 p-5 sm:p-7 md:p-10 flex flex-col h-full justify-start" data-usecases-stats>
+            {/* label */}
+            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-white/70 bg-white/10 w-fit px-3 py-1 rounded-full border border-white/20 backdrop-blur-sm">
+              The platform that pays for real
+            </p>
+            {/* stat boxes */}
+            <div className="flex flex-wrap gap-3">
+              <div className="flex flex-col rounded-xl border border-[#564c8c]/60 bg-[#1a1033]/70 backdrop-blur-sm px-4 py-3 min-w-[110px]">
+                <span className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white leading-none">
+                  <CountUp end={2400000} /><span className="text-base align-top">+</span>
+                </span>
+                <span className="mt-1.5 text-[11px] text-white/60">Total cashback paid</span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-10 items-start w-full">
-                <div className="flex flex-col items-start">
-                  <div className="text-[28px] sm:text-[36px] md:text-[48px] lg:text-[56px] font-extrabold text-white leading-none whitespace-nowrap"><CountUp end={2400000} /><span className="text-xl align-top">+</span></div>
-                  <div className="mt-2 text-sm text-white/80">Total cashback paid</div>
-                </div>
-
-                <div className="flex flex-col items-start">
-                  <div className="text-[28px] sm:text-[36px] md:text-[48px] lg:text-[56px] font-extrabold text-white leading-none whitespace-nowrap"><CountUp end={38000} /><span className="text-xl align-top">+</span></div>
-                  <div className="mt-2 text-sm text-white/80">Active earners globally</div>
-                </div>
-
-                <div className="flex flex-col items-start">
-                  <div className="text-[28px] sm:text-[36px] md:text-[48px] lg:text-[56px] font-extrabold text-white leading-none whitespace-nowrap"><CountUp end={240} /><span className="text-xl align-top">+</span></div>
-                  <div className="mt-2 text-sm text-white/80">Web3 projects listed</div>
-                </div>
+              <div className="flex flex-col rounded-xl border border-[#564c8c]/60 bg-[#1a1033]/70 backdrop-blur-sm px-4 py-3 min-w-[110px]">
+                <span className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white leading-none">
+                  <CountUp end={38000} /><span className="text-base align-top">+</span>
+                </span>
+                <span className="mt-1.5 text-[11px] text-white/60">Active earners globally</span>
+              </div>
+              <div className="flex flex-col rounded-xl border border-[#564c8c]/60 bg-[#1a1033]/70 backdrop-blur-sm px-4 py-3 min-w-[110px]">
+                <span className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white leading-none">
+                  <CountUp end={240} /><span className="text-base align-top">+</span>
+                </span>
+                <span className="mt-1.5 text-[11px] text-white/60">Web3 projects listed</span>
               </div>
             </div>
-
-
           </div>
         </article>
 
-        <article className="relative min-h-[420px] sm:min-h-[560px] md:min-h-[720px] overflow-hidden rounded-3xl flex">
-          <div className="relative z-10 p-5 sm:p-8 md:p-10 bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm flex-1 h-full flex flex-col justify-between">
-            <div>
-              <h2 className="mb-6 sm:mb-8 text-xl sm:text-2xl md:text-3xl font-extrabold leading-tight text-black uppercase">
-                <span className="block">Web3 projects <span className="text-[#564c8c]">spent $4–6B</span> on marketing in 2023 with less than 5% measurable ROI.<span className="text-[#564c8c]">Web3Cash gives you real CPI infrastructure </span></span>
-                <span className="block">like Web2 has, but for dApps.</span>
-            
-              </h2>
-            </div>
+        {/* RIGHT — headline + cycling CampaignCard */}
+        <article className="relative min-h-[420px] sm:min-h-[560px] md:min-h-[640px] overflow-hidden rounded-3xl flex">
+          <div className="flex-1 flex flex-col justify-between p-5 sm:p-8 md:p-10 bg-white rounded-3xl shadow-sm">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold leading-tight text-black uppercase">
+              Web3 projects{' '}
+              <span className="text-[#564c8c]">spent $4–6B</span>
+              {' '}on marketing in 2023 with less than 5% measurable ROI.{' '}
+              <span className="text-[#564c8c]">Web3Cash gives you real CPI infrastructure{' '}</span>
+              like Web2 has, but for dApps.
+            </h2>
 
-            <div className="relative w-full">
-              {/* Tab selector */}
-              <div className="flex gap-2 mb-4">
-                {cardsData.map((c, i) => (
-                  <button
-                    key={c.title}
-                    onClick={() => setActiveCard(i)}
-                    className={`flex-1 rounded-full py-1.5 text-xs font-semibold transition-all ${
-                      i === activeCard
-                        ? 'bg-[#564c8c] text-white shadow'
-                        : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                    }`}
-                  >
-                    {c.title}
-                  </button>
-                ))}
-              </div>
-              <div className="relative w-full overflow-hidden">
+            {/* Cycling cards — no visible tab buttons, just auto-rotate */}
+            <div className="relative w-full mt-6">
+              <div className="relative overflow-hidden rounded-2xl">
                 {cardsData.map((c, i) => (
                   <div
                     key={c.title}
-                    className={`w-full transition-opacity duration-700 ease-in-out ${
+                    className={`transition-opacity duration-700 ease-in-out ${
                       i === activeCard ? 'opacity-100 relative' : 'opacity-0 absolute inset-0'
                     }`}
                   >
-                    <CampaignCard
-                      title={c.title}
-                      cost={c.cost}
-                      note={c.note}
-                      verified={c.verified}
-                    />
-                    <div className="mt-3 w-full">
-                      <img src={c.image} alt={c.title} className="w-full rounded-2xl object-cover shadow-md max-h-48" />
-                    </div>
+                    <CampaignCard title={c.title} cost={c.cost} note={c.note} verified={c.verified} image={c.image} />
                   </div>
+                ))}
+              </div>
+              {/* Dot indicators */}
+              <div className="flex justify-center gap-2 mt-4">
+                {cardsData.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActiveCard(i)}
+                    className={`h-1.5 rounded-full transition-all ${
+                      i === activeCard ? 'w-6 bg-[#564c8c]' : 'w-1.5 bg-gray-300'
+                    }`}
+                  />
                 ))}
               </div>
             </div>
@@ -591,20 +584,41 @@ function CampaignCard({
   cost,
   note,
   verified,
+  image,
 }: {
   title: string;
   cost: string;
   note?: string;
   verified?: { ok: boolean; text: string };
+  image?: string;
 }) {
+  const gradient = verified?.ok
+    ? 'linear-gradient(135deg, #1a1033 0%, #2d1f5e 50%, #564c8c 100%)'
+    : 'linear-gradient(135deg, #1a1a2e 0%, #2d2060 50%, #3d2a78 100%)';
   return (
-    <div className="rounded-2xl p-6 bg-[#0b0b0b] border border-red-700/10 shadow-sm">
-      <div className="text-sm font-medium text-gray-400">{title}</div>
-      <div className="mt-3 text-4xl md:text-5xl font-extrabold text-white leading-tight">{cost}</div>
-      {note && <div className="mt-2 text-sm text-gray-400">{note}</div>}
-      <div className={`mt-4 text-sm font-medium ${verified?.ok ? 'text-emerald-400' : 'text-red-500'}`}>
-        {verified?.text}
+    <div
+      className="rounded-2xl overflow-hidden flex items-stretch min-h-[160px] sm:min-h-[200px]"
+      style={{ background: gradient }}
+    >
+      <div className="flex-1 p-5 sm:p-6 flex flex-col justify-between">
+        <div>
+          <div className="text-sm font-medium text-white/50">{title}</div>
+          <div className="mt-2 text-3xl sm:text-4xl md:text-5xl font-extrabold text-white leading-tight">{cost}</div>
+          {note && <div className="mt-1 text-sm text-white/40">{note}</div>}
+        </div>
+        <div className={`text-sm font-semibold ${verified?.ok ? 'text-emerald-400' : 'text-red-400'}`}>
+          {verified?.text}
+        </div>
       </div>
+      {image && (
+        <div className="w-[120px] sm:w-[160px] flex-shrink-0 relative overflow-hidden">
+          <img
+            src={image}
+            alt={title}
+            className="absolute inset-0 w-full h-full object-cover opacity-60"
+          />
+        </div>
+      )}
     </div>
   );
 }
