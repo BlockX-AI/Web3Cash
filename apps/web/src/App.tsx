@@ -496,14 +496,25 @@ function UseCasesSection() {
     <section className="bg-[#f5f5f5] px-4 sm:px-6 md:px-8 py-16 sm:py-20 md:py-24 relative z-20">
       <div className="mx-auto grid max-w-[88rem] grid-cols-1 items-stretch gap-6 sm:gap-8 md:grid-cols-2">
 
-        {/* LEFT — image (object-contain, bottom-anchored) + stats at top */}
-        <article className="relative min-h-[420px] sm:min-h-[560px] md:min-h-[720px] overflow-hidden rounded-3xl bg-[#f0eeff]">
+        {/* LEFT — platform image (fallback) + video (production) + stats overlay */}
+        <article className="relative min-h-[420px] sm:min-h-[560px] md:min-h-[720px] overflow-hidden rounded-3xl flex bg-[#f0eeff]">
+          {/* Always-visible fallback image for localhost (video is CORS-blocked) */}
           <img
             src="/platform.png"
-            alt="Web3Cash platform"
-            className="absolute inset-x-0 bottom-0 w-full h-[70%] object-contain object-bottom"
+            alt=""
+            aria-hidden
+            className="absolute inset-0 h-full w-full object-cover object-center"
           />
-          <div className="relative z-10 p-6 sm:p-8 md:p-12 flex flex-col h-full justify-start items-start" data-usecases-stats>
+          {/* Production video — loads on top of image when available */}
+          <video
+            className="absolute inset-0 h-full w-full object-cover"
+            src={useCasesVideo}
+            autoPlay
+            muted
+            loop
+            playsInline
+          />
+          <div className="relative z-10 p-6 sm:p-8 md:p-12 flex-1 h-full flex flex-col justify-start items-start" data-usecases-stats>
             <div className="w-full">
               <div className="mb-4">
                 <h4 className="text-sm font-bold text-[#564c8c]">The platform that pays for real</h4>
@@ -532,41 +543,37 @@ function UseCasesSection() {
           </div>
         </article>
 
-        {/* RIGHT — headline + cycling CampaignCard */}
-        <article className="relative min-h-[420px] sm:min-h-[560px] md:min-h-[640px] overflow-hidden rounded-3xl flex">
-          <div className="flex-1 flex flex-col justify-between p-5 sm:p-8 md:p-10 bg-white rounded-3xl shadow-sm">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold leading-tight text-black uppercase">
-              Web3 projects{' '}
-              <span className="text-[#564c8c]">spent $4–6B</span>
-              {' '}on marketing in 2023 with less than 5% measurable ROI.{' '}
-              <span className="text-[#564c8c]">Web3Cash gives you real CPI infrastructure{' '}</span>
-              like Web2 has, but for dApps.
-            </h2>
-
-            {/* Cycling cards — no visible tab buttons, just auto-rotate */}
-            <div className="relative w-full mt-6">
-              <div className="relative overflow-hidden rounded-2xl">
+        {/* RIGHT — frosted-glass card + headline + cycling why*.png screenshots */}
+        <article className="relative min-h-[420px] sm:min-h-[560px] md:min-h-[720px] overflow-hidden rounded-3xl flex">
+          <div className="relative z-10 p-5 sm:p-8 md:p-10 bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm flex-1 h-full flex flex-col justify-between">
+            <div>
+              <h2 className="mb-6 sm:mb-8 text-2xl sm:text-3xl md:text-4xl font-extrabold leading-tight text-black uppercase">
+                <span className="block">
+                  Web3 projects <span className="text-[#564c8c]">spent $4–6B</span> on marketing
+                  in 2023 with less than 5% measurable ROI.
+                  <span className="text-[#564c8c]">Web3Cash gives you real CPI infrastructure </span>
+                </span>
+                <span className="block">like Web2 has, but for dApps.</span>
+              </h2>
+            </div>
+            {/* Full-width cycling campaign comparison screenshots */}
+            <div className="relative w-full">
+              <div className="relative w-full h-full overflow-hidden">
                 {cardsData.map((c, i) => (
                   <div
                     key={c.title}
-                    className={`transition-opacity duration-700 ease-in-out ${
+                    className={`w-full transition-opacity duration-700 ease-in-out ${
                       i === activeCard ? 'opacity-100 relative' : 'opacity-0 absolute inset-0'
                     }`}
                   >
-                    <CampaignCard title={c.title} cost={c.cost} note={c.note} verified={c.verified} image={c.image} />
+                    <div className="w-full">
+                      <img
+                        src={c.image}
+                        alt={c.title}
+                        className="w-full rounded-2xl object-cover shadow-md"
+                      />
+                    </div>
                   </div>
-                ))}
-              </div>
-              {/* Dot indicators */}
-              <div className="flex justify-center gap-2 mt-4">
-                {cardsData.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setActiveCard(i)}
-                    className={`h-1.5 rounded-full transition-all ${
-                      i === activeCard ? 'w-6 bg-[#564c8c]' : 'w-1.5 bg-gray-300'
-                    }`}
-                  />
                 ))}
               </div>
             </div>
