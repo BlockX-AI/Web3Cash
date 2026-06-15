@@ -1,7 +1,7 @@
-import { ArrowRight, Wallet, LogOut, Zap } from 'lucide-react';
+import { ArrowRight, Wallet, LogOut, Menu, X } from 'lucide-react';
 import Dashboard from './Dashboard';
 import AdminDashboard from './AdminDashboard';
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Routes, Route, Navigate } from 'react-router-dom';
 import "./badge.css";
 import EdelGlobeSection from './EdelGlobeSection';
@@ -11,7 +11,6 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
 import { useAuth } from './WalletProvider';
 import { WaitlistModal } from './WaitlistModal';
-import { questsApi, type Quest } from './api';
 
 
 
@@ -63,13 +62,25 @@ function Navbar({ onWaitlist }: { onWaitlist: () => void }) {
   const links = ['Platform', 'For Projects', 'Pricing', 'About'];
   const { user, signIn, signOut, loading } = useAuth();
   const { isConnected } = useAccount();
+  const [mobileOpen, setMobileOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!mobileOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setMobileOpen(false); };
+    window.addEventListener('keydown', onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [mobileOpen]);
 
   return (
-    <nav className="absolute left-0 right-0 top-0 z-40 px-0 py-5 ">
+    <nav className="absolute left-0 right-0 top-0 z-40 px-4 sm:px-6 md:px-8 py-5">
       <div className="mx-auto flex max-w-[88rem] items-center justify-between">
         <a href="/" className="flex items-center gap-2 text-black">
           <LogoIcon className="h-7 w-7" />
-         
         </a>
 
         <div className="hidden items-center gap-8 md:flex">
@@ -137,7 +148,93 @@ function Navbar({ onWaitlist }: { onWaitlist: () => void }) {
             </button>
           )}
         </div>
+
+        {/* Mobile hamburger */}
+        <button
+          type="button"
+          aria-label="Open menu"
+          aria-expanded={mobileOpen}
+          className="md:hidden inline-flex items-center justify-center rounded-full bg-black/90 p-2 text-white"
+          onClick={() => setMobileOpen(true)}
+        >
+          <Menu className="h-5 w-5" aria-hidden="true" />
+        </button>
       </div>
+
+      {/* Mobile full-screen overlay */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 bg-white md:hidden flex flex-col">
+          <div className="flex items-center justify-between px-4 py-5">
+            <a href="/" className="flex items-center gap-2 text-black" onClick={() => setMobileOpen(false)}>
+              <LogoIcon className="h-7 w-7" />
+            </a>
+            <button
+              type="button"
+              aria-label="Close menu"
+              className="inline-flex items-center justify-center rounded-full bg-black/90 p-2 text-white"
+              onClick={() => setMobileOpen(false)}
+            >
+              <X className="h-5 w-5" aria-hidden="true" />
+            </button>
+          </div>
+          <div className="flex flex-col gap-2 px-6 pt-8">
+            {links.map((link) => (
+              <button
+                key={link}
+                onClick={() => { setMobileOpen(false); onWaitlist(); }}
+                className="border-b border-black/10 py-4 text-2xl font-medium text-black text-left"
+              >
+                {link}
+              </button>
+            ))}
+          </div>
+          <div className="mt-auto px-6 pb-10 flex flex-col gap-3">
+            <ConnectButton.Custom>
+              {({ account, chain, openConnectModal, openAccountModal, mounted }) => {
+                const ready = mounted;
+                const connected = ready && account && chain;
+                return (
+                  <div className="w-full" {...(!ready && { 'aria-hidden': true, style: { opacity: 0, pointerEvents: 'none', userSelect: 'none' } })}>
+                    {!connected ? (
+                      <button
+                        onClick={() => { setMobileOpen(false); openConnectModal(); }}
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-black px-4 py-3 text-base text-white hover:bg-gray-800"
+                      >
+                        <Wallet className="h-4 w-4" />
+                        Connect Wallet
+                      </button>
+                    ) : !user ? (
+                      <button
+                        onClick={() => { setMobileOpen(false); signIn(); }}
+                        disabled={loading}
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#564c8c] px-4 py-3 text-base text-white"
+                      >
+                        Sign In
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => { setMobileOpen(false); openAccountModal(); }}
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-white border border-gray-200 px-4 py-3 text-base text-black"
+                      >
+                        {account?.displayName}
+                      </button>
+                    )}
+                  </div>
+                );
+              }}
+            </ConnectButton.Custom>
+            {!user && (
+              <button
+                type="button"
+                onClick={() => { setMobileOpen(false); onWaitlist(); }}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-black px-4 py-3 text-base text-white hover:bg-gray-800"
+              >
+                Start Earning
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
@@ -489,83 +586,6 @@ function CampaignCard({
   );
 }
 
-function LiveQuestsSection() {
-  const [quests, setQuests] = useState<Quest[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showAll, setShowAll] = useState(false);
-  const QUESTS_PER_PAGE = 3;
-
-  useEffect(() => {
-    questsApi
-      .list()
-      .then((r) => setQuests(r.quests))
-      .catch(() => setQuests([]))
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (!loading && quests.length === 0) return null;
-
-  const displayedQuests = showAll ? quests : quests.slice(0, QUESTS_PER_PAGE);
-  const hasMore = quests.length > QUESTS_PER_PAGE;
-
-  return (
-    <section className="bg-white px-0 py-16 relative z-20">
-      <div className="mx-auto max-w-[88rem]">
-        <div className="flex items-center justify-between mb-8">
-          <h2
-            className="text-3xl font-medium leading-tight text-black md:text-4xl"
-            style={{ letterSpacing: '-0.02em' }}
-          >
-            Live Quests
-          </h2>
-          {hasMore && !showAll && (
-            <button
-              onClick={() => setShowAll(true)}
-              className="inline-flex items-center gap-2 rounded-full bg-[#564c8c] px-6 py-2.5 text-sm font-medium text-white hover:bg-[#3f3870] transition-colors"
-            >
-              More Quests
-              <ArrowRight className="h-4 w-4" />
-            </button>
-          )}
-        </div>
-        {loading ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-36 animate-pulse rounded-2xl bg-gray-100" />
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {displayedQuests.map((q) => (
-              <article
-                key={q.id}
-                className="flex flex-col justify-between rounded-2xl border border-gray-100 bg-[#f8f8ff] p-6 hover:border-[#564c8c]/30 transition-colors"
-              >
-                <div>
-                  <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-[#564c8c]/10 px-3 py-1 text-xs font-medium text-[#564c8c]">
-                    <Zap className="h-3 w-3" />
-                    {q.type.replace(/_/g, ' ')}
-                  </div>
-                  <h3 className="mt-3 text-base font-semibold text-black">{q.title}</h3>
-                  {q.description && (
-                    <p className="mt-1 text-sm text-gray-500 line-clamp-2">{q.description}</p>
-                  )}
-                </div>
-                <div className="mt-4 flex items-center justify-between">
-                  <span className="text-xl font-bold text-[#564c8c]">${q.rewardUsdc} USDC</span>
-                  <span className="text-xs text-gray-400">
-                    {q.completionsCount}/{q.maxCompletions} completed
-                  </span>
-                </div>
-              </article>
-            ))}
-          </div>
-        )}
-      </div>
-    </section>
-  );
-}
-
 export default function App() {
   const [waitlistOpen, setWaitlistOpen] = useState(false);
   const { address } = useAccount();
@@ -598,7 +618,6 @@ export default function App() {
               </div>
               <InfoSection />
               <EdelGlobeSection />
-              <LiveQuestsSection />
               <UseCasesSection />
               <FAQSection />
               <Footer />
