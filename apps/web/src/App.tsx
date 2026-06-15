@@ -1,8 +1,9 @@
-import { ArrowRight, Wallet, LogOut, Menu, X } from 'lucide-react';
+import { ArrowRight, Wallet, LogOut, Zap, Menu, X } from 'lucide-react';
 import Dashboard from './Dashboard';
 import AdminDashboard from './AdminDashboard';
-import React, { useState } from "react";
+import React, { useEffect, useState, useRef, useLayoutEffect } from "react";
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import "./badge.css";
 import EdelGlobeSection from './EdelGlobeSection';
 import Footer from './Footer';
@@ -11,6 +12,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
 import { useAuth } from './WalletProvider';
 import { WaitlistModal } from './WaitlistModal';
+import { questsApi, type Quest } from './api';
 
 
 
@@ -66,7 +68,9 @@ function Navbar({ onWaitlist }: { onWaitlist: () => void }) {
 
   React.useEffect(() => {
     if (!mobileOpen) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setMobileOpen(false); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileOpen(false);
+    };
     window.addEventListener('keydown', onKey);
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -161,7 +165,7 @@ function Navbar({ onWaitlist }: { onWaitlist: () => void }) {
         </button>
       </div>
 
-      {/* Mobile full-screen overlay */}
+      {/* Mobile full-screen menu */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 bg-white md:hidden flex flex-col">
           <div className="flex items-center justify-between px-4 py-5">
@@ -194,7 +198,7 @@ function Navbar({ onWaitlist }: { onWaitlist: () => void }) {
                 const ready = mounted;
                 const connected = ready && account && chain;
                 return (
-                  <div className="w-full" {...(!ready && { 'aria-hidden': true, style: { opacity: 0, pointerEvents: 'none', userSelect: 'none' } })}>
+                  <div {...(!ready && { 'aria-hidden': true, style: { opacity: 0, pointerEvents: 'none', userSelect: 'none' } })}>
                     {!connected ? (
                       <button
                         onClick={() => { setMobileOpen(false); openConnectModal(); }}
@@ -209,7 +213,7 @@ function Navbar({ onWaitlist }: { onWaitlist: () => void }) {
                         disabled={loading}
                         className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#564c8c] px-4 py-3 text-base text-white"
                       >
-                        Sign In
+                        {loading ? 'Signing in…' : 'Sign In with Wallet'}
                       </button>
                     ) : (
                       <button
@@ -255,13 +259,13 @@ function HeroSection({ onWaitlist }: { onWaitlist: () => void }) {
           loop
           playsInline
         />
-        <div className="relative z-10 mx-auto w-full max-w-[88rem] flex h-full flex-col items-start justify-start pr-8 pl-0 pt-56 md:pr-12 md:pl-4 md:pt-64 transform -translate-x-2 md:-translate-x-6 pointer-events-auto">
+        <div className="relative z-10 mx-auto w-full max-w-[88rem] flex h-full flex-col items-start justify-start pr-6 pl-6 pt-28 sm:pt-36 md:pr-12 md:pl-8 md:pt-56 lg:pt-64 md:-translate-x-6 pointer-events-auto">
           <div className="network-badge mb-6 inline-flex items-center gap-2 rounded-full bg-white/40 backdrop-blur-sm px-3 py-1 text-sm font-medium text-black/70">
             <span className="text-sm text-black font-bold">Complete</span>
             <span className="text-[#564c8c] font-semibold">Quest Get Paid in USDC</span>
           </div>
           <h1
-            className="mb-4 max-w-3xl text-6xl leading-tight text-black md:text-6xl lg:text-8xl"
+            className="mb-4 max-w-3xl text-3xl sm:text-4xl md:text-5xl lg:text-7xl leading-tight text-black"
             style={{ fontFamily: "'DM Serif Display', serif" }}
           >
             Earn Real Cash
@@ -301,12 +305,12 @@ function InfoSection() {
   const { isConnected } = useAccount();
 
   return (
-    <section className="bg-white px-0 py-24 rounded-t-3xl shadow-sm relative z-20">
+    <section className="bg-white px-4 sm:px-6 md:px-8 py-16 sm:py-20 md:py-24 rounded-t-3xl shadow-sm relative z-20">
       <div className="mx-auto max-w-[88rem]">
-        <div className="mb-16 grid grid-cols-1 items-start gap-12 md:grid-cols-2">
+        <div className="mb-12 sm:mb-16 grid grid-cols-1 items-start gap-8 sm:gap-12 md:grid-cols-2">
           <div>
             <h2
-              className="mb-8 text-4xl font-medium leading-tight text-black md:text-5xl"
+              className="mb-8 text-3xl sm:text-4xl md:text-5xl font-medium leading-tight text-black"
               style={{ letterSpacing: '-0.03em' }}
             >
               Meet WEB 3 Cash
@@ -345,18 +349,18 @@ function InfoSection() {
               </ConnectButton.Custom>
             )}
           </div>
-          <p className="text-2xl leading-relaxed text-black/70 md:text-3xl">
+          <p className="text-xl sm:text-2xl md:text-3xl leading-relaxed text-black/70">
            The performance <span className="font-bold">marketing network</span> for Web3 where users earn real USDC and projects pay only
 for verified on-chain actions.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 px-0">
           <article
-            className="min-h-80 rounded-2xl bg-cover bg-center p-7 lg:col-span-2"
+            className="min-h-[18rem] sm:min-h-80 rounded-2xl bg-cover bg-center p-4 sm:p-7 sm:col-span-2 lg:col-span-2 overflow-hidden"
             style={{ backgroundImage: `url(${bloomImage})` }}
           >
-            <div className="flex min-h-80 flex-col justify-between">
+            <div className="flex w-full h-full min-h-[18rem] sm:min-h-80 flex-col justify-between">
               <h3
                 className="text-2xl font-medium leading-snug text-black"
                 style={{ letterSpacing: '-0.02em' }}
@@ -405,7 +409,7 @@ function InfoCard({
   children: React.ReactNode;
 }) {
   return (
-    <article className="flex min-h-80 flex-col justify-between rounded-2xl bg-[#2B2644] p-7">
+    <article className="flex min-h-[18rem] sm:min-h-80 flex-col justify-between rounded-2xl bg-[#2B2644] p-6 sm:p-7">
       <h3 className="text-2xl font-medium leading-snug text-white">{title}</h3>
       <p className="text-base text-white/60">{children}</p>
     </article>
@@ -489,9 +493,9 @@ function UseCasesSection() {
     );
   }
   return (
-    <section className="bg-[#f5f5f5] px-0 py-24 relative z-20">
-      <div className="mx-auto grid max-w-[88rem] grid-cols-1 items-stretch gap-8 md:grid-cols-2">
-        <article className="relative min-h-[720px] overflow-hidden rounded-3xl flex">
+    <section className="bg-[#f5f5f5] px-4 sm:px-6 md:px-8 py-16 sm:py-20 md:py-24 relative z-20">
+      <div className="mx-auto grid max-w-[88rem] grid-cols-1 items-stretch gap-6 sm:gap-8 md:grid-cols-2">
+        <article className="relative min-h-[420px] sm:min-h-[560px] md:min-h-[720px] overflow-hidden rounded-3xl flex">
           <video
             className="absolute inset-0 h-full w-full object-cover"
             src={useCasesVideo}
@@ -500,24 +504,24 @@ function UseCasesSection() {
             loop
             playsInline
           />
-          <div className="relative z-10 p-10 md:p-12 flex-1 h-full flex flex-col justify-start items-start" data-usecases-stats>
+          <div className="relative z-10 p-6 sm:p-8 md:p-12 flex-1 h-full flex flex-col justify-start items-start" data-usecases-stats>
             <div className="w-full">
               <div className="mb-4">
                 <h4 className="text-sm font-bold text-[#564c8c]">The platform that pays for real</h4>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 items-start w-full">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-10 items-start w-full">
                 <div className="flex flex-col items-start">
-                  <div className="text-[36px] md:text-[48px] lg:text-[56px] font-extrabold text-[#564c8c] leading-none whitespace-nowrap"><CountUp end={2400000} /><span className="text-xl align-top">+</span></div>
+                  <div className="text-[28px] sm:text-[36px] md:text-[48px] lg:text-[56px] font-extrabold text-[#564c8c] leading-none whitespace-nowrap"><CountUp end={2400000} /><span className="text-xl align-top">+</span></div>
                   <div className="mt-2 text-sm text-gray-700">Total cashback paid</div>
                 </div>
 
                 <div className="flex flex-col items-start">
-                  <div className="text-[36px] md:text-[48px] lg:text-[56px] font-extrabold text-[#564c8c] leading-none whitespace-nowrap"><CountUp end={38000} /><span className="text-xl align-top">+</span></div>
+                  <div className="text-[28px] sm:text-[36px] md:text-[48px] lg:text-[56px] font-extrabold text-[#564c8c] leading-none whitespace-nowrap"><CountUp end={38000} /><span className="text-xl align-top">+</span></div>
                   <div className="mt-2 text-sm text-gray-700">Active earners globally</div>
                 </div>
 
                 <div className="flex flex-col items-start">
-                  <div className="text-[36px] md:text-[48px] lg:text-[56px] font-extrabold text-[#564c8c] leading-none whitespace-nowrap"><CountUp end={240} /><span className="text-xl align-top">+</span></div>
+                  <div className="text-[28px] sm:text-[36px] md:text-[48px] lg:text-[56px] font-extrabold text-[#564c8c] leading-none whitespace-nowrap"><CountUp end={240} /><span className="text-xl align-top">+</span></div>
                   <div className="mt-2 text-sm text-gray-700">Web3 projects listed</div>
                 </div>
               </div>
@@ -530,10 +534,10 @@ function UseCasesSection() {
           </div>
         </article>
 
-        <article className="relative min-h-[720px] overflow-hidden rounded-3xl flex">
-          <div className="relative z-10 p-12 md:p-16 bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm flex-1 h-full flex flex-col justify-between">
+        <article className="relative min-h-[420px] sm:min-h-[560px] md:min-h-[720px] overflow-hidden rounded-3xl flex">
+          <div className="relative z-10 p-5 sm:p-8 md:p-10 bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm flex-1 h-full flex flex-col justify-between">
             <div>
-              <h2 className="mb-8 text-4xl md:text-4xl font-extrabold leading-tight text-black uppercase">
+              <h2 className="mb-6 sm:mb-8 text-xl sm:text-2xl md:text-3xl font-extrabold leading-tight text-black uppercase">
                 <span className="block">Web3 projects <span className="text-[#564c8c]">spent $4–6B</span> on marketing in 2023 with less than 5% measurable ROI.<span className="text-[#564c8c]">Web3Cash gives you real CPI infrastructure </span></span>
                 <span className="block">like Web2 has, but for dApps.</span>
             
@@ -586,6 +590,197 @@ function CampaignCard({
   );
 }
 
+function LiveQuestsSection() {
+  const [quests, setQuests] = useState<Quest[]>([]);
+  const [loading, setLoading] = useState(true);
+  const carouselRef = useRef<HTMLDivElement | null>(null);
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const [maxDrag, setMaxDrag] = useState<number>(0);
+  const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    questsApi
+      .list()
+      .then((r) => setQuests(r.quests))
+      .catch(() => setQuests([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  useLayoutEffect(() => {
+    function update() {
+      const el = carouselRef.current;
+      const track = trackRef.current;
+      if (!el || !track) return;
+      const max = Math.max(0, track.scrollWidth - el.clientWidth);
+      setMaxDrag(max);
+    }
+
+    update();
+
+    let ro: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined') {
+      try {
+        ro = new ResizeObserver(update);
+        if (carouselRef.current) ro.observe(carouselRef.current);
+        if (trackRef.current) ro.observe(trackRef.current);
+      } catch (e) {
+        /* ignore */
+      }
+    }
+
+    window.addEventListener('resize', update);
+    return () => {
+      window.removeEventListener('resize', update);
+      if (ro) ro.disconnect();
+    };
+  }, [quests]);
+
+  if (!loading && quests.length === 0) return null;
+
+  const QUEST_LOGO: Record<string, string> = {
+    visit: 'https://runner.now/favicon.ico',
+    download: 'https://runner.now/favicon.ico',
+    wallet_connect: 'https://avatars.githubusercontent.com/u/37784886?s=48&v=4',
+    telegram_join: 'https://telegram.org/favicon.ico',
+    github_star: 'https://github.com/favicon.ico',
+    twitter_follow: 'https://abs.twimg.com/favicons/twitter.2.ico',
+    discord_join: 'https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0b5493894cf60b300587_full_logo_white_RGB.svg',
+  };
+
+  function getQuestLogo(type: string, title: string): string | null {
+    const t = type.toLowerCase().replace(/ /g, '_');
+    if (title.toLowerCase().includes('runner')) return 'https://runner.now/favicon.ico';
+    return QUEST_LOGO[t] ?? null;
+  }
+
+  return (
+    <section className="relative z-20 w-full overflow-hidden border-y-[2px] border-[#DDDDDD]" style={{ background: 'linear-gradient(135deg, #faf9ff 0%, #f0eeff 40%, #fff8f0 100%)' }}>
+      {/* Subtle decorative blobs */}
+      <div className="pointer-events-none absolute -top-16 -left-16 h-64 w-64 rounded-full bg-[#564c8c]/5 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-16 right-1/3 h-64 w-64 rounded-full bg-purple-200/30 blur-3xl" />
+
+      <div className="relative flex py-8 lg:py-10">
+        {/* Vertical heading — fixed width column so cards never overlap it */}
+        <div className="hidden md:flex items-center justify-center flex-shrink-0 w-16 lg:w-20 select-none pointer-events-none">
+          <h2
+            className="text-5xl lg:text-7xl font-extrabold uppercase tracking-tighter bg-gradient-to-b from-[#564c8b] to-[#0f0f0f] text-transparent bg-clip-text"
+            style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', lineHeight: 1 }}
+          >
+            Live Quests
+          </h2>
+        </div>
+
+        {/* Cards area */}
+        <div className="flex-1 min-w-0">
+          {/* Top bar */}
+          <div className="flex items-center justify-between px-4 pb-4">
+            <h2 className="text-2xl font-bold text-black md:hidden">Live Quests</h2>
+            <div className="ml-auto">
+              <button
+                type="button"
+                className="inline-flex items-center gap-2 rounded-full bg-[#564c8c] px-6 py-2.5 text-sm font-medium text-white hover:bg-[#3f3870] transition-colors shadow-md shadow-[#564c8c]/20"
+                aria-label="See more quests"
+              >
+                More Quests
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+
+          {loading ? (
+            <div className="flex gap-4 px-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-52 w-[360px] flex-shrink-0 animate-pulse rounded-2xl bg-white/60" />
+              ))}
+            </div>
+          ) : (
+            <div className="relative overflow-hidden" ref={carouselRef}>
+              {/* Right fade gradient to hint more cards */}
+              <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-32 z-10" style={{ background: 'linear-gradient(to left, rgba(240,238,255,0.95) 0%, transparent 100%)' }} />
+              <motion.div
+                ref={trackRef as any}
+                className="flex flex-nowrap gap-4 px-4 pb-4"
+                drag="x"
+                dragConstraints={{ left: -maxDrag, right: 0 }}
+                dragElastic={0.12}
+                onDragStart={() => setIsDragging(true)}
+                onDragEnd={() => setIsDragging(false)}
+                style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+              >
+                {quests.map((q) => {
+                  const isDownloadRunner = q.title.toLowerCase().includes('download runner');
+                  const logo = getQuestLogo(q.type, q.title);
+
+                  const handleClick = () => {
+                    if (isDownloadRunner) {
+                      const baseUrl = 'https://runner.now/download/runalex';
+                      const clickId = localStorage.getItem('o18_click_id');
+                      const affId = localStorage.getItem('o18_aff_id');
+                      const offerId = localStorage.getItem('o18_offer_id');
+                      const url = new URL(baseUrl);
+                      if (clickId) url.searchParams.set('click_id', clickId);
+                      if (affId) url.searchParams.set('aff_id', affId);
+                      if (offerId) url.searchParams.set('offer_id', offerId);
+                      window.open(url.toString(), '_blank', 'noopener,noreferrer');
+                    } else {
+                      window.location.href = '/dashboard';
+                    }
+                  };
+
+                  return (
+                    <div
+                      key={q.id}
+                      onClick={handleClick}
+                      className="flex-shrink-0 w-[340px] sm:w-[380px] bg-white rounded-2xl border border-gray-100 p-5 hover:shadow-lg hover:border-[#564c8c]/20 transition-all cursor-pointer flex flex-col"
+                      style={{ minHeight: '220px' }}
+                    >
+                      {/* Logo area */}
+                      <div className="flex items-center gap-3 mb-3">
+                        {logo ? (
+                          <img
+                            src={logo}
+                            alt={q.title}
+                            className="w-10 h-10 rounded-xl object-contain bg-gray-50 border border-gray-100 p-1"
+                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-xl bg-[#564c8c]/10 flex items-center justify-center">
+                            <Zap className="h-5 w-5 text-[#564c8c]" />
+                          </div>
+                        )}
+                        <div className="inline-flex items-center gap-1 rounded-full bg-[#564c8c]/10 px-2.5 py-0.5 text-[10px] font-semibold text-[#564c8c] uppercase tracking-wide">
+                          <Zap className="h-2.5 w-2.5" />
+                          {q.type.replace(/_/g, ' ')}
+                        </div>
+                      </div>
+
+                      {/* Content */}
+                      <div className="flex-1">
+                        <h3 className="text-base font-bold text-black leading-snug">{q.title}</h3>
+                        {q.description && (
+                          <p className="mt-1.5 text-sm text-gray-500 line-clamp-2 leading-relaxed">{q.description}</p>
+                        )}
+                      </div>
+
+                      {/* Footer */}
+                      <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
+                        <span className="text-xl font-extrabold text-[#564c8c]">${q.rewardUsdc} USDC</span>
+                        <span className="text-xs text-gray-400 tabular-nums">
+                          {q.completionsCount}/{q.maxCompletions} completed
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </motion.div>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function App() {
   const [waitlistOpen, setWaitlistOpen] = useState(false);
   const { address } = useAccount();
@@ -618,6 +813,7 @@ export default function App() {
               </div>
               <InfoSection />
               <EdelGlobeSection />
+              <LiveQuestsSection />
               <UseCasesSection />
               <FAQSection />
               <Footer />
