@@ -507,29 +507,26 @@ function UseCasesSection() {
           <div className="relative z-10 p-6 sm:p-8 md:p-12 flex-1 h-full flex flex-col justify-start items-start" data-usecases-stats>
             <div className="w-full">
               <div className="mb-4">
-                <h4 className="text-sm font-bold text-[#564c8c]">The platform that pays for real</h4>
+                <h4 className="text-sm font-bold text-white/90 uppercase tracking-widest">The platform that pays for real</h4>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-10 items-start w-full">
                 <div className="flex flex-col items-start">
-                  <div className="text-[28px] sm:text-[36px] md:text-[48px] lg:text-[56px] font-extrabold text-[#564c8c] leading-none whitespace-nowrap"><CountUp end={2400000} /><span className="text-xl align-top">+</span></div>
-                  <div className="mt-2 text-sm text-gray-700">Total cashback paid</div>
+                  <div className="text-[28px] sm:text-[36px] md:text-[48px] lg:text-[56px] font-extrabold text-white leading-none whitespace-nowrap"><CountUp end={2400000} /><span className="text-xl align-top">+</span></div>
+                  <div className="mt-2 text-sm text-white/80">Total cashback paid</div>
                 </div>
 
                 <div className="flex flex-col items-start">
-                  <div className="text-[28px] sm:text-[36px] md:text-[48px] lg:text-[56px] font-extrabold text-[#564c8c] leading-none whitespace-nowrap"><CountUp end={38000} /><span className="text-xl align-top">+</span></div>
-                  <div className="mt-2 text-sm text-gray-700">Active earners globally</div>
+                  <div className="text-[28px] sm:text-[36px] md:text-[48px] lg:text-[56px] font-extrabold text-white leading-none whitespace-nowrap"><CountUp end={38000} /><span className="text-xl align-top">+</span></div>
+                  <div className="mt-2 text-sm text-white/80">Active earners globally</div>
                 </div>
 
                 <div className="flex flex-col items-start">
-                  <div className="text-[28px] sm:text-[36px] md:text-[48px] lg:text-[56px] font-extrabold text-[#564c8c] leading-none whitespace-nowrap"><CountUp end={240} /><span className="text-xl align-top">+</span></div>
-                  <div className="mt-2 text-sm text-gray-700">Web3 projects listed</div>
+                  <div className="text-[28px] sm:text-[36px] md:text-[48px] lg:text-[56px] font-extrabold text-white leading-none whitespace-nowrap"><CountUp end={240} /><span className="text-xl align-top">+</span></div>
+                  <div className="mt-2 text-sm text-white/80">Web3 projects listed</div>
                 </div>
               </div>
             </div>
 
-            <div className="mt-8">
-              <h4 className="text-sm font-semibold text-white/90 mb-3">The platform that pays for real</h4>
-            </div>
 
           </div>
         </article>
@@ -545,7 +542,23 @@ function UseCasesSection() {
             </div>
 
             <div className="relative w-full">
-              <div className="relative w-full h-full overflow-hidden">
+              {/* Tab selector */}
+              <div className="flex gap-2 mb-4">
+                {cardsData.map((c, i) => (
+                  <button
+                    key={c.title}
+                    onClick={() => setActiveCard(i)}
+                    className={`flex-1 rounded-full py-1.5 text-xs font-semibold transition-all ${
+                      i === activeCard
+                        ? 'bg-[#564c8c] text-white shadow'
+                        : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                    }`}
+                  >
+                    {c.title}
+                  </button>
+                ))}
+              </div>
+              <div className="relative w-full overflow-hidden">
                 {cardsData.map((c, i) => (
                   <div
                     key={c.title}
@@ -553,8 +566,14 @@ function UseCasesSection() {
                       i === activeCard ? 'opacity-100 relative' : 'opacity-0 absolute inset-0'
                     }`}
                   >
-                    <div className="w-full">
-                      <img src={c.image} alt={c.title} className="w-full rounded-2xl object-cover shadow-md" />
+                    <CampaignCard
+                      title={c.title}
+                      cost={c.cost}
+                      note={c.note}
+                      verified={c.verified}
+                    />
+                    <div className="mt-3 w-full">
+                      <img src={c.image} alt={c.title} className="w-full rounded-2xl object-cover shadow-md max-h-48" />
                     </div>
                   </div>
                 ))}
@@ -678,19 +697,19 @@ function LiveQuestsSection() {
   }
 
   return (
-    <section className="bg-[#F5F5F5] relative z-20 w-full py-4 lg:py-8 border-y-[2px] border-[#DDDDDD]">
+    <section className="bg-[#F5F5F5] relative z-20 w-full py-4 lg:py-8 border-y-[2px] border-[#DDDDDD] overflow-hidden">
       <div className="relative">
-        {/* Vertical "LIVE QUESTS" heading — rotated, absolutely positioned on the left */}
-        <div className="absolute left-6 top-[50%] -translate-y-1/2 hidden md:flex items-center pointer-events-none">
+        {/* Vertical "LIVE QUESTS" heading — matches New-project-master 2 exactly */}
+        <div className="absolute left-6 top-[100%] -translate-y-1/2 hidden md:flex items-center pointer-events-none">
           <h2
             aria-hidden
-            className="text-4xl md:text-6xl lg:text-7xl font-extrabold uppercase tracking-tight bg-gradient-to-r from-[#564c8b] to-[#0f0f0f] text-transparent bg-clip-text transform -rotate-90 origin-center px-2 drop-shadow-sm whitespace-nowrap"
+            className="text-4xl md:text-6xl lg:text-7xl font-extrabold uppercase tracking-tight bg-gradient-to-r from-[#564c8b] to-[#0f0f0f] text-transparent bg-clip-text transform -rotate-90 origin-left px-2 drop-shadow-sm whitespace-nowrap"
           >
             Live Quests
           </h2>
         </div>
 
-        <div className="pl-0 md:pl-24 lg:pl-28">
+        <div className="pl-0 md:pl-20">
           {/* Mobile heading + More Quests button */}
           <div className="flex items-center justify-between px-4 sm:px-6 mb-3">
             <h2 className="text-2xl font-bold text-black md:hidden">Live Quests</h2>
@@ -878,8 +897,8 @@ export default function App() {
               </div>
               <InfoSection />
               <EdelGlobeSection />
-              <LiveQuestsSection />
               <UseCasesSection />
+              <LiveQuestsSection />
               <FAQSection />
               <Footer />
             </main>
