@@ -496,39 +496,37 @@ function UseCasesSection() {
     <section className="bg-[#f5f5f5] px-4 sm:px-6 md:px-8 py-16 sm:py-20 md:py-24 relative z-20">
       <div className="mx-auto grid max-w-[88rem] grid-cols-1 items-stretch gap-6 sm:gap-8 md:grid-cols-2">
 
-        {/* LEFT — static image + stats overlay */}
-        <article className="relative min-h-[420px] sm:min-h-[560px] md:min-h-[640px] overflow-hidden rounded-3xl">
+        {/* LEFT — image (object-contain, bottom-anchored) + stats at top */}
+        <article className="relative min-h-[420px] sm:min-h-[560px] md:min-h-[720px] overflow-hidden rounded-3xl bg-[#f0eeff]">
           <img
             src="/platform.png"
             alt="Web3Cash platform"
-            className="absolute inset-0 h-full w-full object-cover"
+            className="absolute inset-x-0 bottom-0 w-full h-[70%] object-contain object-bottom"
           />
-          {/* subtle dark gradient so stat boxes read cleanly at top */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/20 to-transparent" />
-          <div className="relative z-10 p-5 sm:p-7 md:p-10 flex flex-col h-full justify-start" data-usecases-stats>
-            {/* label */}
-            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-white/70 bg-white/10 w-fit px-3 py-1 rounded-full border border-white/20 backdrop-blur-sm">
-              The platform that pays for real
-            </p>
-            {/* stat boxes */}
-            <div className="flex flex-wrap gap-3">
-              <div className="flex flex-col rounded-xl border border-[#564c8c]/60 bg-[#1a1033]/70 backdrop-blur-sm px-4 py-3 min-w-[110px]">
-                <span className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white leading-none">
-                  <CountUp end={2400000} /><span className="text-base align-top">+</span>
-                </span>
-                <span className="mt-1.5 text-[11px] text-white/60">Total cashback paid</span>
+          <div className="relative z-10 p-6 sm:p-8 md:p-12 flex flex-col h-full justify-start items-start" data-usecases-stats>
+            <div className="w-full">
+              <div className="mb-4">
+                <h4 className="text-sm font-bold text-[#564c8c]">The platform that pays for real</h4>
               </div>
-              <div className="flex flex-col rounded-xl border border-[#564c8c]/60 bg-[#1a1033]/70 backdrop-blur-sm px-4 py-3 min-w-[110px]">
-                <span className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white leading-none">
-                  <CountUp end={38000} /><span className="text-base align-top">+</span>
-                </span>
-                <span className="mt-1.5 text-[11px] text-white/60">Active earners globally</span>
-              </div>
-              <div className="flex flex-col rounded-xl border border-[#564c8c]/60 bg-[#1a1033]/70 backdrop-blur-sm px-4 py-3 min-w-[110px]">
-                <span className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white leading-none">
-                  <CountUp end={240} /><span className="text-base align-top">+</span>
-                </span>
-                <span className="mt-1.5 text-[11px] text-white/60">Web3 projects listed</span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-10 items-start w-full">
+                <div className="flex flex-col items-start">
+                  <div className="text-[28px] sm:text-[36px] md:text-[48px] lg:text-[56px] font-extrabold text-[#564c8c] leading-none whitespace-nowrap">
+                    <CountUp end={2400000} /><span className="text-xl align-top">+</span>
+                  </div>
+                  <div className="mt-2 text-sm text-gray-700">Total cashback paid</div>
+                </div>
+                <div className="flex flex-col items-start">
+                  <div className="text-[28px] sm:text-[36px] md:text-[48px] lg:text-[56px] font-extrabold text-[#564c8c] leading-none whitespace-nowrap">
+                    <CountUp end={38000} /><span className="text-xl align-top">+</span>
+                  </div>
+                  <div className="mt-2 text-sm text-gray-700">Active earners globally</div>
+                </div>
+                <div className="flex flex-col items-start">
+                  <div className="text-[28px] sm:text-[36px] md:text-[48px] lg:text-[56px] font-extrabold text-[#564c8c] leading-none whitespace-nowrap">
+                    <CountUp end={240} /><span className="text-xl align-top">+</span>
+                  </div>
+                  <div className="mt-2 text-sm text-gray-700">Web3 projects listed</div>
+                </div>
               </div>
             </div>
           </div>
@@ -711,8 +709,8 @@ function LiveQuestsSection() {
   }
 
   return (
-    <section className="bg-[#F5F5F5] relative z-20 w-full py-4 lg:py-8 border-y-[2px] border-[#DDDDDD] overflow-hidden">
-      <div className="relative">
+    <section className="bg-[#F5F5F5] relative z-20 w-full py-4 lg:py-8 border-y-[2px] border-[#DDDDDD]">
+      <div className="relative min-h-[480px]">
         {/* Vertical "LIVE QUESTS" heading — matches New-project-master 2 exactly */}
         <div className="absolute left-6 top-[100%] -translate-y-1/2 hidden md:flex items-center pointer-events-none">
           <h2
@@ -743,20 +741,16 @@ function LiveQuestsSection() {
           {loading ? (
             <div className="flex gap-4 px-4 sm:px-6 pb-4">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="flex-shrink-0 w-[85vw] sm:w-[380px] md:w-[560px] h-[260px] sm:h-[300px] animate-pulse rounded-xl bg-white/70" />
+                <div key={i} className="bg-white rounded-xl shadow-lg overflow-hidden flex-shrink-0 w-[85vw] sm:w-[380px] md:w-[560px] max-w-[560px] p-2">
+                  <div className="relative h-[220px] sm:h-[280px] md:h-[380px] overflow-hidden rounded-lg bg-gray-100 animate-pulse" />
+                </div>
               ))}
             </div>
           ) : quests.length === 0 ? (
             <div className="flex gap-4 px-4 sm:px-6 pb-4">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-white rounded-xl shadow-sm flex-shrink-0 w-[85vw] sm:w-[380px] md:w-[560px] max-w-[560px] p-2 flex flex-col">
-                  <div className="rounded-lg h-[160px] sm:h-[200px] md:h-[230px] bg-gradient-to-br from-[#1a1033] to-[#564c8c] flex items-center justify-center">
-                    <div className="text-white/30 text-sm font-medium">Loading quests…</div>
-                  </div>
-                  <div className="px-3 py-3 flex items-center gap-3">
-                    <div className="h-8 w-24 rounded-full bg-gray-100 animate-pulse" />
-                    <div className="h-8 flex-1 rounded-full bg-gray-100 animate-pulse" />
-                  </div>
+                <div key={i} className="bg-white rounded-xl shadow-lg overflow-hidden flex-shrink-0 w-[85vw] sm:w-[380px] md:w-[560px] max-w-[560px] p-2">
+                  <div className="relative h-[220px] sm:h-[280px] md:h-[380px] overflow-hidden rounded-lg bg-gray-100 animate-pulse" />
                 </div>
               ))}
             </div>
@@ -803,7 +797,7 @@ function LiveQuestsSection() {
                     >
                       {/* Top gradient hero area */}
                       <div
-                        className="relative rounded-lg overflow-hidden h-[160px] sm:h-[200px] md:h-[230px] flex flex-col justify-between p-4 sm:p-5"
+                        className="relative rounded-lg overflow-hidden h-[220px] sm:h-[280px] md:h-[360px] flex flex-col justify-between p-4 sm:p-5"
                         style={{ background: gradient }}
                       >
                         {/* Type badge top-left */}
