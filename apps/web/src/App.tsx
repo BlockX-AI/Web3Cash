@@ -596,7 +596,7 @@ function LiveQuestsSection() {
   const carouselRef = useRef<HTMLDivElement | null>(null);
   const trackRef = useRef<HTMLDivElement | null>(null);
   const [maxDrag, setMaxDrag] = useState<number>(0);
-  const [isDragging, setIsDragging] = useState(false);
+  const draggedRef = useRef(false);
 
   useEffect(() => {
     questsApi
@@ -614,20 +614,15 @@ function LiveQuestsSection() {
       const max = Math.max(0, track.scrollWidth - el.clientWidth);
       setMaxDrag(max);
     }
-
     update();
-
     let ro: ResizeObserver | null = null;
     if (typeof ResizeObserver !== 'undefined') {
       try {
         ro = new ResizeObserver(update);
         if (carouselRef.current) ro.observe(carouselRef.current);
         if (trackRef.current) ro.observe(trackRef.current);
-      } catch (e) {
-        /* ignore */
-      }
+      } catch (e) { /* ignore */ }
     }
-
     window.addEventListener('resize', update);
     return () => {
       window.removeEventListener('resize', update);
@@ -647,72 +642,84 @@ function LiveQuestsSection() {
     discord_join: 'https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0b5493894cf60b300587_full_logo_white_RGB.svg',
   };
 
+  const QUEST_GRADIENT: Record<string, string> = {
+    download: 'linear-gradient(135deg, #1a1033 0%, #2d1f5e 50%, #3d2a78 100%)',
+    visit: 'linear-gradient(135deg, #1a1033 0%, #2d1f5e 50%, #3d2a78 100%)',
+    twitter_follow: 'linear-gradient(135deg, #00172d 0%, #003a6b 50%, #1da1f2 100%)',
+    discord_join: 'linear-gradient(135deg, #0d0f1a 0%, #1a1d3a 50%, #5865f2 100%)',
+    telegram_join: 'linear-gradient(135deg, #001a2c 0%, #00345e 50%, #229ed9 100%)',
+    github_star: 'linear-gradient(135deg, #0d1117 0%, #161b22 50%, #58a6ff 100%)',
+    wallet_connect: 'linear-gradient(135deg, #0a1628 0%, #1a2f5e 50%, #3b82f6 100%)',
+  };
+
   function getQuestLogo(type: string, title: string): string | null {
     const t = type.toLowerCase().replace(/ /g, '_');
     if (title.toLowerCase().includes('runner')) return 'https://runner.now/favicon.ico';
     return QUEST_LOGO[t] ?? null;
   }
 
-  return (
-    <section className="relative z-20 w-full overflow-hidden border-y-[2px] border-[#DDDDDD]" style={{ background: 'linear-gradient(135deg, #faf9ff 0%, #f0eeff 40%, #fff8f0 100%)' }}>
-      {/* Subtle decorative blobs */}
-      <div className="pointer-events-none absolute -top-16 -left-16 h-64 w-64 rounded-full bg-[#564c8c]/5 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-16 right-1/3 h-64 w-64 rounded-full bg-purple-200/30 blur-3xl" />
+  function getQuestGradient(type: string): string {
+    const t = type.toLowerCase().replace(/ /g, '_');
+    return QUEST_GRADIENT[t] ?? 'linear-gradient(135deg, #1a1033 0%, #2d1f5e 50%, #564c8c 100%)';
+  }
 
-      <div className="relative flex py-8 lg:py-10">
-        {/* Vertical heading — fixed width column so cards never overlap it */}
-        <div className="hidden md:flex items-center justify-center flex-shrink-0 w-16 lg:w-20 select-none pointer-events-none">
+  return (
+    <section className="bg-[#F5F5F5] relative z-20 w-full py-4 lg:py-8 border-y-[2px] border-[#DDDDDD]">
+      <div className="relative">
+        {/* Vertical "LIVE QUESTS" heading — rotated, absolutely positioned on the left */}
+        <div className="absolute left-6 top-[50%] -translate-y-1/2 hidden md:flex items-center pointer-events-none">
           <h2
-            className="text-5xl lg:text-7xl font-extrabold uppercase tracking-tighter bg-gradient-to-b from-[#564c8b] to-[#0f0f0f] text-transparent bg-clip-text"
-            style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', lineHeight: 1 }}
+            aria-hidden
+            className="text-4xl md:text-6xl lg:text-7xl font-extrabold uppercase tracking-tight bg-gradient-to-r from-[#564c8b] to-[#0f0f0f] text-transparent bg-clip-text transform -rotate-90 origin-center px-2 drop-shadow-sm whitespace-nowrap"
           >
             Live Quests
           </h2>
         </div>
 
-        {/* Cards area */}
-        <div className="flex-1 min-w-0">
-          {/* Top bar */}
-          <div className="flex items-center justify-between px-4 pb-4">
+        <div className="pl-0 md:pl-24 lg:pl-28">
+          {/* Mobile heading + More Quests button */}
+          <div className="flex items-center justify-between px-4 sm:px-6 mb-3">
             <h2 className="text-2xl font-bold text-black md:hidden">Live Quests</h2>
             <div className="ml-auto">
               <button
                 type="button"
-                className="inline-flex items-center gap-2 rounded-full bg-[#564c8c] px-6 py-2.5 text-sm font-medium text-white hover:bg-[#3f3870] transition-colors shadow-md shadow-[#564c8c]/20"
+                className="launch-btn"
                 aria-label="See more quests"
+                onClick={() => { window.location.href = '/dashboard'; }}
               >
                 More Quests
-                <ArrowRight className="h-4 w-4" />
               </button>
             </div>
           </div>
 
+          {/* Drag carousel */}
           {loading ? (
-            <div className="flex gap-4 px-4">
+            <div className="flex gap-4 px-4 sm:px-6 pb-4">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-52 w-[360px] flex-shrink-0 animate-pulse rounded-2xl bg-white/60" />
+                <div key={i} className="flex-shrink-0 w-[85vw] sm:w-[380px] md:w-[560px] h-[260px] sm:h-[300px] animate-pulse rounded-xl bg-white/70" />
               ))}
             </div>
           ) : (
-            <div className="relative overflow-hidden" ref={carouselRef}>
-              {/* Right fade gradient to hint more cards */}
-              <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-32 z-10" style={{ background: 'linear-gradient(to left, rgba(240,238,255,0.95) 0%, transparent 100%)' }} />
+            <div className="overflow-hidden no-scrollbar pl-4 sm:pl-6" ref={carouselRef}>
               <motion.div
                 ref={trackRef as any}
-                className="flex flex-nowrap gap-4 px-4 pb-4"
+                className="flex flex-nowrap gap-4 py-4 cursor-grab"
                 drag="x"
                 dragConstraints={{ left: -maxDrag, right: 0 }}
                 dragElastic={0.12}
-                onDragStart={() => setIsDragging(true)}
-                onDragEnd={() => setIsDragging(false)}
-                style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+                onDragStart={() => { draggedRef.current = true; }}
+                onDragEnd={() => { setTimeout(() => { draggedRef.current = false; }, 50); }}
+                style={{ cursor: 'grab' }}
               >
                 {quests.map((q) => {
-                  const isDownloadRunner = q.title.toLowerCase().includes('download runner');
+                  const isRunner = q.title.toLowerCase().includes('runner');
                   const logo = getQuestLogo(q.type, q.title);
+                  const gradient = getQuestGradient(q.type);
+                  const progress = Math.min(100, Math.round((q.completionsCount / q.maxCompletions) * 100));
 
                   const handleClick = () => {
-                    if (isDownloadRunner) {
+                    if (draggedRef.current) return;
+                    if (isRunner) {
                       const baseUrl = 'https://runner.now/download/runalex';
                       const clickId = localStorage.getItem('o18_click_id');
                       const affId = localStorage.getItem('o18_aff_id');
@@ -731,43 +738,73 @@ function LiveQuestsSection() {
                     <div
                       key={q.id}
                       onClick={handleClick}
-                      className="flex-shrink-0 w-[340px] sm:w-[380px] bg-white rounded-2xl border border-gray-100 p-5 hover:shadow-lg hover:border-[#564c8c]/20 transition-all cursor-pointer flex flex-col"
-                      style={{ minHeight: '220px' }}
+                      className="bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer flex-shrink-0 w-[85vw] sm:w-[380px] md:w-[560px] max-w-[560px] p-2 hover:shadow-xl transition-shadow select-none"
                     >
-                      {/* Logo area */}
-                      <div className="flex items-center gap-3 mb-3">
-                        {logo ? (
-                          <img
-                            src={logo}
-                            alt={q.title}
-                            className="w-10 h-10 rounded-xl object-contain bg-gray-50 border border-gray-100 p-1"
-                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                          />
-                        ) : (
-                          <div className="w-10 h-10 rounded-xl bg-[#564c8c]/10 flex items-center justify-center">
-                            <Zap className="h-5 w-5 text-[#564c8c]" />
+                      {/* Top gradient hero area */}
+                      <div
+                        className="relative rounded-lg overflow-hidden h-[160px] sm:h-[200px] md:h-[230px] flex flex-col justify-between p-4 sm:p-5"
+                        style={{ background: gradient }}
+                      >
+                        {/* Type badge top-left */}
+                        <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 px-3 py-1 w-fit">
+                          <Zap className="h-3 w-3 text-white/80" />
+                          <span className="text-[10px] sm:text-xs font-semibold text-white/90 uppercase tracking-wider">
+                            {q.type.replace(/_/g, ' ')}
+                          </span>
+                        </div>
+
+                        {/* Title + logo bottom */}
+                        <div className="flex items-end justify-between gap-3">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white leading-tight truncate">
+                              {q.title}
+                            </h3>
+                            {q.description && (
+                              <p className="text-xs text-white/55 mt-0.5 line-clamp-1">{q.description}</p>
+                            )}
                           </div>
-                        )}
-                        <div className="inline-flex items-center gap-1 rounded-full bg-[#564c8c]/10 px-2.5 py-0.5 text-[10px] font-semibold text-[#564c8c] uppercase tracking-wide">
-                          <Zap className="h-2.5 w-2.5" />
-                          {q.type.replace(/_/g, ' ')}
+                          {logo ? (
+                            <img
+                              src={logo}
+                              alt={q.title}
+                              className="w-11 h-11 sm:w-13 sm:h-13 rounded-xl object-contain bg-white/10 border border-white/25 p-1.5 flex-shrink-0"
+                              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                            />
+                          ) : (
+                            <div className="w-11 h-11 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center flex-shrink-0">
+                              <Zap className="h-5 w-5 text-white/70" />
+                            </div>
+                          )}
                         </div>
                       </div>
 
-                      {/* Content */}
-                      <div className="flex-1">
-                        <h3 className="text-base font-bold text-black leading-snug">{q.title}</h3>
-                        {q.description && (
-                          <p className="mt-1.5 text-sm text-gray-500 line-clamp-2 leading-relaxed">{q.description}</p>
-                        )}
-                      </div>
-
-                      {/* Footer */}
-                      <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
-                        <span className="text-xl font-extrabold text-[#564c8c]">${q.rewardUsdc} USDC</span>
-                        <span className="text-xs text-gray-400 tabular-nums">
-                          {q.completionsCount}/{q.maxCompletions} completed
-                        </span>
+                      {/* Bottom: reward + progress + CTA */}
+                      <div className="px-3 pt-3 pb-1 flex items-center justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <span className="text-xl sm:text-2xl font-extrabold text-[#564c8c]">
+                            ${q.rewardUsdc} USDC
+                          </span>
+                          <div className="mt-2">
+                            <div className="flex items-center justify-between text-[10px] text-gray-400 mb-1">
+                              <span>{q.completionsCount} done</span>
+                              <span>{q.maxCompletions} total</span>
+                            </div>
+                            <div className="h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                              <div
+                                className="h-full rounded-full bg-gradient-to-r from-[#564c8c] to-[#8b6bff] transition-all"
+                                style={{ width: `${progress}%` }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleClick}
+                          className="inline-flex items-center gap-1.5 rounded-full bg-[#564c8c] px-4 py-2 text-xs font-semibold text-white flex-shrink-0 hover:bg-[#3f3870] transition-colors"
+                        >
+                          {isRunner ? 'Download' : 'Start'}
+                          <ArrowRight className="h-3 w-3" />
+                        </button>
                       </div>
                     </div>
                   );
