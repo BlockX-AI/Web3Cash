@@ -635,15 +635,12 @@ function LiveQuestsSection() {
   const trackRef = useRef<HTMLDivElement | null>(null);
   const [maxDrag, setMaxDrag] = useState<number>(0);
   const draggedRef = useRef(false);
-  const { user, signIn } = useAuth();
-  const { isConnected } = useAccount();
+  const { user } = useAuth();
   const { openConnectModal } = useConnectModal();
 
   const goToDashboard = () => {
     if (user) {
       window.location.href = '/dashboard';
-    } else if (isConnected) {
-      signIn();
     } else {
       openConnectModal?.();
     }
@@ -792,17 +789,27 @@ function LiveQuestsSection() {
                   const gradient = getQuestGradient(q.type);
                   const progress = Math.min(100, Math.round((q.completionsCount / q.maxCompletions) * 100));
 
+                  const req = q.requirements as Record<string, string>;
+
                   const getExternalLink = (): string | null => {
-                    const req = q.requirements as Record<string, string>;
                     if (q.type === 'GITHUB_STAR' && req.owner && req.repo)
                       return `https://github.com/${req.owner}/${req.repo}`;
                     if (q.type === 'TWITTER_FOLLOW' && req.targetHandle)
                       return `https://x.com/${req.targetHandle}`;
-                    if (q.type === 'TELEGRAM_JOIN' && req.inviteLink)
-                      return req.inviteLink;
+                    if (q.type === 'TELEGRAM_JOIN')
+                      return req.inviteLink ?? `https://t.me/c/${req.chatId?.replace('-100', '')}`;
                     if (q.type === 'DISCORD_JOIN' && req.inviteUrl)
                       return req.inviteUrl;
                     return null;
+                  };
+
+                  const getButtonLabel = (): string => {
+                    if (isRunner) return 'Download';
+                    if (q.type === 'GITHUB_STAR') return 'Star on GitHub';
+                    if (q.type === 'TWITTER_FOLLOW') return 'Follow on X';
+                    if (q.type === 'TELEGRAM_JOIN') return 'Join Telegram';
+                    if (q.type === 'DISCORD_JOIN') return 'Join Discord';
+                    return 'Start';
                   };
 
                   const handleClick = () => {
@@ -820,7 +827,6 @@ function LiveQuestsSection() {
                     } else {
                       const link = getExternalLink();
                       if (link) window.open(link, '_blank', 'noopener,noreferrer');
-                      goToDashboard();
                     }
                   };
 
@@ -892,7 +898,7 @@ function LiveQuestsSection() {
                           onClick={handleClick}
                           className="inline-flex items-center gap-1.5 rounded-full bg-[#564c8c] px-4 py-2 text-xs font-semibold text-white flex-shrink-0 hover:bg-[#3f3870] transition-colors"
                         >
-                          {isRunner ? 'Download' : 'Start'}
+                          {getButtonLabel()}
                           <ArrowRight className="h-3 w-3" />
                         </button>
                       </div>

@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
   RainbowKitProvider,
   darkTheme,
@@ -61,6 +61,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(false);
   const [sessionChecked, setSessionChecked] = useState(false);
+  const siweAttempted = useRef(false);
 
   const signIn = useCallback(async () => {
     if (!address || !chainId) return;
@@ -94,19 +95,25 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   }, []);
 
-  // Check for existing session on mount
+  // Check for existing session on mount (cookie-based restore)
   useEffect(() => {
     authApi.me().then(setUser).catch(() => setUser(null)).finally(() => setSessionChecked(true));
   }, []);
 
+  // Reset SIWE attempt flag when wallet address changes (new connection)
+  useEffect(() => {
+    siweAttempted.current = false;
+  }, [address]);
+
   // Clear session when wallet disconnects
   useEffect(() => {
-    if (!isConnected) setUser(null);
+    if (!isConnected) { setUser(null); siweAttempted.current = false; }
   }, [isConnected]);
 
-  // Auto-trigger SIWE the moment wallet connects (if no session exists)
+  // Auto-trigger SIWE once after wallet connects — only if no session exists and not already attempted
   useEffect(() => {
-    if (sessionChecked && isConnected && address && chainId && !user && !loading) {
+    if (sessionChecked && isConnected && address && chainId && !user && !loading && !siweAttempted.current) {
+      siweAttempted.current = true;
       signIn();
     }
   }, [sessionChecked, isConnected, address]); // eslint-disable-line react-hooks/exhaustive-deps
