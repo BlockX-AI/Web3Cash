@@ -6,7 +6,7 @@ import {
 } from '@rainbow-me/rainbowkit';
 import '@rainbow-me/rainbowkit/styles.css';
 import { WagmiProvider, useAccount, useSignMessage, http } from 'wagmi';
-import { mainnet, polygon, arbitrum } from 'wagmi/chains';
+import { mainnet } from 'wagmi/chains';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createSiweMessage } from 'viem/siwe';
 import { authApi, type AuthUser } from './api';
@@ -14,9 +14,7 @@ import { authApi, type AuthUser } from './api';
 /* ── wagmi config ───────────────────────────────────────────────────────── */
 
 const alchemyKey = import.meta.env.VITE_ALCHEMY_API_KEY as string | undefined;
-const mainnetRpcUrl = alchemyKey ? `https://eth-mainnet.g.alchemy.com/v2/${alchemyKey}` : 'https://eth.llamarpc.com';
-const polygonRpcUrl = alchemyKey ? `https://polygon-mainnet.g.alchemy.com/v2/${alchemyKey}` : 'https://polygon-rpc.com';
-const arbitrumRpcUrl = alchemyKey ? `https://arb-mainnet.g.alchemy.com/v2/${alchemyKey}` : 'https://arb1.arbitrum.io/rpc';
+const mainnetRpcUrl = alchemyKey ? `https://eth-mainnet.g.alchemy.com/v2/${alchemyKey}` : 'https://ethereum.publicnode.com';
 
 const supportedChains = [
   {
@@ -27,22 +25,6 @@ const supportedChains = [
       public: { http: [mainnetRpcUrl] },
     },
   },
-  {
-    ...polygon,
-    rpcUrls: {
-      ...polygon.rpcUrls,
-      default: { http: [polygonRpcUrl] },
-      public: { http: [polygonRpcUrl] },
-    },
-  },
-  {
-    ...arbitrum,
-    rpcUrls: {
-      ...arbitrum.rpcUrls,
-      default: { http: [arbitrumRpcUrl] },
-      public: { http: [arbitrumRpcUrl] },
-    },
-  },
 ] as const;
 
 const wagmiConfig = getDefaultConfig({
@@ -51,8 +33,6 @@ const wagmiConfig = getDefaultConfig({
   chains: supportedChains,
   transports: {
     [mainnet.id]: http(mainnetRpcUrl),
-    [polygon.id]: http(polygonRpcUrl),
-    [arbitrum.id]: http(arbitrumRpcUrl),
   },
   ssr: false,
 });
@@ -64,6 +44,7 @@ const queryClient = new QueryClient();
 interface AuthCtx {
   user: AuthUser | null;
   loading: boolean;
+  error: string | null;
   signIn: () => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -71,6 +52,7 @@ interface AuthCtx {
 const AuthContext = createContext<AuthCtx>({
   user: null,
   loading: false,
+  error: null,
   signIn: async () => {},
   signOut: async () => {},
 });
@@ -84,10 +66,12 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   const { signMessageAsync } = useSignMessage();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const signIn = useCallback(async () => {
     if (!address || !chainId) return;
     setLoading(true);
+    setError(null);
     try {
       const { nonce } = await authApi.nonce();
       const message = createSiweMessage({
@@ -107,6 +91,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (e) {
       console.error('SIWE sign-in failed:', e);
+      setError(e instanceof Error ? e.message : 'Sign-in failed');
     } finally {
       setLoading(false);
     }
@@ -115,6 +100,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = useCallback(async () => {
     await authApi.logout();
     setUser(null);
+    setError(null);
   }, []);
 
   // Check for existing session on mount (cookie-based restore)
@@ -127,7 +113,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [isConnected]);
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, loading, error, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );

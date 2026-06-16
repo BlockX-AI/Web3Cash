@@ -63,6 +63,35 @@ const QUEST_TYPE_ICON: Record<string, React.ReactNode> = {
   VIDEO:            <TrendingUp className="h-4 w-4 text-rose-500" />,
 };
 
+function questExternalUrl(q: Quest): string | null {
+  const requirements = q.requirements ?? {};
+  if (q.type === 'GITHUB_STAR' && requirements.owner && requirements.repo) {
+    return `https://github.com/${requirements.owner}/${requirements.repo}`;
+  }
+  if (q.type === 'TWITTER_FOLLOW' && requirements.targetHandle) {
+    return `https://x.com/${requirements.targetHandle}`;
+  }
+  if (q.type === 'TELEGRAM_JOIN') {
+    return (requirements.inviteLink as string | undefined) ?? (
+      requirements.chatId ? `https://t.me/c/${String(requirements.chatId).replace('-100', '')}` : null
+    );
+  }
+  if (q.type === 'DISCORD_JOIN' && requirements.inviteUrl) {
+    return requirements.inviteUrl as string;
+  }
+  if (q.type === 'VISIT' && requirements.pageUrl) {
+    const url = new URL(requirements.pageUrl as string);
+    const clickId = localStorage.getItem('o18_click_id');
+    const affId = localStorage.getItem('o18_aff_id');
+    const offerId = localStorage.getItem('o18_offer_id');
+    if (clickId) url.searchParams.set('click_id', clickId);
+    if (affId) url.searchParams.set('aff_id', affId);
+    if (offerId) url.searchParams.set('offer_id', offerId);
+    return url.toString();
+  }
+  return null;
+}
+
 const BASE_API = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
 
 /* ── Tab type ─────────────────────────────────────────────────────────── */
@@ -301,38 +330,28 @@ function QuestsTab() {
                   <XCircle className="h-3.5 w-3.5" /> Fully claimed
                 </div>
               ) : (
-                q.type === 'VISIT' && q.requirements?.pageUrl ? (
-                  <a
-                    href={(() => {
-                      const baseUrl = q.requirements.pageUrl as string;
-                      const clickId = localStorage.getItem('o18_click_id');
-                      const affId = localStorage.getItem('o18_aff_id');
-                      const offerId = localStorage.getItem('o18_offer_id');
-                      if (clickId || affId || offerId) {
-                        const url = new URL(baseUrl);
-                        if (clickId) url.searchParams.set('click_id', clickId);
-                        if (affId) url.searchParams.set('aff_id', affId);
-                        if (offerId) url.searchParams.set('offer_id', offerId);
-                        return url.toString();
-                      }
-                      return baseUrl;
-                    })()}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => handleComplete(q.id)}
-                    className="w-full rounded-xl bg-[#564c8c] py-2.5 text-sm font-medium text-white hover:bg-[#3f3870] disabled:opacity-60 transition-colors text-center block"
-                  >
-                    {completing === q.id ? 'Verifying…' : 'Visit Link & Complete'}
-                  </a>
-                ) : (
+                <div className="space-y-2">
+                  {questExternalUrl(q) && (
+                    <a
+                      href={questExternalUrl(q) ?? '#'}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block w-full rounded-xl border border-[#564c8c]/20 bg-white py-2.5 text-center text-sm font-medium text-[#564c8c] hover:bg-[#f4f1ff] transition-colors"
+                    >
+                      Open Task
+                    </a>
+                  )}
                   <button
                     onClick={() => handleComplete(q.id)}
                     disabled={completing === q.id}
                     className="w-full rounded-xl bg-[#564c8c] py-2.5 text-sm font-medium text-white hover:bg-[#3f3870] disabled:opacity-60 transition-colors"
                   >
-                    {completing === q.id ? 'Verifying…' : 'Complete Quest'}
+                    {completing === q.id ? 'Verifying…' : 'Verify Completion'}
                   </button>
-                )
+                  <p className="text-[11px] leading-relaxed text-gray-400">
+                    Rewards are paid only after Web3Cash verifies this action through the official account/API.
+                  </p>
+                </div>
               )}
             </div>
           );

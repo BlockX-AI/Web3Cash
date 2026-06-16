@@ -13,6 +13,20 @@ async function req<T>(path: string, init?: RequestInit): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+async function optionalReq<T>(path: string, init?: RequestInit): Promise<T | null> {
+  const res = await fetch(`${BASE}${path}`, {
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json', ...init?.headers },
+    ...init,
+  });
+  if (res.status === 401) return null;
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error((body as { error?: string }).error ?? `HTTP ${res.status}`);
+  }
+  return res.json() as Promise<T>;
+}
+
 export const api = {
   get:    <T>(path: string) => req<T>(path, { method: 'GET' }),
   post:   <T>(path: string, body?: unknown) =>
@@ -111,7 +125,7 @@ export const authApi = {
       ...(referredByCode  && { referredByCode }),
     });
   },
-  me:     () => api.get<AuthUser>('/api/auth/me'),
+  me:     () => optionalReq<AuthUser>('/api/auth/me', { method: 'GET' }),
   logout: () => api.post<{ success: boolean }>('/api/auth/logout'),
 };
 

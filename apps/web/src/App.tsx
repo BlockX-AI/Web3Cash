@@ -61,7 +61,7 @@ function ArrowPill({ children }: { children: React.ReactNode }) {
 
 function Navbar({ onWaitlist }: { onWaitlist: () => void }) {
   const links = ['Platform', 'For Projects', 'Pricing', 'About'];
-  const { user, signIn, signOut, loading } = useAuth();
+  const { user, signIn, signOut, loading, error } = useAuth();
   const { isConnected } = useAccount();
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
@@ -98,7 +98,7 @@ function Navbar({ onWaitlist }: { onWaitlist: () => void }) {
           ))}
         </div>
 
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-3 relative">
           <ConnectButton.Custom>
             {({ account, chain, openConnectModal, openAccountModal, mounted }) => {
               const ready = mounted;
@@ -111,7 +111,7 @@ function Navbar({ onWaitlist }: { onWaitlist: () => void }) {
                       className="inline-flex items-center gap-2 rounded-full bg-black px-4 py-2 text-sm text-white hover:bg-gray-800"
                     >
                       <Wallet className="h-4 w-4" />
-                      Connect Wallet
+                      Sign In
                     </button>
                   ) : !user ? (
                     <button
@@ -119,7 +119,7 @@ function Navbar({ onWaitlist }: { onWaitlist: () => void }) {
                       disabled={loading}
                       className="inline-flex items-center gap-2 rounded-full bg-[#564c8c] px-4 py-2 text-sm text-white hover:bg-[#3f3870] disabled:opacity-60"
                     >
-                      Sign In
+                      Sign Message
                     </button>
                   ) : (
                     <div className="flex items-center gap-2">
@@ -149,6 +149,11 @@ function Navbar({ onWaitlist }: { onWaitlist: () => void }) {
             >
               Start Earning
             </button>
+          )}
+          {error && (
+            <div className="absolute right-0 top-12 w-72 rounded-xl border border-red-100 bg-white p-3 text-xs text-red-600 shadow-lg">
+              {error}
+            </div>
           )}
         </div>
 
