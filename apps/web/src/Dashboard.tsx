@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 
 import { useAuth } from './WalletProvider';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 import {
   questsApi, userApi, oauthApi, kycApi,
   type Quest, type QuestCompletion, type SocialIdentity,
@@ -75,7 +76,30 @@ export default function Dashboard() {
   const [tab, setTab] = useState<Tab>('quests');
   const [copied, setCopied] = useState(false);
 
-  if (!user) return null;
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-[#f8f8ff] flex flex-col items-center justify-center px-4">
+        <div className="text-center max-w-sm w-full">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#564c8c] mx-auto mb-5 shadow-lg">
+            <Zap className="h-7 w-7 text-white" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Connect to earn USDC</h2>
+          <p className="text-gray-500 text-sm mb-8 leading-relaxed">
+            Complete quests — star repos, join communities, follow accounts — and get paid in USDC directly to your wallet.
+          </p>
+          <div className="flex justify-center">
+            <ConnectButton label="Connect Wallet to Start" />
+          </div>
+          <button
+            onClick={() => { window.location.href = '/'; }}
+            className="mt-4 text-xs text-gray-400 hover:text-gray-600 underline"
+          >
+            Back to home
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   function copyRef() {
     navigator.clipboard.writeText(

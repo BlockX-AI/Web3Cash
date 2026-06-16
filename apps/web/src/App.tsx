@@ -1,14 +1,13 @@
 import { ArrowRight, Wallet, LogOut, Zap, Menu, X } from 'lucide-react';
 import Dashboard from './Dashboard';
 import AdminDashboard from './AdminDashboard';
-import React, { useEffect, useState, useRef, useLayoutEffect } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import "./badge.css";
 import EdelGlobeSection from './EdelGlobeSection';
 import Footer from './Footer';
 import FAQSection from './FAQSection';
-import { ConnectButton, useConnectModal } from '@rainbow-me/rainbowkit';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
 import { useAuth } from './WalletProvider';
 import { WaitlistModal } from './WaitlistModal';
@@ -632,19 +631,12 @@ function LiveQuestsSection() {
   const [quests, setQuests] = useState<Quest[]>([]);
   const [loading, setLoading] = useState(true);
   const carouselRef = useRef<HTMLDivElement | null>(null);
-  const trackRef = useRef<HTMLDivElement | null>(null);
-  const [maxDrag, setMaxDrag] = useState<number>(0);
   const draggedRef = useRef(false);
-  const { user } = useAuth();
-  const { openConnectModal } = useConnectModal();
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const startScrollLeft = useRef(0);
 
-  const goToDashboard = () => {
-    if (user) {
-      window.location.href = '/dashboard';
-    } else {
-      openConnectModal?.();
-    }
-  };
+  const goToDashboard = () => { window.location.href = '/dashboard'; };
 
   useEffect(() => {
     let attempts = 0;
@@ -652,47 +644,50 @@ function LiveQuestsSection() {
     function tryFetch() {
       questsApi
         .list()
-        .then((r) => {
-          setQuests(r.quests);
-          setLoading(false);
-        })
+        .then((r) => { setQuests(r.quests); setLoading(false); })
         .catch(() => {
           attempts++;
-          if (attempts < MAX) {
-            setTimeout(tryFetch, 1200 * attempts);
-          } else {
-            setLoading(false);
-          }
+          if (attempts < MAX) setTimeout(tryFetch, 1200 * attempts);
+          else setLoading(false);
         });
     }
     tryFetch();
   }, []);
 
-  useLayoutEffect(() => {
-    function update() {
-      const el = carouselRef.current;
-      const track = trackRef.current;
-      if (!el || !track) return;
-      const max = Math.max(0, track.scrollWidth - el.clientWidth);
-      setMaxDrag(max);
-    }
-    update();
-    let ro: ResizeObserver | null = null;
-    if (typeof ResizeObserver !== 'undefined') {
-      try {
-        ro = new ResizeObserver(update);
-        if (carouselRef.current) ro.observe(carouselRef.current);
-        if (trackRef.current) ro.observe(trackRef.current);
-      } catch (e) { /* ignore */ }
-    }
-    window.addEventListener('resize', update);
-    return () => {
-      window.removeEventListener('resize', update);
-      if (ro) ro.disconnect();
+  // Mouse drag scroll for desktop
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging.current || !carouselRef.current) return;
+      e.preventDefault();
+      const x = e.pageX - carouselRef.current.getBoundingClientRect().left;
+      const walk = (x - startX.current) * 1.5;
+      carouselRef.current.scrollLeft = startScrollLeft.current - walk;
+      draggedRef.current = true;
     };
-  }, [quests]);
+    const handleMouseUp = () => {
+      if (!isDragging.current) return;
+      isDragging.current = false;
+      if (carouselRef.current) carouselRef.current.style.cursor = 'grab';
+      setTimeout(() => { draggedRef.current = false; }, 50);
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, []);
 
-  /* Always render the section frame — empty state shows skeleton placeholder */
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    const el = carouselRef.current;
+    if (!el) return;
+    isDragging.current = true;
+    startX.current = e.pageX - el.getBoundingClientRect().left;
+    startScrollLeft.current = el.scrollLeft;
+    el.style.cursor = 'grabbing';
+  };
+
+  /* ── render ─────────────────────────────────────────────────────────────── */
 
   const QUEST_LOGO: Record<string, string> = {
     visit: 'https://runner.now/favicon.ico',
@@ -754,9 +749,9 @@ function LiveQuestsSection() {
             </div>
           </div>
 
-          {/* Drag carousel */}
+          {/* Scroll carousel */}
           {loading ? (
-            <div className="flex gap-4 px-4 sm:px-6 pb-4">
+            <div className="flex gap-4 px-4 sm:px-6 pb-4 overflow-hidden">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="bg-white rounded-xl shadow-lg overflow-hidden flex-shrink-0 w-[85vw] sm:w-[380px] md:w-[560px] max-w-[560px] p-2">
                   <div className="relative h-[220px] sm:h-[280px] md:h-[380px] overflow-hidden rounded-lg bg-gray-100 animate-pulse" />
@@ -764,7 +759,7 @@ function LiveQuestsSection() {
               ))}
             </div>
           ) : quests.length === 0 ? (
-            <div className="flex gap-4 px-4 sm:px-6 pb-4">
+            <div className="flex gap-4 px-4 sm:px-6 pb-4 overflow-hidden">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="bg-white rounded-xl shadow-lg overflow-hidden flex-shrink-0 w-[85vw] sm:w-[380px] md:w-[560px] max-w-[560px] p-2">
                   <div className="relative h-[220px] sm:h-[280px] md:h-[380px] overflow-hidden rounded-lg bg-gray-100 animate-pulse" />
@@ -772,17 +767,13 @@ function LiveQuestsSection() {
               ))}
             </div>
           ) : (
-            <div className="overflow-hidden no-scrollbar pl-4 sm:pl-6" ref={carouselRef}>
-              <motion.div
-                ref={trackRef as any}
-                className="flex flex-nowrap gap-4 py-4 cursor-grab"
-                drag="x"
-                dragConstraints={{ left: -maxDrag, right: 0 }}
-                dragElastic={0.12}
-                onDragStart={() => { draggedRef.current = true; }}
-                onDragEnd={() => { setTimeout(() => { draggedRef.current = false; }, 50); }}
-                style={{ cursor: 'grab' }}
-              >
+            <div
+              ref={carouselRef}
+              className="overflow-x-auto no-scrollbar pl-4 sm:pl-6 cursor-grab select-none"
+              style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
+              onMouseDown={handleMouseDown}
+            >
+              <div className="flex flex-nowrap gap-4 py-4 pr-4 sm:pr-6">
                 {quests.map((q) => {
                   const isRunner = q.title.toLowerCase().includes('runner');
                   const logo = getQuestLogo(q.type, q.title);
@@ -905,7 +896,7 @@ function LiveQuestsSection() {
                     </div>
                   );
                 })}
-              </motion.div>
+              </div>
             </div>
           )}
         </div>
@@ -924,8 +915,8 @@ export default function App() {
       {/* Admin route */}
       <Route path="/admin" element={<AdminDashboard />} />
 
-      {/* User dashboard route */}
-      <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/" replace />} />
+      {/* User dashboard route — auth handled inside Dashboard */}
+      <Route path="/dashboard" element={<Dashboard />} />
 
       {/* Landing page */}
       <Route
