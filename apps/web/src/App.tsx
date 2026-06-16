@@ -792,11 +792,24 @@ function LiveQuestsSection() {
                   const gradient = getQuestGradient(q.type);
                   const progress = Math.min(100, Math.round((q.completionsCount / q.maxCompletions) * 100));
 
+                  const getExternalLink = (): string | null => {
+                    const req = q.requirements as Record<string, string>;
+                    if (q.type === 'GITHUB_STAR' && req.owner && req.repo)
+                      return `https://github.com/${req.owner}/${req.repo}`;
+                    if (q.type === 'TWITTER_FOLLOW' && req.targetHandle)
+                      return `https://x.com/${req.targetHandle}`;
+                    if (q.type === 'TELEGRAM_JOIN' && req.inviteLink)
+                      return req.inviteLink;
+                    if (q.type === 'DISCORD_JOIN' && req.inviteUrl)
+                      return req.inviteUrl;
+                    return null;
+                  };
+
                   const handleClick = () => {
                     if (draggedRef.current) return;
                     if (isRunner) {
                       const baseUrl = 'https://runner.now/download/runalex';
-                      const clickId = localStorage.getItem('o18_click_id');  
+                      const clickId = localStorage.getItem('o18_click_id');
                       const affId = localStorage.getItem('o18_aff_id');
                       const offerId = localStorage.getItem('o18_offer_id');
                       const url = new URL(baseUrl);
@@ -805,6 +818,8 @@ function LiveQuestsSection() {
                       if (offerId) url.searchParams.set('offer_id', offerId);
                       window.open(url.toString(), '_blank', 'noopener,noreferrer');
                     } else {
+                      const link = getExternalLink();
+                      if (link) window.open(link, '_blank', 'noopener,noreferrer');
                       goToDashboard();
                     }
                   };

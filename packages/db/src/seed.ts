@@ -125,7 +125,7 @@ const SEEDS: ProjectSeed[] = [
             rewardUsdc: '0.500000',
             maxCompletions: 300,
             minSybilScore: 0,
-            requirements: { chatId: '-1003810561471' },
+            requirements: { chatId: '-1003810561471', inviteLink: 'https://web.telegram.org/a/#-1003810561471' },
           },
           {
             id: '00000000-0000-0000-0000-000000000022',

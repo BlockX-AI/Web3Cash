@@ -60,14 +60,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   const { signMessageAsync } = useSignMessage();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    authApi.me().then(setUser).catch(() => setUser(null));
-  }, []);
-
-  useEffect(() => {
-    if (!isConnected) setUser(null);
-  }, [isConnected]);
+  const [sessionChecked, setSessionChecked] = useState(false);
 
   const signIn = useCallback(async () => {
     if (!address || !chainId) return;
@@ -100,6 +93,23 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     await authApi.logout();
     setUser(null);
   }, []);
+
+  // Check for existing session on mount
+  useEffect(() => {
+    authApi.me().then(setUser).catch(() => setUser(null)).finally(() => setSessionChecked(true));
+  }, []);
+
+  // Clear session when wallet disconnects
+  useEffect(() => {
+    if (!isConnected) setUser(null);
+  }, [isConnected]);
+
+  // Auto-trigger SIWE the moment wallet connects (if no session exists)
+  useEffect(() => {
+    if (sessionChecked && isConnected && address && chainId && !user && !loading) {
+      signIn();
+    }
+  }, [sessionChecked, isConnected, address]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <AuthContext.Provider value={{ user, loading, signIn, signOut }}>
