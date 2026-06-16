@@ -14,21 +14,45 @@ import { authApi, type AuthUser } from './api';
 /* ── wagmi config ───────────────────────────────────────────────────────── */
 
 const alchemyKey = import.meta.env.VITE_ALCHEMY_API_KEY as string | undefined;
+const mainnetRpcUrl = alchemyKey ? `https://eth-mainnet.g.alchemy.com/v2/${alchemyKey}` : 'https://eth.llamarpc.com';
+const polygonRpcUrl = alchemyKey ? `https://polygon-mainnet.g.alchemy.com/v2/${alchemyKey}` : 'https://polygon-rpc.com';
+const arbitrumRpcUrl = alchemyKey ? `https://arb-mainnet.g.alchemy.com/v2/${alchemyKey}` : 'https://arb1.arbitrum.io/rpc';
+
+const supportedChains = [
+  {
+    ...mainnet,
+    rpcUrls: {
+      ...mainnet.rpcUrls,
+      default: { http: [mainnetRpcUrl] },
+      public: { http: [mainnetRpcUrl] },
+    },
+  },
+  {
+    ...polygon,
+    rpcUrls: {
+      ...polygon.rpcUrls,
+      default: { http: [polygonRpcUrl] },
+      public: { http: [polygonRpcUrl] },
+    },
+  },
+  {
+    ...arbitrum,
+    rpcUrls: {
+      ...arbitrum.rpcUrls,
+      default: { http: [arbitrumRpcUrl] },
+      public: { http: [arbitrumRpcUrl] },
+    },
+  },
+] as const;
 
 const wagmiConfig = getDefaultConfig({
   appName: 'Web3Cash',
   projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID ?? 'web3cash-dev',
-  chains: [mainnet, polygon, arbitrum],
+  chains: supportedChains,
   transports: {
-    [mainnet.id]: http(
-      alchemyKey ? `https://eth-mainnet.g.alchemy.com/v2/${alchemyKey}` : 'https://eth.llamarpc.com',
-    ),
-    [polygon.id]: http(
-      alchemyKey ? `https://polygon-mainnet.g.alchemy.com/v2/${alchemyKey}` : 'https://polygon-rpc.com',
-    ),
-    [arbitrum.id]: http(
-      alchemyKey ? `https://arb-mainnet.g.alchemy.com/v2/${alchemyKey}` : 'https://arb1.arbitrum.io/rpc',
-    ),
+    [mainnet.id]: http(mainnetRpcUrl),
+    [polygon.id]: http(polygonRpcUrl),
+    [arbitrum.id]: http(arbitrumRpcUrl),
   },
   ssr: false,
 });

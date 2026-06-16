@@ -24,8 +24,16 @@ export async function verifySiwe(rawMessage: string, signature: string): Promise
   if (!expectedDomain) {
     throw new Error('SIWE_DOMAIN env var not set');
   }
-  if (message.domain !== expectedDomain) {
-    throw new Error(`Domain mismatch: got ${message.domain}, expected ${expectedDomain}`);
+
+  let normalizedExpectedDomain = expectedDomain;
+  try {
+    normalizedExpectedDomain = new URL(expectedDomain).host;
+  } catch {
+    normalizedExpectedDomain = expectedDomain;
+  }
+
+  if (message.domain !== normalizedExpectedDomain) {
+    throw new Error(`Domain mismatch: got ${message.domain}, expected ${normalizedExpectedDomain}`);
   }
 
   const result = await message.verify({ signature });
