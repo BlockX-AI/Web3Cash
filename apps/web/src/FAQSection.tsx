@@ -3,32 +3,28 @@ import { motion } from 'framer-motion';
 
 const FAQ_ITEMS = [
     {
-        q: 'How is Web3Cash different from Galxe or Layer3?',
-        a: "Web3Cash pays real USDC directly to your wallet not points, not NFTs, not platform credit. You can withdraw to any wallet on any supported chain immediately. We also offer a 10% lifetime referral bonus, so you earn passively from every user you bring in forever. Galxe and Layer3 are credential-focused; we're a performance marketing network for real cashback.",
+        q: 'Is the USDC real? Can I actually withdraw it?',
+        a: "Yes. 100%. The USDC comes from real Web3 projects depositing into a smart contract escrow. When you earn, it's a real on-chain transaction to your wallet. You can withdraw from $5 minimum to any EVM wallet (MetaMask, Coinbase, any hardware wallet). The tx hash is verifiable on Etherscan by anyone.",
     },
     {
-        q: 'How do I know quest rewards are real?',
-        a: "Every campaign on Web3Cash is pre-funded. Projects deposit USDC into a smart contract escrow before their quest goes live. If the campaign ends or funds run out, no new quests appear. You can view on-chain escrow balances for any active campaign in real time.",
+        q: "What's the catch? Why is the reward so high?",
+        a: "No catch. Web3 projects pay $20–$50 per verified user — comparable to what they'd pay for influencer promotions but with zero proof. Web3Cash gives 85% of that directly to you and keeps 15% as the platform fee. The project gets a verified user. You get real money. Everyone wins.",
     },
     {
-        q: 'How does on-chain verification work?',
-        a: "Our verification engine indexes your wallet's transaction history across supported chains. It checks that the required action (e.g., a swap, deposit, or mint) actually occurred at or after your quest start time, meets the minimum amount criteria, and wasn't triggered by a known bot address. Passing users get credited instantly — usually within 60 seconds of the transaction confirming.",
+        q: 'Why do I need to connect my Twitter / wallet?',
+        a: "Web3Cash's entire value to projects is verified, real users. Connecting your Twitter lets us check you actually followed (not just claimed). Connecting your wallet lets us check your on-chain history for Sybil scoring. The more history your wallet has, the higher your score, the more quests you can access.",
     },
     {
-        q: 'Can I get banned for farming quests?',
-        a: "Only if you're actively gaming the system using multiple wallets, bots, or circular transactions. Legitimate users who complete real actions with their primary wallet are never at risk. Our anti-Sybil system scores wallets by age, activity history, and behavioral patterns. Real users score 90+. Bot farms score under 40 and get permanently blocked.",
+        q: 'What is a Sybil score and why does it matter for me?',
+        a: "It's a 0–100 trust score for your wallet based on 8 on-chain signals — wallet age, transaction count, DeFi interactions, gas spend, etc. Score 70+: full quest access. Score 40–69: starter quests only. Below 40: manual review. If you're a real Web3 user with any on-chain history, you'll likely score well immediately.",
     },
     {
-        q: 'What chains are supported for withdrawal?',
-        a: "You can currently withdraw USDC on Ethereum Mainnet, BNB Chain, and Polygon. We're adding Solana, Arbitrum, and TON in Q2 2025. Withdrawals are instant with no minimum amount and we cover gas for Polygon withdrawals up to $100/week.",
+        q: "My referral bonus — does it reduce my friend's reward?",
+        a: "No. Your referral bonus comes from the project's marketing budget — not from your friend's reward. Your friend earns the same $17 whether they were referred or not. You get a bonus on top of that, funded by the project. Both of you win with zero conflict.",
     },
     {
-        q: 'My referral earned $500 this month. How much do I get?',
-        a: "You automatically receive 10% of their total earnings so $50 in this case credited to your balance instantly as they complete quests. This 10% applies forever, for every user you've referred, for as long as they're active on the platform. There is no cap.",
-    },
-    {
-        q: "I'm a project founder. How do I list a campaign?",
-        a: "Click 'Launch Campaign', connect your wallet, deposit at least $500 in USDC, define your quest requirements (what action, what minimum amount, which chains), and set your payout per verified user. Campaigns go live within 2 hours of review. We charge 10% of total campaign spend as our platform fee — no monthly fees, no setup costs.",
+        q: 'Can I do multiple quests? Is there a daily limit?',
+        a: "Yes to multiple quests — you can complete every active quest you're eligible for. There's a velocity limit of 5 quest claims per hour per wallet — this is purely anti-fraud, not an earning cap. If you're completing real quests across different projects, you'll never hit it in practice.",
     },
 ];
 

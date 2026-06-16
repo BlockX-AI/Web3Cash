@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 
 /**
  * Singleton Prisma client. In dev, hot-reload re-imports this file many times,
@@ -20,3 +20,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 export * from '@prisma/client';
+export { PrismaClient, Prisma };
+
+// Re-export commonly used Prisma enums for convenience
+export type { SocialPlatform, PayoutProvider, QuestType, CompletionStatus } from '@prisma/client';

@@ -355,6 +355,8 @@ function QuestsPage() {
     DISCORD_JOIN: '💬 Discord Join',
     GITHUB_STAR: '⭐ GitHub Star',
     ON_CHAIN_DEPOSIT: '⛓ On-Chain Deposit',
+    WALLET_CONNECT: '🔗 Wallet Connect',
+    TELEGRAM_JOIN: '✈️ Telegram Join',
     INSTALL: '📲 Install',
     VISIT: '🌐 Visit',
     VIDEO: '🎬 Video',

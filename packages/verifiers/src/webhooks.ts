@@ -54,7 +54,7 @@ class InstallVerifier implements QuestVerifier {
       take: 10,
     });
 
-    const match = events.find((e) => {
+    const match = events.find((e: any) => {
       const p = e.payload as Record<string, unknown>;
       return p.appId === appId && withinLookback(e.createdAt, Number(lookbackSeconds));
     });
@@ -100,7 +100,7 @@ class VisitVerifier implements QuestVerifier {
       take: 20,
     });
 
-    const match = events.find((e) => {
+    const match = events.find((e: any) => {
       const p = e.payload as Record<string, unknown>;
       if (!withinLookback(e.createdAt, Number(lookbackSeconds))) return false;
       try {
@@ -151,7 +151,7 @@ class VideoVerifier implements QuestVerifier {
       take: 10,
     });
 
-    const match = events.find((e) => {
+    const match = events.find((e: any) => {
       const p = e.payload as Record<string, unknown>;
       if (!withinLookback(e.createdAt, Number(lookbackSeconds))) return false;
       if (p.videoId !== videoId) return false;

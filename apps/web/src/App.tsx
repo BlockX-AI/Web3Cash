@@ -8,7 +8,7 @@ import "./badge.css";
 import EdelGlobeSection from './EdelGlobeSection';
 import Footer from './Footer';
 import FAQSection from './FAQSection';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { ConnectButton, useConnectModal } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
 import { useAuth } from './WalletProvider';
 import { WaitlistModal } from './WaitlistModal';
@@ -635,6 +635,19 @@ function LiveQuestsSection() {
   const trackRef = useRef<HTMLDivElement | null>(null);
   const [maxDrag, setMaxDrag] = useState<number>(0);
   const draggedRef = useRef(false);
+  const { user, signIn } = useAuth();
+  const { isConnected } = useAccount();
+  const { openConnectModal } = useConnectModal();
+
+  const goToDashboard = () => {
+    if (user) {
+      window.location.href = '/dashboard';
+    } else if (isConnected) {
+      signIn();
+    } else {
+      openConnectModal?.();
+    }
+  };
 
   useEffect(() => {
     let attempts = 0;
@@ -737,7 +750,7 @@ function LiveQuestsSection() {
                 type="button"
                 className="launch-btn"
                 aria-label="See more quests"
-                onClick={() => { window.location.href = '/dashboard'; }}
+                onClick={() => { goToDashboard(); }}
               >
                 More Quests
               </button>
@@ -783,7 +796,7 @@ function LiveQuestsSection() {
                     if (draggedRef.current) return;
                     if (isRunner) {
                       const baseUrl = 'https://runner.now/download/runalex';
-                      const clickId = localStorage.getItem('o18_click_id');
+                      const clickId = localStorage.getItem('o18_click_id');  
                       const affId = localStorage.getItem('o18_aff_id');
                       const offerId = localStorage.getItem('o18_offer_id');
                       const url = new URL(baseUrl);
@@ -792,7 +805,7 @@ function LiveQuestsSection() {
                       if (offerId) url.searchParams.set('offer_id', offerId);
                       window.open(url.toString(), '_blank', 'noopener,noreferrer');
                     } else {
-                      window.location.href = '/dashboard';
+                      goToDashboard();
                     }
                   };
 

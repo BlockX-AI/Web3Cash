@@ -5,7 +5,7 @@ import {
   getDefaultConfig,
 } from '@rainbow-me/rainbowkit';
 import '@rainbow-me/rainbowkit/styles.css';
-import { WagmiProvider, useAccount, useSignMessage } from 'wagmi';
+import { WagmiProvider, useAccount, useSignMessage, http } from 'wagmi';
 import { mainnet, polygon, arbitrum } from 'wagmi/chains';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createSiweMessage } from 'viem/siwe';
@@ -13,10 +13,23 @@ import { authApi, type AuthUser } from './api';
 
 /* ── wagmi config ───────────────────────────────────────────────────────── */
 
+const alchemyKey = import.meta.env.VITE_ALCHEMY_API_KEY as string | undefined;
+
 const wagmiConfig = getDefaultConfig({
   appName: 'Web3Cash',
   projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID ?? 'web3cash-dev',
   chains: [mainnet, polygon, arbitrum],
+  transports: {
+    [mainnet.id]: http(
+      alchemyKey ? `https://eth-mainnet.g.alchemy.com/v2/${alchemyKey}` : 'https://eth.llamarpc.com',
+    ),
+    [polygon.id]: http(
+      alchemyKey ? `https://polygon-mainnet.g.alchemy.com/v2/${alchemyKey}` : 'https://polygon-rpc.com',
+    ),
+    [arbitrum.id]: http(
+      alchemyKey ? `https://arb-mainnet.g.alchemy.com/v2/${alchemyKey}` : 'https://arb1.arbitrum.io/rpc',
+    ),
+  },
   ssr: false,
 });
 

@@ -26,4 +26,7 @@ packages/contracts/coverage/
 packages/contracts/coverage.json
 New-project/
 minimal-frontend-new/
+.railway-upload/
+New-project-master/
+New-project-master 2/
 test-*.js

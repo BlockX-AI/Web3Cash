@@ -4,6 +4,8 @@ import { twitterVerifier } from './twitter.js';
 import { discordVerifier } from './discord.js';
 import { githubVerifier } from './github.js';
 import { onChainDepositVerifier } from './onchain.js';
+import { walletConnectVerifier } from './wallet-connect.js';
+import { telegramVerifier } from './telegram.js';
 import { installVerifier, visitVerifier, videoVerifier } from './webhooks.js';
 
 /**
@@ -24,6 +26,8 @@ register(twitterVerifier);
 register(discordVerifier);
 register(githubVerifier);
 register(onChainDepositVerifier);
+register(walletConnectVerifier);
+register(telegramVerifier);
 register(installVerifier);
 register(visitVerifier);
 register(videoVerifier);

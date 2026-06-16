@@ -26,7 +26,7 @@ quests.get('/', async (c) => {
     take: 50,
   });
   return c.json({
-    quests: rows.map((q) => ({ ...q, rewardUsdc: q.rewardUsdc.toString() })),
+    quests: rows.map((q: any) => ({ ...q, rewardUsdc: q.rewardUsdc.toString() })),
   });
 });
 
@@ -58,11 +58,11 @@ quests.get('/campaigns', async (c) => {
     take: 20,
   });
   return c.json({
-    campaigns: rows.map((c) => ({
+    campaigns: rows.map((c: any) => ({
       ...c,
       budgetUsdc: c.budgetUsdc.toString(),
       spentUsdc: c.spentUsdc.toString(),
-      quests: c.quests.map((q) => ({
+      quests: c.quests.map((q: any) => ({
         ...q,
         rewardUsdc: q.rewardUsdc.toString(),
       })),

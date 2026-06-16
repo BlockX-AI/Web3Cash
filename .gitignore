@@ -14,6 +14,7 @@ out/
 .env.local
 .env.*.local
 .env.production
+
 # Logs
 logs/
 *.log
@@ -64,3 +65,4 @@ New-project/
 
 .vercel
 .env*.local
+.env*

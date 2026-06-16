@@ -13,7 +13,7 @@ import { prisma } from './index.js';
 
 interface QuestSeed {
   id: string;
-  type: 'TWITTER_FOLLOW' | 'DISCORD_JOIN' | 'GITHUB_STAR' | 'ON_CHAIN_DEPOSIT' | 'INSTALL' | 'VISIT' | 'VIDEO';
+  type: 'TWITTER_FOLLOW' | 'DISCORD_JOIN' | 'GITHUB_STAR' | 'ON_CHAIN_DEPOSIT' | 'INSTALL' | 'VISIT' | 'VIDEO' | 'TELEGRAM_JOIN';
   title: string;
   description: string;
   rewardUsdc: string;
@@ -45,6 +45,7 @@ interface ProjectSeed {
 }
 
 const SEPOLIA = 11155111;
+const MAINNET = 1;
 
 const SEEDS: ProjectSeed[] = [
   {
@@ -82,6 +83,60 @@ const SEEDS: ProjectSeed[] = [
             maxCompletions: 10,
             minSybilScore: 0,
             requirements: { owner: 'BlockX-AI', repo: 'Web3Cash' },
+          },
+        ],
+      },
+    ],
+  },
+  // ── Ginie ──────────────────────────────────────────────────────────────────
+  // AI-powered dev copilot for the Canton Network (Digital Asset's blockchain).
+  // Quests: follow X, join Telegram, star GitHub — all tracked via Offer18.
+  {
+    walletAddress: '0x0000000000000000000000000000000000000001',
+    name: 'Ginie',
+    website: 'https://github.com/BlockX-AI/Canton_Ginie',
+    twitterHandle: 'giniedev',
+    verifiedBadge: true,
+    campaigns: [
+      {
+        id: '00000000-0000-0000-0000-000000000002',
+        name: 'Build with Ginie on Canton Network',
+        budgetUsdc: '500.000000',
+        pricingModel: 'CPA',
+        chainId: MAINNET,
+        quests: [
+          {
+            id: '00000000-0000-0000-0000-000000000020',
+            type: 'TWITTER_FOLLOW',
+            title: 'Follow @giniedev on X',
+            description:
+              'Follow @giniedev on X to stay updated on Ginie — an AI-powered development copilot built on Canton Network, Digital Asset\'s privacy-first blockchain for institutional finance. Get the latest on product releases, builder opportunities, and ecosystem news.',
+            rewardUsdc: '0.500000',
+            maxCompletions: 300,
+            minSybilScore: 0,
+            requirements: { targetHandle: 'giniedev' },
+          },
+          {
+            id: '00000000-0000-0000-0000-000000000021',
+            type: 'TELEGRAM_JOIN',
+            title: 'Join the Ginie Telegram Community',
+            description:
+              'Join the official Ginie Telegram group to connect with Canton Network developers, get hands-on support building with the Ginie AI copilot, and be the first to learn about grants, hackathons, and new features launching on Canton.',
+            rewardUsdc: '0.500000',
+            maxCompletions: 300,
+            minSybilScore: 0,
+            requirements: { chatId: '-1003810561471' },
+          },
+          {
+            id: '00000000-0000-0000-0000-000000000022',
+            type: 'GITHUB_STAR',
+            title: 'Star Canton_Ginie on GitHub',
+            description:
+              'Star the open-source Canton_Ginie repository on GitHub. Ginie is an AI coding assistant that lets developers describe smart contracts in plain language and have them generated, tested, and deployed on the Canton Network — no prior Daml expertise required.',
+            rewardUsdc: '1.000000',
+            maxCompletions: 200,
+            minSybilScore: 0,
+            requirements: { owner: 'BlockX-AI', repo: 'Canton_Ginie' },
           },
         ],
       },

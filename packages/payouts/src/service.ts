@@ -68,7 +68,7 @@ export async function createWithdrawal(
   const provider = opts.provider ?? (process.env.PAYOUT_PROVIDER as PayoutProvider | undefined) ?? 'ESCROW_CONTRACT';
   const chainId = opts.chainId ?? 1;
 
-  return prisma.$transaction(async (tx) => {
+  return prisma.$transaction(async (tx: any) => {
     const user = await tx.user.findUnique({ where: { walletAddress: wallet } });
     if (!user) return { ok: false as const, code: 'USER_NOT_FOUND' as const };
 
@@ -98,12 +98,12 @@ export async function createWithdrawal(
     });
 
     const lineItems: LineItem[] = [
-      ...completions.map((c) => ({
+      ...completions.map((c: any) => ({
         kind: 'COMPLETION' as const,
         sourceId: c.id,
         amount: c.rewardUsdc.toString(),
       })),
-      ...earnings.map((e) => ({
+      ...earnings.map((e: any) => ({
         kind: 'REFERRAL' as const,
         sourceId: e.id,
         amount: e.amountUsdc.toString(),
@@ -144,11 +144,11 @@ export async function createWithdrawal(
     // 2. Lock sources. Completions: stamp paidAt so the next withdraw skips
     //    them. Earnings: flip CREDITED → PAID.
     await tx.questCompletion.updateMany({
-      where: { id: { in: completions.map((c) => c.id) } },
+      where: { id: { in: completions.map((c: any) => c.id) } },
       data: { paidAt: new Date() },
     });
     await tx.referralEarning.updateMany({
-      where: { id: { in: earnings.map((e) => e.id) } },
+      where: { id: { in: earnings.map((e: any) => e.id) } },
       data: { status: 'PAID', paidAt: new Date() },
     });
 
@@ -201,7 +201,7 @@ export async function processQueuedPayouts(input: {
   });
   if (queued.length === 0) return { submitted: [] };
 
-  const transfers: PayoutTransfer[] = queued.map((p) => ({
+  const transfers: PayoutTransfer[] = queued.map((p: any) => ({
     payoutId: p.id,
     to: p.userWallet,
     amountUsdcAtomic: decimalToAtomic(p.amountUsdc),
@@ -218,7 +218,7 @@ export async function processQueuedPayouts(input: {
   const now = new Date();
   await prisma.$transaction([
     prisma.payout.updateMany({
-      where: { id: { in: queued.map((p) => p.id) } },
+      where: { id: { in: queued.map((p: any) => p.id) } },
       data: {
         status: 'SUBMITTED',
         providerRef: result.providerRef,
@@ -227,7 +227,7 @@ export async function processQueuedPayouts(input: {
       },
     }),
     prisma.payoutEvent.createMany({
-      data: queued.map((p) => ({
+      data: queued.map((p: any) => ({
         payoutId: p.id,
         fromStatus: 'QUEUED',
         toStatus: 'SUBMITTED',
@@ -241,7 +241,7 @@ export async function processQueuedPayouts(input: {
     }),
   ]);
 
-  return { submitted: queued.map((p) => p.id) };
+  return { submitted: queued.map((p: any) => p.id) };
 }
 
 /**

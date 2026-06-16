@@ -63,7 +63,7 @@ admin.get('/users', async (c) => {
   ]);
 
   return c.json({
-    users: rows.map((u) => ({
+    users: rows.map((u: any) => ({
       ...u,
       pendingBalanceUsdc: u.pendingBalanceUsdc.toString(),
       totalEarnedUsdc: u.totalEarnedUsdc.toString(),
@@ -106,7 +106,7 @@ admin.get('/quests', async (c) => {
     orderBy: { createdAt: 'desc' },
   });
   return c.json({
-    quests: rows.map((q) => ({ ...q, rewardUsdc: q.rewardUsdc.toString() })),
+    quests: rows.map((q: any) => ({ ...q, rewardUsdc: q.rewardUsdc.toString() })),
   });
 });
 
@@ -190,7 +190,7 @@ admin.get('/payouts', async (c) => {
     take: 100,
   });
   return c.json({
-    payouts: rows.map((p) => ({ ...p, amountUsdc: p.amountUsdc.toString() })),
+    payouts: rows.map((p: any) => ({ ...p, amountUsdc: p.amountUsdc.toString() })),
   });
 });
 
@@ -236,7 +236,7 @@ admin.get('/campaigns', async (c) => {
     orderBy: { createdAt: 'desc' },
   });
   return c.json({
-    campaigns: rows.map((c) => ({ ...c, budgetUsdc: c.budgetUsdc.toString(), spentUsdc: c.spentUsdc.toString() })),
+    campaigns: rows.map((c: any) => ({ ...c, budgetUsdc: c.budgetUsdc.toString(), spentUsdc: c.spentUsdc.toString() })),
   });
 });
 
@@ -393,7 +393,7 @@ admin.get('/fraud/velocity-alerts', async (c) => {
     take: 50,
   });
 
-  const alerts = results.map((r) => ({
+  const alerts = results.map((r: any) => ({
     walletAddress: r.userWallet,
     completionsLastHour: r._count.userWallet,
     threshold: 5,
@@ -412,7 +412,7 @@ admin.get('/fraud/review-queue', async (c) => {
     take: 100,
   });
   return c.json({
-    reviews: reviews.map((r) => ({
+    reviews: reviews.map((r: any) => ({
       id: r.id,
       walletAddress: r.targetId,
       reason: r.rationale,

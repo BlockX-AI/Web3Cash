@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { getCookie, setCookie } from 'hono/cookie';
-import { twitter, discord, github, consumeState } from '@web3cash/oauth';
+import { twitter, discord, github, telegram, consumeState } from '@web3cash/oauth';
 import { prisma } from '@web3cash/db';
 import { requireAuth, getSessionUser } from '../middleware.js';
 
@@ -124,6 +124,38 @@ oauth.get('/github/callback', async (c) => {
 });
 
 /* ────────────────────────────────────────────────────────────
+   TELEGRAM
+   ──────────────────────────────────────────────────────────── */
+
+oauth.post('/telegram/link', requireAuth, async (c) => {
+  const user = await getSessionUser(c);
+  if (!user) return c.json({ error: 'Unauthorized' }, 401);
+
+  try {
+    const body = await c.req.json();
+    const authData = body as telegram.TelegramAuthData;
+
+    // Validate Telegram signature
+    const isValid = telegram.validateTelegramAuthData(authData);
+    if (!isValid) {
+      return c.json({ error: 'Invalid Telegram signature' }, 400);
+    }
+
+    // Parse user data
+    const me = telegram.parseTelegramMe(authData);
+
+    // Link identity
+    await telegram.linkIdentity({ userWallet: user.walletAddress, me });
+
+    const returnTo = body.returnTo ?? '/dashboard';
+    return c.json({ success: true, username: me.username, returnTo });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'unknown';
+    return c.json({ error: `Telegram link failed: ${msg}` }, 500);
+  }
+});
+
+/* ────────────────────────────────────────────────────────────
    LINKED IDENTITIES: GET /api/oauth/identities
    Returns which platforms the signed-in user has linked.
    ──────────────────────────────────────────────────────────── */
@@ -153,8 +185,8 @@ oauth.delete('/:platform', requireAuth, async (c) => {
   if (!user) return c.json({ error: 'Unauthorized' }, 401);
   const platformParam = c.req.param('platform');
   if (!platformParam) return c.json({ error: 'Unknown platform' }, 400);
-  const platform = platformParam.toUpperCase() as 'TWITTER' | 'DISCORD' | 'GITHUB';
-  if (!['TWITTER', 'DISCORD', 'GITHUB'].includes(platform)) {
+  const platform = platformParam.toUpperCase() as 'TWITTER' | 'DISCORD' | 'GITHUB' | 'TELEGRAM';
+  if (!['TWITTER', 'DISCORD', 'GITHUB', 'TELEGRAM'].includes(platform)) {
     return c.json({ error: 'Unknown platform' }, 400);
   }
 

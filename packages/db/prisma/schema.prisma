@@ -28,6 +28,7 @@ enum SocialPlatform {
   TWITTER
   DISCORD
   GITHUB
+  TELEGRAM
 }
 
 enum KycStatus {
@@ -65,6 +66,8 @@ enum QuestType {
   DISCORD_JOIN
   GITHUB_STAR
   ON_CHAIN_DEPOSIT
+  WALLET_CONNECT
+  TELEGRAM_JOIN
   INSTALL
   VISIT
   VIDEO

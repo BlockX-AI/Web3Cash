@@ -39,7 +39,7 @@ user.get('/referrals', requireAuth, async (c) => {
     totalReferralEarnings: totalAgg._sum.amountUsdc?.toString() ?? '0',
     l1Count,
     l2Count,
-    earnings: earningsRows.map((e) => ({
+    earnings: earningsRows.map((e: any) => ({
       ...e,
       amountUsdc: e.amountUsdc.toString(),
       createdAt: e.createdAt.toISOString(),
@@ -66,7 +66,7 @@ user.get('/withdrawals', requireAuth, async (c) => {
   });
 
   return c.json({
-    payouts: payouts.map((p) => ({ ...p, amountUsdc: p.amountUsdc.toString() })),
+    payouts: payouts.map((p: any) => ({ ...p, amountUsdc: p.amountUsdc.toString() })),
   });
 });
 

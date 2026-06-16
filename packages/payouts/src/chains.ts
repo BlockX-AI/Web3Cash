@@ -1,5 +1,5 @@
 import { createPublicClient, http, type Chain, type PublicClient } from 'viem';
-import { mainnet, sepolia, base, baseSepolia, polygon } from 'viem/chains';
+import { mainnet, sepolia, base, baseSepolia, polygon, bsc, arbitrum, arbitrumSepolia } from 'viem/chains';
 
 /**
  * USDC token addresses by chainId. Native (Circle-issued) USDC only.
@@ -11,6 +11,9 @@ export const USDC_ADDRESS: Record<number, `0x${string}`> = {
   8453: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', // Base
   84532: '0x036CbD53842c5426634e7929541eC2318f3dCF7e', // Base Sepolia
   137: '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359', // Polygon
+  56: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d', // BNB Chain (BSC)
+  42161: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831', // Arbitrum One
+  421614: '0x75faf114eafb3905d5e03a5b9d9882665d4c6b6', // Arbitrum Sepolia
 };
 
 /** USDC has 6 decimals on every supported chain. */
@@ -22,6 +25,9 @@ const CHAINS: Record<number, Chain> = {
   8453: base,
   84532: baseSepolia,
   137: polygon,
+  56: bsc,
+  42161: arbitrum,
+  421614: arbitrumSepolia,
 };
 
 export function getChain(chainId: number): Chain {
@@ -62,6 +68,12 @@ function alchemyHostFor(chainId: number): string | null {
       return 'base-sepolia';
     case 137:
       return 'polygon-mainnet';
+    case 56:
+      return 'opt-mainnet'; // BNB Chain
+    case 42161:
+      return 'arb-mainnet'; // Arbitrum One
+    case 421614:
+      return 'arb-sepolia'; // Arbitrum Sepolia
     default:
       return null;
   }

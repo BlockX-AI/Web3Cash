@@ -1,5 +1,5 @@
 const BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
-const SECRET = import.meta.env.VITE_ADMIN_SECRET ?? '';
+const SECRET = ((window as any).__adminSecret || import.meta.env.VITE_ADMIN_SECRET) ?? '';
 
 async function req<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {

@@ -3,7 +3,7 @@
  * (frontend, worker) don't need to import @prisma/client directly.
  */
 
-export type SocialPlatform = 'TWITTER' | 'DISCORD' | 'GITHUB';
+export type SocialPlatform = 'TWITTER' | 'DISCORD' | 'GITHUB' | 'TELEGRAM';
 
 export type KycStatus = 'NONE' | 'PENDING' | 'VERIFIED' | 'REJECTED';
 
@@ -18,6 +18,8 @@ export type QuestType =
   | 'DISCORD_JOIN'
   | 'GITHUB_STAR'
   | 'ON_CHAIN_DEPOSIT'
+  | 'WALLET_CONNECT'
+  | 'TELEGRAM_JOIN'
   | 'INSTALL'
   | 'VISIT'
   | 'VIDEO';

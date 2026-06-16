@@ -75,7 +75,7 @@ events.get('/my-events', requireAuth, async (c) => {
   });
 
   return c.json({
-    events: events.map((e) => ({
+    events: events.map((e: any) => ({
       id: e.id,
       workerName: e.workerName,
       outcome: e.outcome,
