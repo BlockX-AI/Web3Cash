@@ -449,7 +449,7 @@ model OauthState {
   state         String         @id @db.VarChar(64)
   platform      SocialPlatform
   userWallet    String         @map("user_wallet") @db.VarChar(42)
-  codeVerifier  String         @map("code_verifier") @db.VarChar(128)
+  codeVerifier  String         @map("code_verifier") @db.Text
   returnTo      String?        @map("return_to")
   expiresAt     DateTime       @map("expires_at")
   createdAt     DateTime       @default(now()) @map("created_at")
