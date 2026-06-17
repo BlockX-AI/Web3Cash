@@ -263,26 +263,19 @@ function GoogleIcon() {
 }
 
 function HeroSection({ onWaitlist }: { onWaitlist: () => void }) {
-  const { address, isConnected } = useAccount();
+  const { address, isConnected, chainId } = useAccount();
   const { signIn } = useAuth();
   const { signMessageAsync } = useSignMessage();
   const navigate = useNavigate();
   const [googleAuthed, setGoogleAuthed] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Check if user has Google auth cookie
+  // Check if user has Google auth (using localStorage for cross-domain reliability)
   useEffect(() => {
-    const checkGoogleAuth = async () => {
-      try {
-        const res = await fetch(`${API_URL}/api/auth/google/check`, { credentials: 'include' });
-        if (res.ok) {
-          setGoogleAuthed(true);
-        }
-      } catch (err) {
-        // Not authed
-      }
-    };
-    checkGoogleAuth();
+    const googleAuth = localStorage.getItem('w3c_google_auth');
+    if (googleAuth === 'success') {
+      setGoogleAuthed(true);
+    }
   }, []);
 
   const handleGoogleSignIn = () => {
@@ -290,7 +283,10 @@ function HeroSection({ onWaitlist }: { onWaitlist: () => void }) {
   };
 
   const handleConnectWallet = async () => {
-    if (!isConnected) return;
+    if (!isConnected || !address || !chainId) {
+      alert('Please connect your wallet first');
+      return;
+    }
     setLoading(true);
     try {
       const nonceRes = await fetch(`${API_URL}/api/auth/nonce`, { credentials: 'include' });
@@ -304,7 +300,7 @@ function HeroSection({ onWaitlist }: { onWaitlist: () => void }) {
         '',
         `URI: ${window.location.origin}`,
         'Version: 1',
-        `Chain ID: ${11155111}`,
+        `Chain ID: ${chainId}`,
         `Nonce: ${nonce}`,
         `Issued At: ${new Date().toISOString()}`,
       ].join('\n');
@@ -1025,6 +1021,15 @@ export default function App() {
   const [waitlistOpen, setWaitlistOpen] = useState(false);
   const { address } = useAccount();
   const { user } = useAuth();
+
+  // Detect Google auth success from URL param and set localStorage
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('google_auth') === 'success') {
+      localStorage.setItem('w3c_google_auth', 'success');
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
 
   return (
     <Routes>

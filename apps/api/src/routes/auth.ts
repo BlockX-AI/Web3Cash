@@ -169,6 +169,7 @@ auth.get('/google/callback', async (c) => {
       path: '/',
     });
 
+    // Redirect with localStorage marker for cross-domain reliability
     return c.redirect(`${FRONTEND_URL}/?google_auth=success`);
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'unknown';
