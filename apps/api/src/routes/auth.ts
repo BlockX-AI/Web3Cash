@@ -84,6 +84,18 @@ auth.post('/logout', (c) => {
   return c.json({ success: true });
 });
 
+auth.get('/google/check', async (c) => {
+  const sessionId = getCookie(c, 'w3c_google_reg');
+  if (!sessionId) return c.json({ authenticated: false }, 401);
+
+  const googleSession = await prisma.oauthState.findUnique({ where: { state: sessionId } });
+  if (!googleSession || new Date() > googleSession.expiresAt) {
+    return c.json({ authenticated: false }, 401);
+  }
+
+  return c.json({ authenticated: true });
+});
+
 /* ────────────────────────────────────────────────────────────
    GOOGLE-FIRST REGISTRATION
    New user lands on homepage → clicks "Sign in with Google"

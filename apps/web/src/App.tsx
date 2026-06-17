@@ -262,18 +262,35 @@ function GoogleIcon() {
   );
 }
 
-function GoogleWalletLinkModal({ onClose }: { onClose: () => void }) {
-  const { address, chainId, isConnected } = useAccount();
-  const { signMessageAsync } = useSignMessage();
+function HeroSection({ onWaitlist }: { onWaitlist: () => void }) {
+  const { address, isConnected } = useAccount();
   const { signIn } = useAuth();
   const navigate = useNavigate();
+  const [googleAuthed, setGoogleAuthed] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const linkWallet = async () => {
-    if (!address || !chainId) { setError('Please connect your wallet first'); return; }
+  // Check if user has Google auth cookie
+  useEffect(() => {
+    const checkGoogleAuth = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/auth/google/check`, { credentials: 'include' });
+        if (res.ok) {
+          setGoogleAuthed(true);
+        }
+      } catch (err) {
+        // Not authed
+      }
+    };
+    checkGoogleAuth();
+  }, []);
+
+  const handleGoogleSignIn = () => {
+    window.location.href = `${API_URL}/api/auth/google/start`;
+  };
+
+  const handleConnectWallet = async () => {
+    if (!isConnected) return;
     setLoading(true);
-    setError(null);
     try {
       const nonceRes = await fetch(`${API_URL}/api/auth/nonce`, { credentials: 'include' });
       const { nonce } = await nonceRes.json();
@@ -286,11 +303,12 @@ function GoogleWalletLinkModal({ onClose }: { onClose: () => void }) {
         '',
         `URI: ${window.location.origin}`,
         'Version: 1',
-        `Chain ID: ${chainId}`,
+        `Chain ID: ${11155111}`,
         `Nonce: ${nonce}`,
         `Issued At: ${new Date().toISOString()}`,
       ].join('\n');
 
+      const { signMessageAsync } = await import('@wagmi/core');
       const signature = await signMessageAsync({ message: siweMessage });
 
       const res = await fetch(`${API_URL}/api/auth/google/link-wallet`, {
@@ -308,73 +326,16 @@ function GoogleWalletLinkModal({ onClose }: { onClose: () => void }) {
       });
 
       const data = await res.json();
-      if (!res.ok) { setError(data.error ?? 'Failed to link wallet'); return; }
+      if (!res.ok) throw new Error(data.error ?? 'Failed to link wallet');
 
       await signIn();
       navigate('/dashboard');
     } catch (err) {
-      if ((err as Error)?.message?.includes('User rejected')) {
-        setError('Signature cancelled');
-      } else {
-        setError(err instanceof Error ? err.message : 'Failed to link wallet');
-      }
+      console.error('Failed to connect wallet:', err);
+      alert(err instanceof Error ? err.message : 'Failed to connect wallet');
     } finally {
       setLoading(false);
     }
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
-        <div className="mb-5 text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#f0ebff]">
-            <GoogleIcon />
-          </div>
-          <h3 className="text-lg font-bold text-gray-900">Almost there!</h3>
-          <p className="mt-1.5 text-sm text-gray-500">
-            You're signed in with Google. Connect your wallet to complete registration and start earning USDC.
-          </p>
-        </div>
-
-        {!isConnected ? (
-          <ConnectButton.Custom>
-            {({ openConnectModal }) => (
-              <button
-                onClick={openConnectModal}
-                className="w-full rounded-full bg-black py-3 text-sm font-semibold text-white hover:bg-gray-800"
-              >
-                Connect Wallet
-              </button>
-            )}
-          </ConnectButton.Custom>
-        ) : (
-          <button
-            onClick={linkWallet}
-            disabled={loading}
-            className="w-full rounded-full bg-[#564c8c] py-3 text-sm font-semibold text-white hover:bg-[#3f3870] disabled:opacity-60"
-          >
-            {loading ? 'Signing in…' : 'Complete Registration'}
-          </button>
-        )}
-
-        {error && (
-          <p className="mt-3 rounded-xl bg-red-50 px-3 py-2 text-center text-xs text-red-600">{error}</p>
-        )}
-
-        <button
-          onClick={onClose}
-          className="mt-3 w-full text-center text-xs text-gray-400 hover:text-gray-600"
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function HeroSection({ onWaitlist }: { onWaitlist: () => void }) {
-  const handleGoogleSignIn = () => {
-    window.location.href = `${API_URL}/api/auth/google/start`;
   };
 
   return (
@@ -415,25 +376,37 @@ function HeroSection({ onWaitlist }: { onWaitlist: () => void }) {
           </h1>
 
           <div className="flex flex-col sm:flex-row items-start gap-3">
-            {/* Primary: Google sign-in */}
-            <button
-              onClick={handleGoogleSignIn}
-              className="inline-flex items-center gap-3 rounded-full bg-white border border-gray-200 py-2.5 pl-5 pr-5 text-base font-semibold text-gray-800 shadow-sm transition-all duration-200 hover:shadow-md hover:border-gray-300 md:text-lg"
-            >
-              <GoogleIcon />
-              <span>Sign up with Google</span>
-            </button>
-
-            {/* Secondary: Join waitlist */}
-            <button
-              onClick={onWaitlist}
-              className="inline-flex items-center gap-3 rounded-full bg-black py-2 pl-8 pr-2 text-base font-medium text-white transition-colors duration-200 hover:bg-gray-800 md:text-lg"
-            >
-              <span>Join us</span>
-              <span className="rounded-full bg-white p-2">
-                <ArrowRight className="h-5 w-5 text-black" aria-hidden="true" />
-              </span>
-            </button>
+            {!googleAuthed ? (
+              // Step 1: Google auth (mandatory)
+              <button
+                onClick={handleGoogleSignIn}
+                className="inline-flex items-center gap-3 rounded-full bg-white border border-gray-200 py-2.5 pl-5 pr-5 text-base font-semibold text-gray-800 shadow-sm transition-all duration-200 hover:shadow-md hover:border-gray-300 md:text-lg"
+              >
+                <GoogleIcon />
+                <span>Sign in with Google</span>
+              </button>
+            ) : !isConnected ? (
+              // Step 2: Connect wallet (after Google auth)
+              <ConnectButton.Custom>
+                {({ openConnectModal }) => (
+                  <button
+                    onClick={openConnectModal}
+                    className="inline-flex items-center gap-3 rounded-full bg-black py-2.5 pl-5 pr-5 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:bg-gray-800 md:text-lg"
+                  >
+                    <span>Connect Wallet</span>
+                  </button>
+                )}
+              </ConnectButton.Custom>
+            ) : (
+              // Step 3: Complete registration
+              <button
+                onClick={handleConnectWallet}
+                disabled={loading}
+                className="inline-flex items-center gap-3 rounded-full bg-[#564c8c] py-2.5 pl-5 pr-5 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#3f3870] disabled:opacity-60 md:text-lg"
+              >
+                {loading ? 'Connecting...' : 'Complete Registration'}
+              </button>
+            )}
           </div>
 
         </div>
@@ -1050,18 +1023,8 @@ function LiveQuestsSection() {
 
 export default function App() {
   const [waitlistOpen, setWaitlistOpen] = useState(false);
-  const [googleLinkOpen, setGoogleLinkOpen] = useState(false);
   const { address } = useAccount();
   const { user } = useAuth();
-
-  // Detect Google auth success from URL param
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('google_auth') === 'success') {
-      setGoogleLinkOpen(true);
-      window.history.replaceState({}, '', window.location.pathname);
-    }
-  }, []);
 
   return (
     <Routes>
@@ -1084,7 +1047,6 @@ export default function App() {
                 onClose={() => setWaitlistOpen(false)}
                 prefillWallet={address}
               />
-              {googleLinkOpen && <GoogleWalletLinkModal onClose={() => setGoogleLinkOpen(false)} />}
               <div className="flex h-screen flex-col overflow-hidden bg-[#F5F5F5]">
                 <Navbar onWaitlist={() => setWaitlistOpen(true)} />
                 <HeroSection onWaitlist={() => setWaitlistOpen(true)} />
