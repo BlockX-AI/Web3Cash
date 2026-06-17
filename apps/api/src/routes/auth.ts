@@ -161,16 +161,8 @@ auth.get('/google/callback', async (c) => {
       },
     });
 
-    setCookie(c, 'w3c_google_reg', sessionId, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'None',
-      maxAge: 10 * 60,
-      path: '/',
-    });
-
-    // Redirect with localStorage marker for cross-domain reliability
-    return c.redirect(`${FRONTEND_URL}/?google_auth=success`);
+    // Return session ID in URL hash for localStorage (no cookies for cross-domain)
+    return c.redirect(`${FRONTEND_URL}/#google_session=${sessionId}`);
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'unknown';
     return c.redirect(`${FRONTEND_URL}/?error=google_failed&detail=${encodeURIComponent(msg)}`);
@@ -179,7 +171,7 @@ auth.get('/google/callback', async (c) => {
 
 auth.post('/google/link-wallet', async (c) => {
   try {
-    const { message, signature, offer18ClickId, offer18AffId, offer18OfferId, referredByCode } =
+    const { message, signature, offer18ClickId, offer18AffId, offer18OfferId, referredByCode, googleSessionId } =
       await c.req.json<{
         message: string;
         signature: string;
@@ -187,12 +179,12 @@ auth.post('/google/link-wallet', async (c) => {
         offer18AffId?: string;
         offer18OfferId?: string;
         referredByCode?: string;
+        googleSessionId?: string;
       }>();
 
-    const sessionId = getCookie(c, 'w3c_google_reg');
-    if (!sessionId) return c.json({ error: 'No Google session — please sign in with Google again' }, 400);
+    if (!googleSessionId) return c.json({ error: 'No Google session — please sign in with Google again' }, 400);
 
-    const googleSession = await prisma.oauthState.findUnique({ where: { state: sessionId } });
+    const googleSession = await prisma.oauthState.findUnique({ where: { state: googleSessionId } });
     if (!googleSession || new Date() > googleSession.expiresAt) {
       return c.json({ error: 'Google session expired — please sign in with Google again' }, 400);
     }
@@ -223,8 +215,7 @@ auth.post('/google/link-wallet', async (c) => {
 
     const token = await signSession({ sub: user.walletAddress, chainId: user.chainId });
 
-    await prisma.oauthState.delete({ where: { state: sessionId } });
-    deleteCookie(c, 'w3c_google_reg', { path: '/' });
+    await prisma.oauthState.delete({ where: { state: googleSessionId } });
 
     setCookie(c, 'w3c_session', token, {
       httpOnly: true,

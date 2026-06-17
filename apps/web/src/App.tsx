@@ -270,10 +270,10 @@ function HeroSection({ onWaitlist }: { onWaitlist: () => void }) {
   const [googleAuthed, setGoogleAuthed] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Check if user has Google auth (using localStorage for cross-domain reliability)
+  // Check if user has Google session (using localStorage for cross-domain reliability)
   useEffect(() => {
-    const googleAuth = localStorage.getItem('w3c_google_auth');
-    if (googleAuth === 'success') {
+    const googleSession = localStorage.getItem('w3c_google_session');
+    if (googleSession) {
       setGoogleAuthed(true);
     }
   }, []);
@@ -307,6 +307,11 @@ function HeroSection({ onWaitlist }: { onWaitlist: () => void }) {
 
       const signature = await signMessageAsync({ message: siweMessage });
 
+      const googleSessionId = localStorage.getItem('w3c_google_session');
+      if (!googleSessionId) {
+        throw new Error('No Google session — please sign in with Google again');
+      }
+
       const res = await fetch(`${API_URL}/api/auth/google/link-wallet`, {
         method: 'POST',
         credentials: 'include',
@@ -314,6 +319,7 @@ function HeroSection({ onWaitlist }: { onWaitlist: () => void }) {
         body: JSON.stringify({
           message: siweMessage,
           signature,
+          googleSessionId,
           offer18ClickId: localStorage.getItem('o18_click_id') ?? undefined,
           offer18AffId: localStorage.getItem('o18_aff_id') ?? undefined,
           offer18OfferId: localStorage.getItem('o18_offer_id') ?? undefined,
@@ -324,6 +330,7 @@ function HeroSection({ onWaitlist }: { onWaitlist: () => void }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? 'Failed to link wallet');
 
+      localStorage.removeItem('w3c_google_session');
       await signIn();
       navigate('/dashboard');
     } catch (err) {
@@ -1022,11 +1029,13 @@ export default function App() {
   const { address } = useAccount();
   const { user } = useAuth();
 
-  // Detect Google auth success from URL param and set localStorage
+  // Detect Google auth success from URL hash and store session ID
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('google_auth') === 'success') {
-      localStorage.setItem('w3c_google_auth', 'success');
+    const hash = window.location.hash;
+    const match = hash.match(/google_session=([^&]+)/);
+    if (match) {
+      const sessionId = match[1];
+      localStorage.setItem('w3c_google_session', sessionId);
       window.history.replaceState({}, '', window.location.pathname);
     }
   }, []);
