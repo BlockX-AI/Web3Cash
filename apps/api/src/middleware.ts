@@ -3,8 +3,24 @@ import { getCookie } from 'hono/cookie';
 import { verifySession } from '@web3cash/auth';
 import { prisma } from '@web3cash/db';
 
+/**
+ * Extract the session JWT from either the Authorization: Bearer header
+ * (primary — survives the cross-domain Vercel↔Railway split where cookies
+ * are dropped) or the legacy w3c_session cookie, or a ?token= query param
+ * (used by OAuth redirect flows that can't send headers).
+ */
+export function getSessionToken(c: Context): string | null {
+  const authHeader = c.req.header('authorization') ?? c.req.header('Authorization');
+  if (authHeader && authHeader.toLowerCase().startsWith('bearer ')) {
+    return authHeader.slice(7).trim();
+  }
+  const queryToken = c.req.query('token');
+  if (queryToken) return queryToken;
+  return getCookie(c, 'w3c_session') ?? null;
+}
+
 export async function requireAuth(c: Context, next: Next) {
-  const token = getCookie(c, 'w3c_session');
+  const token = getSessionToken(c);
   if (!token) return c.json({ error: 'Unauthorized' }, 401);
   const claims = await verifySession(token);
   if (!claims) return c.json({ error: 'Unauthorized' }, 401);

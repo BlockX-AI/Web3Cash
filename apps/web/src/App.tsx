@@ -1,6 +1,7 @@
 import { ArrowRight, Wallet, LogOut, Zap, Menu, X } from 'lucide-react';
 import Dashboard from './Dashboard';
 import AdminDashboard from './AdminDashboard';
+import Login from './Login';
 import React, { useEffect, useState, useRef } from "react";
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import "./badge.css";

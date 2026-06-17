@@ -4,6 +4,7 @@ import { issueNonce, verifySiwe, signSession, verifySession, upsertUserOnLogin }
 import { prisma } from '@web3cash/db';
 import { firePostback } from '@web3cash/offer18';
 import { scheduleComputeSybilScore } from '../lib/queues.js';
+import { getSessionToken } from '../middleware.js';
 import { google } from '@web3cash/oauth';
 import { randomBytes } from 'crypto';
 
@@ -47,21 +48,23 @@ auth.post('/verify', async (c) => {
       });
     }
     const token = await signSession({ sub: user.walletAddress, chainId: user.chainId });
+    // Cookie kept for same-origin/local dev; the token is also returned in the
+    // body so the cross-domain (Vercel↔Railway) frontend can use Bearer auth.
     setCookie(c, 'w3c_session', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'Lax',
+      sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
       maxAge: 7 * 24 * 3600,
       path: '/',
     });
-    return c.json({ success: true, walletAddress: user.walletAddress });
+    return c.json({ success: true, walletAddress: user.walletAddress, token });
   } catch (err) {
     return c.json({ error: err instanceof Error ? err.message : 'Verification failed' }, 401);
   }
 });
 
 auth.get('/me', async (c) => {
-  const token = getCookie(c, 'w3c_session');
+  const token = getSessionToken(c);
   if (!token) return c.json({ error: 'Unauthorized' }, 401);
   const claims = await verifySession(token);
   if (!claims) return c.json({ error: 'Unauthorized' }, 401);
@@ -220,7 +223,7 @@ auth.post('/google/link-wallet', async (c) => {
     setCookie(c, 'w3c_session', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'Lax',
+      sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
       maxAge: 7 * 24 * 3600,
       path: '/',
     });

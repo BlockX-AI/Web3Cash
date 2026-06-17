@@ -1,9 +1,35 @@
 const BASE = import.meta.env.VITE_API_URL ?? 'https://webcash-production.up.railway.app';
 
+/* ── Session token (Bearer) ───────────────────────────────────────────────
+   Frontend (Vercel) and API (Railway) live on different domains, so the
+   httpOnly session cookie is dropped on cross-site requests. We therefore
+   carry the JWT ourselves in localStorage and attach it as a Bearer header. */
+
+const TOKEN_KEY = 'w3c_token';
+
+export function getToken(): string | null {
+  return localStorage.getItem(TOKEN_KEY);
+}
+export function setToken(token: string): void {
+  localStorage.setItem(TOKEN_KEY, token);
+}
+export function clearToken(): void {
+  localStorage.removeItem(TOKEN_KEY);
+}
+
+function authHeaders(extra?: HeadersInit): HeadersInit {
+  const token = getToken();
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...extra,
+  };
+}
+
 async function req<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
     credentials: 'include',
-    headers: { 'Content-Type': 'application/json', ...init?.headers },
+    headers: authHeaders(init?.headers),
     ...init,
   });
   if (!res.ok) {
@@ -16,7 +42,7 @@ async function req<T>(path: string, init?: RequestInit): Promise<T> {
 async function optionalReq<T>(path: string, init?: RequestInit): Promise<T | null> {
   const res = await fetch(`${BASE}${path}`, {
     credentials: 'include',
-    headers: { 'Content-Type': 'application/json', ...init?.headers },
+    headers: authHeaders(init?.headers),
     ...init,
   });
   if (res.status === 401) return null;
@@ -116,7 +142,7 @@ export const authApi = {
       offer18OfferId,
       referredByCode,
     });
-    return api.post<{ success: boolean; walletAddress: string }>('/api/auth/verify', {
+    return api.post<{ success: boolean; walletAddress: string; token: string }>('/api/auth/verify', {
       message,
       signature,
       ...(offer18ClickId  && { offer18ClickId }),
@@ -126,7 +152,14 @@ export const authApi = {
     });
   },
   me:     () => optionalReq<AuthUser>('/api/auth/me', { method: 'GET' }),
-  logout: () => api.post<{ success: boolean }>('/api/auth/logout'),
+  logout: async () => {
+    try {
+      await api.post<{ success: boolean }>('/api/auth/logout');
+    } finally {
+      clearToken();
+    }
+    return { success: true };
+  },
 };
 
 export const questsApi = {

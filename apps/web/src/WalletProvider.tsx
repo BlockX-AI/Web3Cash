@@ -9,7 +9,7 @@ import { WagmiProvider, useAccount, useSignMessage, http } from 'wagmi';
 import { mainnet } from 'wagmi/chains';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createSiweMessage } from 'viem/siwe';
-import { authApi, type AuthUser } from './api';
+import { authApi, setToken, getToken, type AuthUser } from './api';
 
 /* ── wagmi config ───────────────────────────────────────────────────────── */
 
@@ -47,6 +47,7 @@ interface AuthCtx {
   error: string | null;
   signIn: () => Promise<void>;
   signOut: () => Promise<void>;
+  refreshUser: () => Promise<AuthUser | null>;
 }
 
 const AuthContext = createContext<AuthCtx>({
@@ -55,6 +56,7 @@ const AuthContext = createContext<AuthCtx>({
   error: null,
   signIn: async () => {},
   signOut: async () => {},
+  refreshUser: async () => null,
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -86,6 +88,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
       const signature = await signMessageAsync({ message });
       const result = await authApi.verify(message, signature);
       if (result.success) {
+        if (result.token) setToken(result.token);
         const me = await authApi.me();
         setUser(me);
       }
@@ -103,17 +106,29 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     setError(null);
   }, []);
 
-  // Check for existing session on mount (cookie-based restore)
-  useEffect(() => {
-    authApi.me().then(setUser).catch(() => setUser(null));
+  // Fetch the current user using the stored token. Returns the user (or null).
+  const refreshUser = useCallback(async () => {
+    if (!getToken()) {
+      setUser(null);
+      return null;
+    }
+    try {
+      const me = await authApi.me();
+      setUser(me);
+      return me;
+    } catch {
+      setUser(null);
+      return null;
+    }
   }, []);
 
+  // Restore session on mount from the stored Bearer token.
   useEffect(() => {
-    if (!isConnected) setUser(null);
-  }, [isConnected]);
+    refreshUser();
+  }, [refreshUser]);
 
   return (
-    <AuthContext.Provider value={{ user, loading, error, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, loading, error, signIn, signOut, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
