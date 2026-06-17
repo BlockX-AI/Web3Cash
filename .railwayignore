@@ -22,8 +22,6 @@ coverage/
 # Frontend apps — deployed to Vercel, not needed on Railway
 apps/web/
 apps/admin/
-# Contracts — not needed at runtime
-packages/contracts/
 # Design files
 New-project/
 minimal-frontend-new/

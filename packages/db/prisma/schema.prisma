@@ -29,6 +29,7 @@ enum SocialPlatform {
   DISCORD
   GITHUB
   TELEGRAM
+  GOOGLE
 }
 
 enum KycStatus {
