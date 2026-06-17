@@ -15,7 +15,7 @@
     "generate": "dotenv -e ../../.env -- prisma generate",
     "migrate": "dotenv -e ../../.env -- prisma migrate dev",
     "migrate:deploy": "dotenv -e ../../.env -- prisma migrate deploy",
-    "migrate:deploy:prod": "prisma migrate deploy",
+    "migrate:deploy:prod": "prisma migrate resolve --rolled-back 20250617_add_google_to_social_platform 2>/dev/null; prisma migrate deploy",
     "studio": "dotenv -e ../../.env -- prisma studio",
     "seed": "dotenv -e ../../.env -- tsx src/seed.ts",
     "format-schema": "prisma format"

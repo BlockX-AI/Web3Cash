@@ -5,7 +5,7 @@
     "buildCommand": "pnpm install --frozen-lockfile && cd packages/db && pnpm run generate && cd ../../apps/api && pnpm run build && cd ../worker && pnpm run build"
   },
   "deploy": {
-    "startCommand": "cd packages/db && npx prisma migrate resolve --rolled-back 20250617_add_google_to_social_platform 2>/dev/null || true && pnpm run migrate:deploy:prod && cd ../../apps/api && pnpm run start:prod",
+    "startCommand": "cd packages/db && pnpm run migrate:deploy:prod && cd ../../apps/api && pnpm run start:prod",
     "healthcheckPath": "/api/health",
     "healthcheckTimeout": 300,
     "restartPolicyType": "ON_FAILURE",
