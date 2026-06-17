@@ -265,6 +265,7 @@ function GoogleIcon() {
 function HeroSection({ onWaitlist }: { onWaitlist: () => void }) {
   const { address, isConnected } = useAccount();
   const { signIn } = useAuth();
+  const { signMessageAsync } = useSignMessage();
   const navigate = useNavigate();
   const [googleAuthed, setGoogleAuthed] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -308,7 +309,6 @@ function HeroSection({ onWaitlist }: { onWaitlist: () => void }) {
         `Issued At: ${new Date().toISOString()}`,
       ].join('\n');
 
-      const { signMessageAsync } = await import('@wagmi/core');
       const signature = await signMessageAsync({ message: siweMessage });
 
       const res = await fetch(`${API_URL}/api/auth/google/link-wallet`, {
